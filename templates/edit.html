@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit Contacts</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>Edit Contact</h1>
+    <form method="post" enctype="multipart/form-data">
+        <label for="name">Name: </label>
+        <input type="text" name="name" value="{{contact[1]}}" required><br>
+        <label for="phone">Phone: </label>
+        <input type="text" name="phone" value="{{contact[2]}}"><br>
+        <label for="email">Email:</label>
+        <input type="email" name="email" value="{{contact[3]}}"><br>
+        <label for="address">Address:</label>
+        <input type="text" name="address" value="{{contact[4]}}"><br>
+
+        <label>Insert Photo:</label>
+        <input type="file" name="image"><br>
+
+        {% if contact[5] %}
+            <img src="{{ url_for('static', filename='uploads/' + contact[5]) }}" width="100" alt="image photo">
+        {% endif %}
+
+        <button type="submit">Update</button>
+    </form>
+    <a href="/">Back</a>
+</body>

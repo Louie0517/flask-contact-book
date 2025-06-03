@@ -1,0 +1,12 @@
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Ignore SQLite database file (auto-created)
+contacts.db
+
+# Ignore uploaded photos (optional)
+static/uploads/
+
+# Ignore environment variable files (if any)
+.env
