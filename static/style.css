@@ -1,0 +1,163 @@
+.body {
+    padding: 20px;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: rgb(215, 207, 223);
+    overflow-x: auto;
+    -ms-overflow-style: none;
+}
+
+body::-webkit-scrollbar {
+    display: none;
+}
+
+
+.display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: blueviolet;
+    width: 73vw;
+    height: 60px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding-left: 30px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-size: 40px;
+    padding: 10px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.table-border {
+    background-color: rgb(206, 175, 232);
+    padding: 20px;
+    top: 70px;
+    right: 10px;
+    bottom: 50px;
+    position: absolute;
+    margin: 0 auto;
+    width: fit-content;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    max-height: calc(100vh - 121px);
+    z-index: 10;
+}
+
+.table-border table {
+   text-align: center;
+   margin-left: auto;
+   margin-top: 5px;
+   border-collapse: collapse;
+   width: 70vw;
+   margin-bottom: 50%;
+}
+
+.table-border tr td {
+    border-style: hidden;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: rgb(127, 100, 153);
+    color: white;
+}
+
+tbody tr:nth-child(even) {
+    background-color: rgb(98, 75, 119);
+    color: white;
+}
+
+#info {
+    white-space: nowrap;
+    text-align: center;
+    text-transform: capitalize;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+#email {
+    white-space: nowrap;
+    text-align: justify;
+    text-transform: capitalize;
+    padding-left: 5%;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+thead {
+    border-top: none;
+    outline: none;
+}
+
+#add-header {
+    background-color: rgb(200, 194, 194);
+    color: white;
+    border: transparent;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+#contact-img {
+    border-radius: 60px;
+    width: 58px;
+    height: 60px;
+    object-fit: cover;
+}
+
+#add-button {
+    position: fixed;
+    bottom: 20px;
+    right: 30px;
+    z-index: 11;
+}
+
+#add-button button {
+    border-radius: 90px;
+    height: 67px;
+    outline: none;
+    border-color: transparent;
+    background-color: rgb(180, 102, 239);
+    color: white;
+    cursor: pointer;
+}
+
+#add-button button:hover {
+    background-color: rgb(159, 88, 213);
+}
+
+
+#add-button i {
+    font-size: 50px;
+    border-radius: 2em;
+}
+
+#add-delete {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#action {
+    color: white;
+    font-size: 1.8em;
+    cursor: pointer;
+}
+
+#action:hover {
+    color: rgb(225, 215, 215);
+}

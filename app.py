@@ -29,10 +29,17 @@ def database_init():
 def list_contacts():
     con = sqlite3.connect("contacts.db")
     c = con.cursor()
-    c.execute("SELECT * FROM contacts")
+    
+    search_contact_number = request.args.get("search")
+    if search_contact_number:
+        c.execute("SELECT * FROM contacts WHERE phone LIKE ?", ('%' + search_contact_number + '%',))
+    else:
+       c.execute("SELECT * FROM contacts")
+       
     contacts = c.fetchall()
+    contact_count = len(contacts)
     con.close()
-    return render_template("index.html", contacts=contacts)
+    return render_template("index.html", contacts=contacts, contact_count=contact_count, search = search_contact_number)
 
 @app.route("/add", methods=["GET", "POST"])
 def add_contact():
@@ -41,6 +48,9 @@ def add_contact():
         phone = request.form["phone"]
         email = request.form["email"]
         address = request.form["address"]
+        
+        if not phone.isdigit() or len(phone) != 10:
+            return render_template("add.html", error="Phone number must be exactly 10 digits.")
         
         #SELECT IF SAME EMAIL IN DATABASE
         con = sqlite3.connect("contacts.db")
