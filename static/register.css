@@ -1,0 +1,127 @@
+body {
+    background-image: url("/static/image/register-bg.jpg");
+    background-size: cover;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.right-bg {
+    position: absolute;
+    right: 0;
+    top: 0;
+    right: -10%;
+    width: 45vw;
+    height: 100vh;
+    background-color: rgb(241, 236, 245);
+    border-radius: 2.5em;
+    z-index: -1;
+}
+
+#get-started {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    left: 75%;
+    top: 15%;
+    transform: translate(0%, -20%);
+    width: 200px;
+    height: 100px;
+}
+
+#get-started p {
+    color: black;
+    text-align: center;
+    font-size: 40px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+
+.register-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.register-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 300px;
+    position: absolute;
+    right: 5%;
+    top: 27%;
+}
+
+.register-form input, button {
+    height: 40px;
+    border-radius: 1em;
+    background-color: transparent;
+    border: solid 1px gray;
+}
+
+#owner-photo {
+    border: none;
+}
+
+#create-button {
+    background-color: rgb(101, 32, 165);
+    color: white;
+    height: 50px;
+    font-size: 15px;
+
+}
+
+#create-button:active {
+    background-color: rgb(72, 38, 104);
+}
+
+
+
+label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+#remember-me {
+    width: 15px;
+    accent-color: rgb(109, 24, 189);
+}
+
+.register-form p, a {
+    text-align: center;
+}
+
+
+.register-form p {
+    position: relative;
+    top: -15px;
+    right: 10%;
+}
+
+.register-form a {
+    position: relative;
+    top: -60px;
+    left: 26%;
+    color: rgb(109, 24, 189);
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.register-form a:hover {
+    text-decoration: underline;
+}
+
+#insert {
+    display: flex;
+    align-items: center;
+    gap: 23%;
+    flex-direction: row;
+    white-space: nowrap;
+}

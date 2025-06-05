@@ -1,9 +1,20 @@
-from flask import Flask, render_template, request, url_for, redirect
+from flask import Flask, render_template, request, url_for, redirect, session, make_response
 from werkzeug.utils import secure_filename
+from pathlib import Path
+import secrets
 import sqlite3
 import os
 
 app = Flask(__name__)
+
+SECRETE_FILE_PATH =  Path(".flask_secret")
+try:
+    with SECRETE_FILE_PATH.open('r') as secret_file:
+        app.secrete_key = secret_file.read()
+except FileNotFoundError:
+    with SECRETE_FILE_PATH.open('w') as secret_file:
+        app.secret_key = secrets.token_hex(32)
+        secret_file.write(app.secret_key)
 
 UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -24,9 +35,87 @@ def database_init():
     """)
     con.commit()
     con.close()
+    
+database_init()
+# USER ACCOUNT 
+@app.route("/register", methods=["GET", "POST"])
+def register_account():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        
+        owner_image = request.files["image"]
+        if owner_image and owner_image.filename != "":
+            filename = secure_filename(owner_image.filename)
+            image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            owner_image.save(image_path)
+            
+        else:
+            filename = None
+        
+        try:
+            with sqlite3.connect("contacts.db") as con:
+                con.execute("INSERT INTO owners (username, password, image) VALUES (?, ?, ?)", (username, password, filename))
+                con.commit()
+                con.close()
+            return redirect(url_for("login"))
+        except sqlite3.IntegrityError:
+                return render_template("register.html", error="Username already exists.")
+                
+    return render_template("register.html")
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        remember = "request" in request.form
+        
+        with sqlite3.connect("contacts.db") as con:
+            user = con.execute("SELECT * FROM owners WHERE username=? AND password=?", (username, password)).fetchone()
+            if user:
+                session["user_id"] = user[0]
+                session["username"] = user[1]
+                resp = make_response(redirect(url_for("list_contacts")))
+                if remember:
+                    resp.set_cookie("remember_user", username, max_age=60*60*24*30)
+                    return resp
+            else:
+                error = "Invalid username and password"
+                
+    return render_template("login.html", error=error)
+    
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("register_account"))
+
+@app.route("/edit_account", methods=["GET", "POST"])
+def edit_account():
+    if "user_id" not in session:
+        return redirect(url_for("register_account"))
+    
+    if request.method == "POST":
+        new_username = request.form["username"]
+        new_password  = request.form["password"]
+        
+        with sqlite3.connect["contacts.db"] as con:
+            con.execute("UPDATE users SET username=? AND password=? WHERE id=?", (new_username, new_password, session["user_id"]))
+            
+@app.route("/delete_account")
+def delete_account():
+    if "user_id" in session:
+        with sqlite3.connect["contacts.db"] as con:
+            con.execute("DELETE FROM users WHERE id=?", (session["user_id"],))
+        session.clear()
+    return redirect(url_for("register_account"))
+
+# HOME PAGE
 @app.route("/")
 def list_contacts():
+    if "user_id" not in session:
+        return redirect(url_for("register_account"))
+    
     con = sqlite3.connect("contacts.db")
     c = con.cursor()
     
