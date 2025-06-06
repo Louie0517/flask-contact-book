@@ -1,17 +1,17 @@
+/* Base Styles */
 body {
     background-image: url("/static/image/register-bg.jpg");
     background-size: cover;
     background-attachment: fixed;
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 .right-bg {
     position: absolute;
-    right: 0;
-    top: 0;
     right: -10%;
+    top: 0;
     width: 45vw;
     height: 100vh;
     background-color: rgb(241, 236, 245);
@@ -26,37 +26,35 @@ body {
     align-items: center;
     left: 75%;
     top: 15%;
-    transform: translate(0%, -20%);
     width: 200px;
     height: 100px;
+    transform: translate(0%, -20%);
 }
 
 #get-started p {
     color: black;
     text-align: center;
-    font-size: 40px;
+    font-size: 2rem;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
-
 
 .register-form {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
     align-items: center;
+    padding: 2rem;
 }
 
 .register-form form {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: 300px;
-    position: absolute;
-    right: 5%;
-    top: 27%;
+    width: 90%;
+    max-width: 300px;
 }
 
-.register-form input, button {
+.register-form input,
+button {
     height: 40px;
     border-radius: 1em;
     background-color: transparent;
@@ -71,15 +69,12 @@ body {
     background-color: rgb(101, 32, 165);
     color: white;
     height: 50px;
-    font-size: 15px;
-
+    font-size: 1rem;
 }
 
 #create-button:active {
     background-color: rgb(72, 38, 104);
 }
-
-
 
 label {
     display: flex;
@@ -93,25 +88,20 @@ label {
     accent-color: rgb(109, 24, 189);
 }
 
-.register-form p, a {
+.register-form p,
+.register-form a {
     text-align: center;
 }
 
-
 .register-form p {
-    position: relative;
-    top: -15px;
-    right: 10%;
+    margin-top: 0.5rem;
 }
 
 .register-form a {
-    position: relative;
-    top: -60px;
-    left: 26%;
     color: rgb(109, 24, 189);
     text-decoration: none;
     font-weight: bold;
-    font-size: 15px;
+    font-size: 0.95rem;
 }
 
 .register-form a:hover {
@@ -121,7 +111,167 @@ label {
 #insert {
     display: flex;
     align-items: center;
-    gap: 23%;
-    flex-direction: row;
-    white-space: nowrap;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* Medium devices (tablets) */
+@media (max-width: 991px) {
+    .right-bg {
+        width: 76vw;
+        right: -20%;
+    }
+
+    #get-started {
+        left: 60%;
+    }
+
+    .register-form form {
+        position: absolute;
+        top: 27%;
+        left: 55%;
+    }
+
+    .register-form i {
+        position: relative;
+        right: 2;
+    }
+
+    .register-form #insert-img {
+        position: static;
+        margin-top: 14%;
+    }
+
+    #have-acc {
+        position: absolute;
+        left: 14%;
+        top: 98%;
+    }
+
+    .register-form a {
+        position: absolute;
+        left: 72%;
+        top: 101%;
+
+    }
+}
+
+/*okay na*/
+@media (max-width: 767px) {
+    .right-bg {
+        width: 80vw;
+    }
+
+
+    #get-started {
+        position: relative;
+        left: 20%;
+        top: 5em;
+        transform: none;
+        margin: 2rem auto;
+    }
+
+    #get-started p {
+        font-size: 1.75rem;
+    }
+
+    .register-form form {
+        width: 100%;
+        max-width: 300px;
+        position: static;
+    }
+
+    .register-form input {
+        width: 72%;
+        height: 2.7em;
+        position: relative;
+        left: 54%;
+    }
+
+    #insert {
+        display: flex;
+        align-items: center;
+        
+    }
+
+    #label-uxp {
+        position: relative;
+        left: 54%;
+    }
+
+    #insert label {
+        display: flex;
+        align-items: center;
+        position: relative;
+        align-items: center;
+        left: 6rem; 
+        font-size: 14px;
+    }
+
+    #insert i {
+        display: flex;
+        position: relative;
+        right: 21%;
+    }
+
+    #insert #insert-img{
+        position:sticky;
+        white-space: nowrap;
+        right: 16%;
+        margin-top: 12%;
+    }
+
+    #remember-me {
+        position: relative;
+        left: auto;
+        margin-left: 4rem;
+
+    }
+
+    #create-button {
+        height: 2.9em;
+        width: 72%;
+        position: relative;
+        left: 54%;
+    }
+
+    .register-form #have-acc {
+        position: absolute;
+       
+        font-size: 15px;
+        left: 54%;
+        top: 70%;
+    }
+
+    .register-form a {
+
+        position: absolute;
+        font-size: 14px;
+        left: 83%;
+        top: 71.4%;
+    }
+
+    body {
+        overflow-x: hidden;
+    }
+}
+
+
+@media (max-width: 480px) {
+
+
+    #get-started p {
+        font-size: 1.5rem;
+    }
+
+    #create-button {
+        font-size: 0.9rem;
+        height: 45px;
+    }
+
+    #insert {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 }

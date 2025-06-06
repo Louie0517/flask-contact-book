@@ -14,23 +14,24 @@
         </div>
     <div class="register-form">
         <form action="post" enctype="multipart/form-data" autocomplete="off">
-            <label for="username">username</label>
-            <input type="text" name="owner-username" id="register-username" required>
+            <label id="label-uxp" for="username">username</label>
+            <input  type="text" name="owner-username" id="register-username" required>
 
-            <label for="password">password</label>
+            <label id="label-uxp" for="password">password</label>
             <input type="text" name="owner-password" id="register-password" required>
 
             <div id="insert">
                 <label for="remember">
                     <input type="checkbox" name="remember-me" id="remember-me">Remember me
                 </label>
-                <label for="owner-photo"><i class="fas fa-paperclip"></i>Insert photo</label>
+                
+                     <label for="owner-photo"><i class="fas fa-paperclip"></i><p id="insert-img">Insert photo</p></label>
+                
                 <input type="file" name="owner-photo" id="owner-photo" style="display: none;" required>
             </div>
              
-
             <button type="submit" id="create-button">Create account</button>
-            <p>Already have an account?</p><a href="login.html">Login</a>
+            <p id="have-acc">Already have an account?</p><a href="login.html">Login</a>
 
         </form>
         {% if error %}
