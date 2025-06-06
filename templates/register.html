@@ -31,7 +31,7 @@
             </div>
              
             <button type="submit" id="create-button">Create account</button>
-            <p id="have-acc">Already have an account?</p><a href="login.html">Login</a>
+            <p id="have-acc">Already have an account?</p><a href="{{ url_for('login')}}">Login</a>
 
         </form>
         {% if error %}

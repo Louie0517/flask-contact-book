@@ -51,6 +51,7 @@ body {
     gap: 10px;
     width: 90%;
     max-width: 300px;
+    
 }
 
 .register-form input,
@@ -116,8 +117,29 @@ label {
     gap: 1rem;
 }
 
+@media (min-width: 1024px) {
+    .register-form form {
+        position: absolute;
+        top: 28%;
+        left: 72%;
+    }
+
+    #have-acc {
+        position: absolute;
+        top: 100%;
+        left: 20%;
+    }
+
+    .register-form a {
+        position: absolute;
+        bottom: -10%;
+        left: 77%;
+    }
+    
+}
+
 /* Medium devices (tablets) */
-@media (max-width: 991px) {
+@media (max-width: 991px) and (min-width: 800px){
     .right-bg {
         width: 76vw;
         right: -20%;
@@ -160,7 +182,7 @@ label {
 /*okay na*/
 @media (max-width: 767px) {
     .right-bg {
-        width: 80vw;
+        width: 75vw;
     }
 
 
