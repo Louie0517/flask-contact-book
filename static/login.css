@@ -1,0 +1,15 @@
+body{
+    overflow: hidden;
+}
+
+#center-bg {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    left: 30%;
+    width: 70vw;
+    height: 80vh;
+    background-color: blue;
+    z-index: -1;
+}
