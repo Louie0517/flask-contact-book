@@ -14,7 +14,7 @@ body {
     top: 0;
     width: 45vw;
     height: 100vh;
-    background-color: rgb(241, 236, 245);
+    background-color: white;
     border-radius: 2.5em;
     z-index: -1;
 }
@@ -54,12 +54,20 @@ body {
     
 }
 
+.register-form input {
+    border: solid 2px rgb(193, 59, 200);
+}
+
+.register-form button {
+    outline: none;
+    border: none;
+}
+
 .register-form input,
 button {
     height: 40px;
     border-radius: 1em;
     background-color: transparent;
-    border: solid 1px gray;
 }
 
 #owner-photo {
@@ -102,11 +110,16 @@ label {
     color: rgb(109, 24, 189);
     text-decoration: none;
     font-weight: bold;
+    margin-bottom: 0.5%;
     font-size: 0.95rem;
 }
 
 .register-form a:hover {
     text-decoration: underline;
+}
+
+.register-form i {
+    color: blueviolet;
 }
 
 #insert {
@@ -115,6 +128,11 @@ label {
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 1rem;
+}
+
+#label-uxp {
+    font-family: sans-serif;
+
 }
 
 @media (min-width: 1024px) {
@@ -134,6 +152,17 @@ label {
         position: absolute;
         bottom: -10%;
         left: 77%;
+    }
+
+    .register-form i {
+        position: absolute;
+        right: 29%;
+    }
+
+    #insert-img {
+        position: absolute;
+        left: 73%;
+        top: 63%;
     }
     
 }
@@ -174,7 +203,7 @@ label {
     .register-form a {
         position: absolute;
         left: 72%;
-        top: 101%;
+        top: 101.5%;
 
     }
 }

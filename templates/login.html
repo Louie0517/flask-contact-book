@@ -8,18 +8,25 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
 </head>
 <body> 
-    <div id="login-text">
-        <p>Login</p>
+    <div class="login-text">
+        <p id="hello-text">Hello there! <br>Welcome Back</p>
     </div>
-    <div id="center-bg"></div>
     <div class="login-form">
         <form action="post" autocomplete="off">
-            <label id="username" for="username">username</label>
-            <input type="text" required>
-            <label id="password" for="password">password</label>
-            <input type="text" required>
-            <button id="login-button" type="submit">Login</button>
+            <div class="input-identity">
+                <i id="user-icon" class="fa fa-user icon"></i>
+                <input type="text" placeholder="Username" required>
+            </div>
+            <div class="">
+                <i class="fa-regular fa-envelope"></i>
+                <input type="text" placeholder="Password" required>
+            </div>
+            <button id="login-button" type="submit">Sign in</button>
         </form>
+        <div class="register">
+            <p>Don't have an account?</p>
+            <a href="{{ url_for('register_account')}}">Register</a>
+        </div>
     </div>
 </body>
 </html>
