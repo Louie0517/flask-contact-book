@@ -22,6 +22,7 @@ UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.remove("contacts.db")
 
 def database_init():
     
@@ -35,7 +36,7 @@ def database_init():
         password TEXT UNIQUE NULL, 
         image TEXT) 
                ''')
-
+    
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS contacts 
         (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -76,7 +77,7 @@ def forgot_password():
                 return "A password reset link has been sent to your email."
             else:
                 return "Email not found."
-        return render_template("forgot_password.html")
+    return render_template("forgot_password.html")
     
 @app.route("/reset_password/<token>", methods=["GET", "POST"])
 def reset_password(token):
@@ -124,17 +125,16 @@ def register_account():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     error = None
-    login_attempts = None
-    if "login_attemps" not in session:
-        session["login_attemps"] = 0
+   
+    if "login_attempts" not in session:
+        session["login_attempts"] = 0
     
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
         remember = "remember" in request.form
         
-        if session["login_attemps"] > 5:
-            login_attempts = "Too many failed attempts. Please reset your password."
+        if session["login_attempts"] > 5:
             return redirect(url_for("forgot_password"))
         
         with sqlite3.connect("contacts.db") as con:
@@ -142,6 +142,7 @@ def login():
             if user:
                 session["user_id"] = user[0]
                 session["email"] = user[1]
+                session["login_attempts"] = 0
                 resp = make_response(redirect(url_for("list_contacts")))
                 if remember:
                     resp.set_cookie("remember_user", email, max_age=60*60*24*30)
@@ -151,7 +152,7 @@ def login():
                 error = "Invalid username and password"
             
                 
-    return render_template("login.html", error=error, success = "Password reset succesful", login_attempts=login_attempts)
+    return render_template("login.html", error=error, success = "Password reset succesful")
     
 @app.route("/logout")
 def logout():
