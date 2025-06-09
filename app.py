@@ -22,7 +22,11 @@ UPLOAD_FOLDER = 'static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.remove("contacts.db")
+
+
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+db_path = os.path.join(BASE_DIR, "contacts.db")
+
 
 def database_init():
     
@@ -33,7 +37,7 @@ def database_init():
         CREATE TABLE IF NOT EXISTS owners 
         (id INTEGER PRIMARY KEY AUTOINCREMENT, 
         email TEXT UNIQUE NOT NULL, 
-        password TEXT UNIQUE NULL, 
+        password TEXT, 
         image TEXT) 
                ''')
     
@@ -113,12 +117,16 @@ def register_account():
         
         try:
             with sqlite3.connect("contacts.db") as con:
+                c = con.cursor()
+                c.execute("SELECT * FROM owners WHERE email=?", (email,))
+                if c.fetchone():
+                    return render_template("register.html", error = "Email already exist.")
                 con.execute("INSERT INTO owners (email, password, image) VALUES (?, ?, ?)", (email, password, filename))
                 con.commit()
             print("Redirecting to:", url_for("login"))
             return redirect(url_for("login"))
         except sqlite3.IntegrityError:
-                return render_template("register.html", error="Email already exists.")
+                return render_template("register.html", e_error="Email already exists.")
                 
     return render_template("register.html")
 
@@ -286,5 +294,6 @@ def show_routes():
 
 
 if __name__=="__main__":
-    database_init()
+    if not os.path.exists("contacts.db"):
+        database_init()
     app.run(debug=True)
