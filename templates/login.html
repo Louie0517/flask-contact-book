@@ -6,8 +6,10 @@
     <title>Register</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <script src="app.js" defer></script>
 </head>
-<body> 
+<body data-login-failed="{{ 'true' if login_failed else 'false' }}"
+data-reset-success="{{ 'true' if success else 'false'}}"> 
     <div class="login-text">
         <p id="hello-text">Hello there! <br>Welcome Back</p>
     </div>
@@ -30,13 +32,9 @@
                 <p>{{ login_attempts }}</p>
             {% endif %}
             {% if error %}
-                <p>{{ error }}</p>
-            {% endif %}
-            {% if success %}
-                <p>{{ success }}</p>
+                <p id="invalid">{{ error }}</p>
             {% endif %}
         </div>
-        <a id="forgot_pass" href="{{ url_for('forgot_password') }}">Forgot password?</a>
     </div>
 </body>
 </html>

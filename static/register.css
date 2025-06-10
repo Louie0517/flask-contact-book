@@ -135,6 +135,14 @@ label {
 
 }
 
+#er {
+    position: absolute;
+    left: 79%;
+    top: 30rem;
+    color: rgb(244, 9, 9);
+    font-family: sans-serif;
+}
+
 @media (min-width: 1024px) {
     .register-form form {
         position: absolute;
@@ -164,6 +172,7 @@ label {
         left: 73%;
         top: 63%;
     }
+
     
 }
 
@@ -206,6 +215,16 @@ label {
         top: 101.5%;
 
     }
+
+        
+    #er {
+        position: absolute;
+        left: 64%;
+        top: 29rem;
+        color: rgb(244, 9, 9);
+        font-family: sans-serif;
+    }
+
 }
 
 /*okay na*/
@@ -269,7 +288,7 @@ label {
     #insert #insert-img{
         position:sticky;
         white-space: nowrap;
-        right: 16%;
+        right: 20%;
         margin-top: 12%;
     }
 
@@ -299,13 +318,35 @@ label {
 
         position: absolute;
         font-size: 14px;
-        left: 83%;
+        left: 77%;
         top: 71.4%;
     }
+
+    #er {
+        white-space: nowrap;
+        position: absolute;
+        left: 59%;
+        top: 29rem;
+        color: rgb(244, 9, 9);
+        font-family: sans-serif;
+    }
+
 
     body {
         overflow-x: hidden;
     }
+}
+
+@media (max-width: 600px) {
+    
+    .register-form a {
+
+        position: absolute;
+        font-size: 14px;
+        left: 83%;
+        top: 71.4%;
+    }
+
 }
 
 

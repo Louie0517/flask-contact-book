@@ -23,10 +23,17 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
+OWNER_UPLOAD_IMAGE = os.path.join("static", "owners_uploads")
+os.makedirs(OWNER_UPLOAD_IMAGE, exist_ok=True)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 db_path = os.path.join(BASE_DIR, "contacts.db")
 
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def database_init():
     
@@ -68,6 +75,8 @@ s = URLSafeSerializer(app.secret_key)
 
 @app.route("/forgot_password", methods=["GET", "POST"])
 def forgot_password():
+    session["login_attempts"] = 0
+   
     if request.method == "POST":
         email = request.form["email"]
         with sqlite3.connect("contacts.db") as con:
@@ -86,14 +95,14 @@ def forgot_password():
 @app.route("/reset_password/<token>", methods=["GET", "POST"])
 def reset_password(token):
     try:
-        email = s.load(token, salt='recover_password', max_age = 3600)
+        email = s.load(token, salt='recover-password', max_age = 3600)
     except:
         return "The reset link is invalid or expired."
     
     if request.method == "POST":
         new_password = request.form["password"]
         with sqlite3.connect("contacts.db") as con:
-            con.execute("UPDATE owners SET passwords=? WHERE email?", (new_password, email))
+            con.execute("UPDATE owners SET password=? WHERE email=?", (new_password, email))
             con.commit()
         return redirect(url_for("login"))
     
@@ -109,7 +118,7 @@ def register_account():
         owner_image = request.files["image"]
         if owner_image and owner_image.filename != "":
             filename = secure_filename(owner_image.filename)
-            image_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            image_path = os.path.join(OWNER_UPLOAD_IMAGE, filename)
             owner_image.save(image_path)
             
         else:
@@ -118,21 +127,28 @@ def register_account():
         try:
             with sqlite3.connect("contacts.db") as con:
                 c = con.cursor()
-                c.execute("SELECT * FROM owners WHERE email=?", (email,))
-                if c.fetchone():
-                    return render_template("register.html", error = "Email already exist.")
                 con.execute("INSERT INTO owners (email, password, image) VALUES (?, ?, ?)", (email, password, filename))
                 con.commit()
             print("Redirecting to:", url_for("login"))
             return redirect(url_for("login"))
         except sqlite3.IntegrityError:
-                return render_template("register.html", e_error="Email already exists.")
+                return render_template("register.html", error="Email already exists.")
                 
     return render_template("register.html")
 
+@app.route("/owners")
+def list_owners():
+    with sqlite3.connect("contacts.db") as con:
+        cur = con.cursor()
+        
+        cur.execute("SELECT id, email, image FROM owners")
+        owners = cur.fetchall()
+    return render_template("owners.html", owners=owners)
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    error = None
+    login_failed = False
+    success = request.args.get("reset") == "1"
    
     if "login_attempts" not in session:
         session["login_attempts"] = 0
@@ -141,9 +157,6 @@ def login():
         email = request.form["email"]
         password = request.form["password"]
         remember = "remember" in request.form
-        
-        if session["login_attempts"] > 5:
-            return redirect(url_for("forgot_password"))
         
         with sqlite3.connect("contacts.db") as con:
             user = con.execute("SELECT * FROM owners WHERE email=? AND password=?", (email, password)).fetchone()
@@ -157,10 +170,12 @@ def login():
                 return resp
             else:
                 session["login_attempts"] += 1
-                error = "Invalid username and password"
-            
-                
-    return render_template("login.html", error=error, success = "Password reset succesful")
+                print("Login attempts:", session["login_attempts"]) 
+                if session["login_attempts"] > 5:
+                    return redirect(url_for("forgot_password"))
+                login_failed = True
+
+    return render_template("login.html", login_failed=login_failed, success=success)
     
 @app.route("/logout")
 def logout():
@@ -171,14 +186,43 @@ def logout():
 def edit_account():
     if "user_id" not in session:
         return redirect(url_for("register_account"))
-    
+
     if request.method == "POST":
-        new_username = request.form["username"]
-        new_password  = request.form["password"]
-        
+        new_email = request.form["email"]
+        new_password = request.form["password"]
+        image_file = request.files.get("image")
+        image_filename = None
+
+        if image_file and image_file.filename != "":
+            filename = secure_filename(image_file.filename)
+            image_path = os.path.join(OWNER_UPLOAD_IMAGE, filename)
+            image_file.save(image_path)
+            image_filename = filename
+
         with sqlite3.connect("contacts.db") as con:
-            con.execute("UPDATE owners SET username=? AND password=? WHERE id=?", (new_username, new_password, session["user_id"]))
-            
+            cur = con.cursor()
+            if image_filename:
+                cur.execute(
+                    "UPDATE owners SET email=?, password=?, image=? WHERE id=?",
+                    (new_email, new_password, image_filename, session["user_id"]),
+                )
+            else:
+                cur.execute(
+                    "UPDATE owners SET email=?, password=? WHERE id=?",
+                    (new_email, new_password, session["user_id"]),
+                )
+            con.commit()
+
+        return redirect(url_for("list_contacts"))
+
+    # GET: Fetch current user info
+    with sqlite3.connect("contacts.db") as con:
+        cur = con.cursor()
+        cur.execute("SELECT email, password, image FROM owners WHERE id=?", (session["user_id"],))
+        account = cur.fetchone()
+
+    return render_template("edit account.html", account=account)
+
 @app.route("/delete_account")
 def delete_account():
     if "user_id" in session:
@@ -204,8 +248,10 @@ def list_contacts():
        
     contacts = c.fetchall()
     contact_count = len(contacts)
+    c.execute("SELECT email, image FROM owners ORDER BY id DESC LIMIT 1")
+    owner = c.fetchone()
     con.close()
-    return render_template("index.html", contacts=contacts, contact_count=contact_count, search = search_contact_number)
+    return render_template("index.html", contacts=contacts, contact_count=contact_count, search = search_contact_number, owner=owner)
 
 @app.route("/add", methods=["GET", "POST"])
 def add_contact():

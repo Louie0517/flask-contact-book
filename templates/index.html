@@ -1,70 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Contact Book</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-        <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-        <script src="app.js" defer></script>
-    </head>
-    <body>
-        <div class="display">
-            <nav>
-                <a href="#">Contacts📝</a>
-                <form id="search-form" action="{{ url_for('list_contacts')}}" method="get">
+<head>
+    <meta charset="UTF-8">
+    <title>Contact Book</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+    <div class="display">
+        <nav>
+            <a href="#">Contacts📝</a>
+            <form id="search-form" action="{{ url_for('list_contacts') }}" method="get">
                 <input type="text" name="search" value="{{ request.args.get('search' or '') }}" id="search-input" placeholder="Search by phone number" autocomplete="off">
                 <button type="submit" title="Search Contact"><i class='bx bx-search-alt'></i></button>
-                </form>
-            </nav>
-         </div>
-         <div class="left-bg"></div>
-         <div class="contact-count">
-            <p>{{ contact_count }} </p>
-         </div>
-         <div id="add-button">
-            <a href="{{ url_for('add_contact') }}" title="Add"><button title="Add contact"><i class='bx  bx-plus'  ></i>  </button></a>
-         </div>
-        <div class="table-border">
+            </form>
+        </nav>
+    </div>
+
+    <div class="left-bg">
+        {% if owner %}
+            {% if owner[1] %}
+                <img src="{{ url_for('static', filename='owners_uploads/' + owner[1])}}" alt="Owner Photo">
+            {% else %}
+                <p>No photos</p>
+            {% endif %}
+        {% endif %}
+        <div class="contact-container">
+             <div class="contact-count">
+                <p> <i class="fa-solid fa-user-group"></i>Friends</p>
+                <p>{{ contact_count }}</p>
+            </div>
+            <div class="contact-menu">
+            <a href="{{ url_for('edit_account') }}"><i class="fa-solid fa-file-pen"></i>Edit Account</a>
+            <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i>Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-button">
+        <a href="{{ url_for('add_contact') }}" title="Add">
+            <button title="Add contact"><i class='bx bx-plus'></i></button>
+        </a>
+    </div>
+
+    <div class="table-border">
         {% if contacts %}
-            <table border="1" cellpadding="8">
-                <thead>
-                    <tr>
-                        <th id="add-header">Name</th>
-                        <th id="add-header">Phone</th>
-                        <th id="add-header">Email</th>
-                        <th id="add-header">Address</th>
-                        <th id="add-header">Photo</th>
-                        <th id="add-header">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for contact in contacts %}
-                    <tr>
-                        <td id="info">{{ contact[1] }}</td>
-                        <td id="info">{{ contact[2] }}</td>
-                        <td id="email">{{ contact[3] }}</td>
-                        <td id="info">{{ contact[4] }}</td>
-                        <td>
-                            {% if contact[5] %}
-                            <img id="contact-img" src="{{ url_for('static', filename='uploads/' + contact[5]) }}" width="80" height="80" alt="insert photo">
-                            {% else %}
-                            No photo
-                            {% endif %}
-                        </td>
-                        <td id="add-delete">
-                            <a title="Edit" href="{{ url_for('edit_contact', id=contact[0]) }}"><i id="action" class='bx  bxs-edit'  ></i> </a>
-                            <a title="Delete" href="{{ url_for('delete_contact', id=contact[0]) }}"><i id="action" class="bx bxs-trash"></i></a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td>No contact found.</td>
-                    </tr>
-                {% endif %}
-                </tbody>
-            </table>
-         </div>
-    </body>
+        <table border="1" cellpadding="8">
+    <thead>
+        <tr>
+            <th id="add-header">Name</th>
+            <th id="add-header">Phone</th>
+            <th id="add-header">Email</th>
+            <th id="add-header">Address</th>
+            <th id="add-header">Photo</th>
+            <th id="add-header">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if contacts %}
+            {% for contact in contacts %}
+            <tr>
+                <td id="info">{{ contact[1] }}</td>
+                <td id="info">{{ contact[2] }}</td>
+                <td id="email">{{ contact[3] }}</td>
+                <td id="info">{{ contact[4] }}</td>
+                <td>
+                    {% if contact[5] %}
+                    <img id="contact-img" src="{{ url_for('static', filename='uploads/' + contact[5]) }}" width="80" height="80" alt="insert photo">
+                    {% else %}
+                    No photo
+                    {% endif %}
+                </td>
+                <td id="add-delete">
+                    <a title="Edit" href="{{ url_for('edit_contact', id=contact[0]) }}"><i id="action" class='bx bxs-edit'></i></a>
+                    <a title="Delete" href="{{ url_for('delete_contact', id=contact[0]) }}"><i id="action" class="bx bxs-trash"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="6" class="no-contact-message">No contact found.</td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
+        {% else %}
+        <div class="no-contact-message">
+            No contact found.
+        </div>
+        {% endif %}
+    </div>
+</body>
 </html>
