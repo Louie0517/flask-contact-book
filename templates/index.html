@@ -14,31 +14,60 @@
         <nav>
             <a href="#">Contacts📝</a>
             <form id="search-form" action="{{ url_for('list_contacts') }}" method="get">
-                <input type="text" name="search" value="{{ request.args.get('search' or '') }}" id="search-input" placeholder="Search by phone number" autocomplete="off">
+                <input type="text" name="search" value="{{ request.args.get('search'or '') }}" id="search-input" placeholder="{{ search or 'Search by phone number' }}" autocomplete="off">
                 <button type="submit" title="Search Contact"><i class='bx bx-search-alt'></i></button>
             </form>
         </nav>
     </div>
-
     <div class="left-bg">
-        {% if owner %}
-            {% if owner[1] %}
-                <img src="{{ url_for('static', filename='owners_uploads/' + owner[1])}}" alt="Owner Photo">
-            {% else %}
-                <p>No photos</p>
-            {% endif %}
-        {% endif %}
-        <div class="contact-container">
-             <div class="contact-count">
-                <p> <i class="fa-solid fa-user-group"></i>Friends</p>
-                <p>{{ contact_count }}</p>
+            <div class="user-pic">
+                    {% if owner[1] %}
+                        <img src="{{ url_for('static', filename='owners_uploads/' + owner[1])}}" alt="Owner Photo">      
+                <div class="email">
+                    <span> {{ user_email }}</span>
+                </div>
+                    {% else %}
+                        <p>No photos</p>
+                    {% endif %}
             </div>
-            <div class="contact-menu">
-            <a href="{{ url_for('edit_account') }}"><i class="fa-solid fa-file-pen"></i>Edit Account</a>
-            <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket"></i>Logout</a>
+       <div class="contact-container">
+        <div class="contact-menu">
+            <div class="friends">
+                <a href="#friends">
+                    <div class="left-content">
+                        <i class="fa-solid fa-user-group"></i>
+                        <span>Friends</span>
+                    </div>
+                     <span id="con">{{ contact_count }}</span>
+                </a>
+            </div>
+            <div class="dark-mode">
+                <a href="#Darkmode">
+                <div class="left-content">
+                    <i class="fa-solid fa-cloud-moon"></i>
+                    <span>Dark Mode</span>
+                </div>
+                </a>
+            </div>
+            <div class="edit">
+                <a href="{{ url_for ('edit_account')}}">
+                    <div class="left-content">
+                        <i class="fa-solid fa-file-pen"></i>
+                        <span>Edit Account</span>
+                    </div>
+                </a>
+            </div>
+            <div class="logout">
+                <a href="#logout">
+                    <div class="left-content">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Logout</span>
+                    </div>
+                </a>
             </div>
         </div>
     </div>
+        </div>
 
     <div id="add-button">
         <a href="{{ url_for('add_contact') }}" title="Add">

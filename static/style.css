@@ -132,6 +132,10 @@ tbody tr:nth-child(even) {
     color: white;
 }
 
+.table-border tr:hover {
+    background-color: rgba(34, 33, 35, 0.338);
+}
+
 #info {
     white-space: nowrap;
     text-align: center;
@@ -142,7 +146,6 @@ tbody tr:nth-child(even) {
 #email {
     white-space: nowrap;
     text-align: justify;
-    text-transform: capitalize;
     padding-left: 5%;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
@@ -221,63 +224,127 @@ thead {
     z-index: 600;
 }
 
-.left-bg img {
-    width: 27%;
-    height: 14%;
+.email {
     position: absolute;
-    top: 20%;
-    border-radius: 4em;
+    bottom: 86%;
+    left:37%;
+}
+
+.email span{
+    color: white;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.user-pic img {
+    width: 23%;
+    height: 13%;
+    position: absolute;
+    border-radius: 9px;
+    right: 67%;
+    bottom: 80%;
     object-fit: cover;
 }
 
 .contact-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 20px;
-    gap: 30px;
-}
+            border-radius: 24px;
+            padding: 0;
+            width: 400px;
+            overflow: hidden;
+            background-color: #a434ac;
+            position: relative;
+            top: 10%;
+            height: 70vh;
+            z-index: -10;
+        }
 
-.contact-count {
-    display: flex;
-    gap: 30px; 
-    margin-bottom: 20px;
-     margin-top: 90%;
-}
+        .contact-menu {
+            display: flex;
+            flex-direction: column;
+            padding: 1rem 0;
+            gap: 27px;
+            margin-top: 0;
+        }
 
-.contact-count p {
-    font-size: 30px;
-    font-family: sans-serif;
-    color: aliceblue;
-    margin: 0;
-}
+        .contact-menu > div {
+            transition: all 0.2s ease;
+        }
 
-.contact-count i {
-    color: white;
-    font-size: 25px;
-    margin-right: 20px;
-}
+        .contact-menu a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            text-decoration: none;
+            color: white;
+            border-radius: 0;
+            background: transparent;
+            border: none;
+            transition: all 0.2s ease;
+            font-weight: 400;
+            font-size: 1.5rem;
+            font-family: sans-serif;
+            border-left: 3px solid transparent;
+        }
 
-.contact-menu {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-}
+        .contact-menu a:hover {
+            background: rgba(242, 234, 249, 0.354);
+            color: white;
+            border-radius: 1em;
+        }
 
-.contact-menu a {
-    font-size: 30px;
-    font-family: sans-serif;
-    color: aliceblue;
-    text-decoration: none;
-    margin-bottom: 20px;
-}
+        .contact-menu .left-content {
+            display: flex;
+            align-items: center;
+        }
 
-.contact-menu i {
-    color: white;
-    font-size: 25px;
-    margin-right: 20px;
-}
+        .contact-menu i {
+            margin-right: 1.8rem;
+            font-size: 1.5rem;
+            width: 18px;
+            text-align: center;
+            opacity: 0.8;
+        }
 
+        #con {
+            background-color: rgb(187, 15, 15);
+            width: 29px;
+            height: 28px;
+            border-radius: 1em;
+            padding-left: 12px;
+            padding-top: 5px;
+        }
+
+        .friends a:hover {
+            background: rgba(242, 234, 249, 0.354);
+            color: white;
+        }
+
+        .edit a:hover i,
+        .logout a:hover i,
+        .friends a:hover i {
+            opacity: 1;
+        }
+
+        .logout a:hover {
+            color: white;
+            background: rgba(242, 234, 249, 0.354);
+        }
+
+        .contact-menu span {
+            font-size: 1.5rem;
+            font-family: sans-serif;
+        }
+
+        @media (max-width: 480px) {
+            .contact-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .contact-menu a {
+                padding: 0.8rem 1rem;
+            }
+        }
 
 .no-contact-message {
     position: absolute;
@@ -286,8 +353,4 @@ thead {
     text-align: center;
     color: #da2de6;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-}
-
-#icon {
-    float: left;
 }

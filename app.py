@@ -251,7 +251,7 @@ def list_contacts():
     c.execute("SELECT email, image FROM owners ORDER BY id DESC LIMIT 1")
     owner = c.fetchone()
     con.close()
-    return render_template("index.html", contacts=contacts, contact_count=contact_count, search = search_contact_number, owner=owner)
+    return render_template("index.html", contacts=contacts, contact_count=contact_count, search = search_contact_number, owner=owner, user_email=session.get("email"))
 
 @app.route("/add", methods=["GET", "POST"])
 def add_contact():
