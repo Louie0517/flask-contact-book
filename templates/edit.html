@@ -4,29 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Edit Contacts</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='edit-contact.css')}}">
 </head>
 <body>
-    <h1>Edit Contact</h1>
-    <form method="post" enctype="multipart/form-data">
-        <label for="name">Name: </label>
-        <input type="text" name="name" value="{{contact[1]}}" required><br>
-        <label for="phone">Phone: </label>
-        <input type="text" name="phone" value="{{contact[2]}}"><br>
-        <label for="email">Email:</label>
-        <input type="email" name="email" value="{{contact[3]}}"><br>
-        <label for="address">Address:</label>
-        <input type="text" name="address" value="{{contact[4]}}"><br>
+    <div class="container">
+        <div class="nav-bar">
+            <nav class="text">
+                <a href="{{ url_for('list_contacts')}}" title="Back"><i class="fa-solid fa-angle-left"></i></a>
+                <p>Edit Contact</p>
+            </nav>
+        </div>
+        <div class="form-con">
+            <form method="post" enctype="multipart/form-data" autocomplete="off">
+                <div class="image">
+                    {% if contact[5] %}
+                        <img src="{{ url_for('static', filename='uploads/' + contact[5]) }}" width="100" alt="image photo">
+                    {% endif %}
+                    <span>
+                        {{ contact[1] }}
+                    </span>
+                    <div class="sign">
+                         <p>Contact</p>
+                    </div>
+                </div>
+                <div class="form">
+                    <i id="icons" class="fa-solid fa-address-card"></i>
+                    <label for="name">Name: </label>
+                    <input type="text" name="name" value="{{contact[1]}}" required><br>
 
-        <label>Insert Photo:</label>
-        <input type="file" name="image"><br>
+                    <i id="icons" class="fa-solid fa-phone-volume"></i>
+                    <label for="phone">Phone: </label>
+                    <input type="text" name="phone" value="{{contact[2]}}"><br>
 
-        {% if contact[5] %}
-            <img src="{{ url_for('static', filename='uploads/' + contact[5]) }}" width="100" alt="image photo">
-        {% endif %}
+                    <i id="icons" class="fa-solid fa-envelope-circle-check"></i>    
+                    <label for="email">Email:</label>
+                    <input type="email" name="email" value="{{contact[3]}}"><br>
 
-        <button type="submit">Update</button>
-    </form>
-    <a href="/">Back</a>
+                    <i id="icons" class="fa-solid fa-map-location-dot"></i>
+                    <label for="address">Address:</label>
+                    <input type="text" name="address" value="{{contact[4]}}"><br>
+                    
+
+                    <label for="image" class="file-upload">
+                        <i class="fa-solid fa-paperclip"></i>
+                    </label>
+                    <label>Insert Photo:</label>
+                    <input id="insert" type="file" name="image"><br>
+                    <button type="submit">Save</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
 </body>
