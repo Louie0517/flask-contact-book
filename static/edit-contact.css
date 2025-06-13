@@ -40,6 +40,7 @@ body {
     display: flex;
     position: absolute;
     top: 20%;
+    left: 10%;
 }
 
 .image span {
@@ -52,9 +53,11 @@ body {
     font-family: sans-serif;
 }
 
-.image img {
+img {
     border-radius: 0.4em;
     width: 22%;
+    object-fit: cover;
+    height: auto;
     border: 2px solid rgb(39, 38, 38);
     box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.2); 
 }
@@ -62,15 +65,15 @@ body {
 .form-con {
     text-align: start;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: flex-end;
-    margin-top: 10%;
+    margin-top: 9%;
     margin-right: 60%;
 }
 
 input {
     margin-bottom: 14px;
-    margin-left: 10px;
+    margin-left: 15px;
     font-size: 16px;
     padding-left: 10px;
     height: 4vh;
@@ -133,4 +136,24 @@ nav {
 
 #insert {
     border: none;
+}
+
+button {
+    background-color: blueviolet;
+    color: white;
+    border: none;
+    width: 20%;
+    height: 38px;
+    font-size: 17px;
+    margin-top: 2%;
+    border-radius: 0.5em;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: rgb(133, 34, 225);
+}
+
+button:active {
+    background-color: rgb(139, 65, 209);
 }

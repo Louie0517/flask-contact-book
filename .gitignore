@@ -10,3 +10,5 @@ static/uploads/
 
 # Ignore environment variable files (if any)
 .env
+
+.flask_secret
