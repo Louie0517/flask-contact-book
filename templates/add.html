@@ -18,7 +18,7 @@
         {% endif %}
     </div>
     <div class="add-form">
-        <form method="post" enctype="multipart/form-data" autocomplete="off">
+        <form method="post" action="{{ url_for('add_contact') }}" enctype="multipart/form-data" autocomplete="off">
            <i id="icons" class="fa-solid fa-address-card"></i>
             <label for="name"> </label>
             <input type="text" id="text" name="name" placeholder="Contact name" autocomplete="off" required ><br>
@@ -42,7 +42,7 @@
                 <label for="image">Insert Photo</label>
                 <span id="file-name">No file choosen</span>
                 </div>
-                <input type="file" id="image" name="image" required onchange="displayFileName()"  required><br>
+                <input type="file" id="image" name="image" onchange="displayFileName()"><br>
                 <div class="submit">
                     <button type="submit"><i class="fa-solid fa-user-plus"></i>Add Contacts</button>
                 </div>

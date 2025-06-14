@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='edit.css')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="/static/app.js" defer></script>
+    <title>Document</title>
+</head>
+<body>
+    <div class="right"></div>
+    <div class="navbar">
+            <nav>
+                <a href="{{ url_for('list_contacts')}}"> <i class="fa-solid fa-angle-left"></i></a>
+            </nav>
+        </div>
+      
+        <div class="form">
+            <form action="{{ url_for('edit_account') }}" method="post" enctype="multipart/form-data">
+                <p id="text">Update Profile Picture</p>
+                <img class="img" src="{{ url_for('static', filename='owners_uploads/' + (account[2] or 'default.webp')) }}" alt="image">
+                <div class="display">
+                    <label for="insert">
+                        <p>{{ account[0] }}</p>
+                        <div class="label">
+                            <label for="image">Insert image:</label>
+                                <div class="wrap">
+                                    <i class="fa-solid fa-paperclip"></i>
+                                    <label for="image" id="no-file">No file chosen</label>
+                                </div>
+                            <input id="insert" type="file" name="image" onchange="updateImage()" accept="image/*">
+                        </div>
+                    </label>
+                </div>
+                    <div class="button">
+                        <button type="submit">Save upload</button>
+                    </div>
+                </form>
+        </div>
+    
+</body>
+</html>

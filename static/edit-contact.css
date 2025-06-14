@@ -20,6 +20,30 @@ body {
     margin-top: 20%;
 }
 
+
+#mutual-name {
+    position: absolute;
+    left: 78%;
+    white-space: nowrap;
+    text-shadow: 2px 4px 5px rgba(138, 43, 226, 0.5);
+    border-radius: 5px;
+    color: rgb(143, 18, 154);
+    font-weight: lighter;
+}
+
+
+.cover {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 10%;
+    margin-left: 17%;
+}
+
+.cover #mutual-name {
+    margin-left: 18%;
+    text-transform: capitalize;
+}
+
 .sign {
     padding-left: 23px;
 }
@@ -54,11 +78,13 @@ body {
 }
 
 img {
+    z-index: 101;
     border-radius: 0.4em;
-    width: 22%;
+    width: 210px;
+    aspect-ratio: 1 / 1;
     object-fit: cover;
     height: auto;
-    border: 2px solid rgb(39, 38, 38);
+    border: 2px solid rgb(154, 110, 201);
     box-shadow: 5px 10px 10px rgba(0, 0, 0, 0.2); 
 }
 
@@ -71,7 +97,15 @@ img {
     margin-right: 60%;
 }
 
-input {
+.form-con input[type="file"] {
+    display: none;
+}
+
+#no-file {
+    color: blueviolet;
+}
+
+.form input {
     margin-bottom: 14px;
     margin-left: 15px;
     font-size: 16px;
@@ -80,7 +114,15 @@ input {
     width: 25vw;
     border: none;
     border-bottom: 2px solid blueviolet;
+    cursor: pointer;
 }
+
+
+.form input:focus {
+    border: solid 2px blueviolet;
+    outline: none;
+}
+
 
 .nav-bar {
     display: flex;
@@ -95,10 +137,11 @@ nav {
     width: 100vw;
     height: 30vh;
     background-color: rgb(166, 0, 255);
-    z-index: -1;
+    z-index: 100;
 }
 
 .nav-bar a {
+    display: inline-block;
     font-size: 40px;
 }
 

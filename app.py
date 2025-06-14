@@ -1,11 +1,14 @@
 from flask import Flask, render_template, request, url_for, redirect, session, make_response
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 from pathlib import Path
 from itsdangerous import URLSafeSerializer
 from flask_mail import Mail, Message
+from flask import flash
 import secrets
 import sqlite3
 import os
+import uuid
 
 app = Flask(__name__)
 
@@ -55,7 +58,10 @@ def database_init():
         phone TEXT NOT NULL,
         email TEXT NOT NULL,
         address TEXT NOT NULL,
-        image TEXT)
+        image TEXT,
+        owner_id INTEGER,
+        FOREIGN KEY (owner_id) REFERENCES owners(id)
+        )
                ''')
     
     conn.commit()
@@ -89,7 +95,8 @@ def forgot_password():
                 mail.send(msg)
                 return "A password reset link has been sent to your email."
             else:
-                return "Email not found."
+                flash("Email not found.", "danger")
+                return render_template("forgot_password.html")
     return render_template("forgot_password.html")
     
 @app.route("/reset_password/<token>", methods=["GET", "POST"])
@@ -101,8 +108,9 @@ def reset_password(token):
     
     if request.method == "POST":
         new_password = request.form["password"]
+        new_hashed_pass = generate_password_hash(new_password)
         with sqlite3.connect("contacts.db") as con:
-            con.execute("UPDATE owners SET password=? WHERE email=?", (new_password, email))
+            con.execute("UPDATE owners SET password=? WHERE email=?", (new_hashed_pass, email))
             con.commit()
         return redirect(url_for("login"))
     
@@ -111,23 +119,25 @@ def reset_password(token):
 # USER ACCOUNT 
 @app.route("/register", methods=["GET", "POST"])
 def register_account():
+    
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
+        hashed_pass = generate_password_hash(password)
         
         owner_image = request.files["image"]
         if owner_image and owner_image.filename != "":
-            filename = secure_filename(owner_image.filename)
+            filename = str(uuid.uuid4()) + "_" + secure_filename(owner_image.filename)
             image_path = os.path.join(OWNER_UPLOAD_IMAGE, filename)
             owner_image.save(image_path)
             
         else:
-            filename = None
+            filename = "default.webp"
         
         try:
             with sqlite3.connect("contacts.db") as con:
                 c = con.cursor()
-                con.execute("INSERT INTO owners (email, password, image) VALUES (?, ?, ?)", (email, password, filename))
+                con.execute("INSERT INTO owners (email, password, image) VALUES (?, ?, ?)", (email, hashed_pass, filename))
                 con.commit()
             print("Redirecting to:", url_for("login"))
             return redirect(url_for("login"))
@@ -159,8 +169,8 @@ def login():
         remember = "remember" in request.form
         
         with sqlite3.connect("contacts.db") as con:
-            user = con.execute("SELECT * FROM owners WHERE email=? AND password=?", (email, password)).fetchone()
-            if user:
+            user = con.execute("SELECT * FROM owners WHERE email=?", (email,)).fetchone()
+            if user and check_password_hash(user[2], password):
                 session["user_id"] = user[0]
                 session["email"] = user[1]
                 session["login_attempts"] = 0
@@ -188,28 +198,24 @@ def edit_account():
         return redirect(url_for("register_account"))
 
     if request.method == "POST":
-        new_email = request.form["email"]
-        new_password = request.form["password"]
         image_file = request.files.get("image")
         image_filename = None
 
         if image_file and image_file.filename != "":
-            filename = secure_filename(image_file.filename)
+            filename = str(uuid.uuid4()) + "_" + secure_filename(image_file.filename)
             image_path = os.path.join(OWNER_UPLOAD_IMAGE, filename)
             image_file.save(image_path)
             image_filename = filename
+        
+        else:
+            image_filename = "default.webp"
 
         with sqlite3.connect("contacts.db") as con:
             cur = con.cursor()
             if image_filename:
                 cur.execute(
-                    "UPDATE owners SET email=?, password=?, image=? WHERE id=?",
-                    (new_email, new_password, image_filename, session["user_id"]),
-                )
-            else:
-                cur.execute(
-                    "UPDATE owners SET email=?, password=? WHERE id=?",
-                    (new_email, new_password, session["user_id"]),
+                    "UPDATE owners SET image=? WHERE id=?",
+                    (image_filename, session["user_id"]),
                 )
             con.commit()
 
@@ -242,16 +248,17 @@ def list_contacts():
     
     search_contact_number = request.args.get("search")
     if search_contact_number:
-        c.execute("SELECT * FROM contacts WHERE phone LIKE ?", ('%' + search_contact_number + '%',))
+        c.execute("SELECT * FROM contacts WHERE phone LIKE ? AND owner_id=?", ('%' + search_contact_number + '%', session["user_id"]))
     else:
-       c.execute("SELECT * FROM contacts")
+       c.execute("SELECT * FROM contacts WHERE owner_id=?", (session["user_id"],))
        
     contacts = c.fetchall()
     contact_count = len(contacts)
-    c.execute("SELECT email, image FROM owners ORDER BY id DESC LIMIT 1")
+    c.execute("SELECT email, image FROM owners WHERE id = ?", (session["user_id"],))
     owner = c.fetchone()
     con.close()
     return render_template("index.html", contacts=contacts, contact_count=contact_count, search = search_contact_number, owner=owner, user_email=session.get("email"))
+
 
 @app.route("/add", methods=["GET", "POST"])
 def add_contact():
@@ -267,7 +274,7 @@ def add_contact():
         #SELECT IF SAME EMAIL IN DATABASE
         con = sqlite3.connect("contacts.db")
         c = con.cursor()
-        c.execute("SELECT * FROM contacts WHERE email=?", (email,))
+        c.execute("SELECT * FROM contacts WHERE email=? AND owner_id=?", (email, session["user_id"]))
         existing_email = c.fetchone()
         
         if existing_email:
@@ -276,14 +283,13 @@ def add_contact():
         
         image_file = request.files["image"]
         if image_file.filename != "":
-            filename = secure_filename(image_file.filename)
+            filename = str(uuid.uuid4()) + "_" + secure_filename(image_file.filename)
             image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             image_file.save(image_path)
-            
         else:
-            filename = None
+            filename = "default.webp"
         #INSERT NEW CONTACT
-        c.execute("INSERT INTO contacts (name, phone, email, address, image) VALUES (?, ?, ?, ?, ?)", (name, phone, email, address, filename))
+        c.execute("INSERT INTO contacts (name, phone, email, address, image, owner_id) VALUES (?, ?, ?, ?, ?, ?)", (name, phone, email, address, filename, session["user_id"]))
         con.commit()
         con.close()
         return redirect(url_for("list_contacts"))
@@ -292,8 +298,18 @@ def add_contact():
 
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 def edit_contact(id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    
     con = sqlite3.connect("contacts.db")
     c = con.cursor()
+    
+    c.execute("SELECT * FROM contacts WHERE id=? AND owner_id=?", (id, session["user_id"]))
+    contact = c.fetchone()
+    
+    if not contact:
+        con.close()
+        return "Unathorized access.", 403
     
     if request.method == "POST":
         name = request.form["name"]
@@ -301,9 +317,9 @@ def edit_contact(id):
         email = request.form["email"]
         address = request.form["address"]
         
-        image_file = request.files["image"]
+        image_file = request.files.get("image")
         if image_file and image_file.filename != "":
-            filename = secure_filename(image_file.filename)
+            filename = str(uuid.uuid4()) + "_" + secure_filename(image_file.filename)
             image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             image_file.save(image_path)
         else:
@@ -327,9 +343,19 @@ def edit_contact(id):
   
 @app.route("/delete/<int:id>")
 def delete_contact(id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    
     con = sqlite3.connect("contacts.db")
     c = con.cursor()
-    c.execute("DELETE FROM contacts WHERE id=?", (id,))
+    c.execute("SELECT * FROM contacts WHERE id=? AND owner_id=?", (id, session["user_id"]))
+    contact = c.fetchone()
+    
+    if not contact:
+        con.close()
+        return "Unathorized or contact not found.", 403
+    
+    c.execute("DELETE FROM contacts WHERE id=? AND owner_id=?", (id, session["user_id"]))
     con.commit()
     con.close()
     return redirect(url_for("list_contacts"))
@@ -340,6 +366,7 @@ def show_routes():
 
 
 if __name__=="__main__":
-    if not os.path.exists("contacts.db"):
-        database_init()
+    if os.path.exists("contacts.db"):
+        os.remove("contacts.db")
+    database_init()
     app.run(debug=True)

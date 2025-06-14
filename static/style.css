@@ -23,6 +23,13 @@ body::-webkit-scrollbar {
     display: none;
 }
 
+hr {
+    width: 280px;
+    height: 0.5px;
+    border: none;
+    border: 0.3em;
+    background-color: #fde1ff43;
+}
 
 .display {
     display: flex;
@@ -144,7 +151,6 @@ tbody tr:nth-child(even) {
 }
 
 #email {
-    white-space: nowrap;
     text-align: justify;
     padding-left: 5%;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
@@ -225,24 +231,34 @@ thead {
 }
 
 .email {
+    display: flex;
+    flex-direction: column; /* Stack vertically */
+    max-width: 200px; 
     position: absolute;
-    bottom: 86%;
+    bottom: 85%;
     left:37%;
 }
 
 .email span{
+      font-weight: bold;
     color: white;
+    word-break: break-all;
+    white-space: normal;
+    color: white;
+    font-size: 17px;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-weight: bold;
 }
 
 .user-pic img {
     width: 23%;
     height: 13%;
     position: absolute;
-    border-radius: 9px;
+
     right: 67%;
     bottom: 80%;
     object-fit: cover;
+    border: 1px solid rgb(39, 21, 56);
 }
 
 .contact-container {

@@ -29,3 +29,26 @@ function displayFileName() {
         fileNameDisplay.textContent = "No file chosen"
     }
 }
+
+
+function  displayFileChange() {
+    const fileInput = document.getElementById("insert");
+    const noFile = document.getElementById("no-file");
+
+    if(fileInput.files.length > 0) {
+        noFile.textContent = fileInput.files[0].name;
+    } else {
+        noFile.textContent = "No file chosen"
+    }
+}
+
+function updateImage () {
+    const fileInput = document.getElementById("insert");
+    const noFile = document.getElementById("no-file");
+
+    if(fileInput.files.length > 0) {
+        noFile.textContent = fileInput.files[0].name;
+    } else {
+        noFile.textContent = "No file chosen"
+    }
+}
