@@ -5,10 +5,12 @@ from pathlib import Path
 from itsdangerous import URLSafeSerializer
 from flask_mail import Mail, Message
 from flask import flash
+from dotenv import load_dotenv
 import secrets
 import sqlite3
 import os
 import uuid
+import random
 
 app = Flask(__name__)
 
@@ -48,7 +50,9 @@ def database_init():
         (id INTEGER PRIMARY KEY AUTOINCREMENT, 
         email TEXT UNIQUE NOT NULL, 
         password TEXT, 
-        image TEXT) 
+        image TEXT,
+        reset_code TEXT,
+        code_expiry DATETIME) 
                ''')
     
     cursor.execute('''
@@ -67,12 +71,13 @@ def database_init():
     conn.commit()
     conn.close()
     print("Database initialized!")
-    
+
+load_dotenv(dotenv_path='priv.env')
     
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
-app.config['MAIL_USERNAME'] = 'your_gmail@gmail.com'
-app.config['MAIL_PASSWORD'] = 'your_app_password'
+app.config['MAIL_USERNAME'] = os.getenv("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 
@@ -81,33 +86,52 @@ s = URLSafeSerializer(app.secret_key)
 
 @app.route("/forgot_password", methods=["GET", "POST"])
 def forgot_password():
-    session["login_attempts"] = 0
-   
     if request.method == "POST":
         email = request.form["email"]
         with sqlite3.connect("contacts.db") as con:
             user = con.execute("SELECT * FROM owners WHERE email=?", (email,)).fetchone()
             if user:
-                token = s.dump(email, salt='recover-password')
-                link = url_for('reset_password', token=token, _external=True)
-                msg = Message("Password Reset Request", sender="your_gmail@gmail.com", recipients=[email])
-                msg.body = f"Click the link to reset your password: {link}"
+                token = s.dumps(email, salt='recover-password')
+                code = str(random.randint(100000, 999999))
+                session["reset_token"] = token
+                session["reset_code"] = code
+                session["reset_email"] = email
+                
+                msg = Message("Your Verification Code", sender="your_gmail@gmail.com", recipients=[email])
+                msg.body =  f"Your password reset code is: {code}"
                 mail.send(msg)
-                return "A password reset link has been sent to your email."
-            else:
-                flash("Email not found.", "danger")
-                return render_template("forgot_password.html")
-    return render_template("forgot_password.html")
+                
+                return redirect(url_for("verify_code"))
+            
+            flash("Email not found.", "danger")
+            
+    return render_template("forgot_password.html", code_sent = False)
+
+@app.route("/verify_code", methods=["GET", "POST"])
+def verify_code():
+    if request.method == "POST":
+        code_input = request.form["code"]
+        if code_input == session.get("reset_code"):
+            token = session.get("reset_token")
+            session.pop("reset_code", None)
+            return redirect(url_for("reset_password", token=token))
+        else:
+            flash(" Inavlid code. Please try again.", "danger")
+            return render_template("verify_code.html")
+        
+    return render_template("verify_code.html")
+    
     
 @app.route("/reset_password/<token>", methods=["GET", "POST"])
 def reset_password(token):
+  
     try:
-        email = s.load(token, salt='recover-password', max_age = 3600)
+        email = s.loads(token, salt='recover-password', max_age = 3600)
     except:
         return "The reset link is invalid or expired."
     
     if request.method == "POST":
-        new_password = request.form["password"]
+        new_password = request.form["new_password"]
         new_hashed_pass = generate_password_hash(new_password)
         with sqlite3.connect("contacts.db") as con:
             con.execute("UPDATE owners SET password=? WHERE email=?", (new_hashed_pass, email))
@@ -160,30 +184,38 @@ def login():
     login_failed = False
     success = request.args.get("reset") == "1"
    
-    if "login_attempts" not in session:
-        session["login_attempts"] = 0
-    
+   
+    if "login_attempts" not in session or not isinstance(session["login_attempts"], dict):
+        session["login_attempts"] = {}
+            
+   
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
         remember = "remember" in request.form
+        
+        attempts = session["login_attempts"].get(email, 0)
         
         with sqlite3.connect("contacts.db") as con:
             user = con.execute("SELECT * FROM owners WHERE email=?", (email,)).fetchone()
             if user and check_password_hash(user[2], password):
                 session["user_id"] = user[0]
                 session["email"] = user[1]
-                session["login_attempts"] = 0
+                session["login_attempts"][email] = 0
                 resp = make_response(redirect(url_for("list_contacts")))
                 if remember:
                     resp.set_cookie("remember_user", email, max_age=60*60*24*30)
                 return resp
             else:
-                session["login_attempts"] += 1
-                print("Login attempts:", session["login_attempts"]) 
-                if session["login_attempts"] > 5:
-                    return redirect(url_for("forgot_password"))
-                login_failed = True
+                attempts += 1
+                session["login_attempts"][email] = attempts
+                print("Login attempts for {email}: {attempts}") 
+                if attempts > 5:
+                    flash("Too many failed login attempts. Please verify your email to reset your password.", "warning")
+                    return render_template("redirect_with_alert.html", target_url=url_for("forgot_password"))
+             
+                flash("Invalid email or password", "danger")
+                return render_template("login.html")
 
     return render_template("login.html", login_failed=login_failed, success=success)
     
