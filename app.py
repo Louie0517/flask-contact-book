@@ -6,6 +6,7 @@ from itsdangerous import URLSafeSerializer
 from flask_mail import Mail, Message
 from flask import flash
 from dotenv import load_dotenv
+from datetime import datetime, timedelta
 import secrets
 import sqlite3
 import os
@@ -86,6 +87,11 @@ s = URLSafeSerializer(app.secret_key)
 
 @app.route("/forgot_password", methods=["GET", "POST"])
 def forgot_password():
+    session.pop("reset_code", None)
+    session.pop("code_expiry", None)
+    session.pop("reset_token", None)
+    session.pop("reset_email", None)
+
     if request.method == "POST":
         email = request.form["email"]
         with sqlite3.connect("contacts.db") as con:
@@ -93,12 +99,15 @@ def forgot_password():
             if user:
                 token = s.dumps(email, salt='recover-password')
                 code = str(random.randint(100000, 999999))
+                expiration = datetime.now() + timedelta(minutes=5)
+                
                 session["reset_token"] = token
                 session["reset_code"] = code
                 session["reset_email"] = email
+                session["code_expiry"] = expiration.strftime("%Y-%m-%d %H:%M:%S")
                 
-                msg = Message("Your Verification Code", sender="your_gmail@gmail.com", recipients=[email])
-                msg.body =  f"Your password reset code is: {code}"
+                msg = Message("Your Verification Code", sender=os.getenv("MAIL_USERNAME"), recipients=[email])
+                msg.body =  f"Your password reset code is: {code}\nIt will expire in 5 minutes."
                 mail.send(msg)
                 
                 return redirect(url_for("verify_code"))
@@ -109,17 +118,30 @@ def forgot_password():
 
 @app.route("/verify_code", methods=["GET", "POST"])
 def verify_code():
+    expiration_str = session.get("code_expiry")
+    if expiration_str:
+        try:
+            expiration_time = datetime.strptime(expiration_str, "%Y-%m-%d %H:%M:%S")
+            if datetime.now() > expiration_time:
+                session.pop("reset_code", None)
+                session.pop("code_expiry", None)
+                flash("Verification code has expired. Please request a new one.", "warning")
+                return redirect(url_for("forgot_password"))
+        except ValueError:
+            flash("Something went wrong with the verification timer.", "danger")
+            return redirect(url_for("forgot_password"))
+
     if request.method == "POST":
         code_input = request.form["code"]
         if code_input == session.get("reset_code"):
             token = session.get("reset_token")
             session.pop("reset_code", None)
+            session.pop("code_expiry", None)
             return redirect(url_for("reset_password", token=token))
         else:
-            flash(" Inavlid code. Please try again.", "danger")
-            return render_template("verify_code.html")
-        
-    return render_template("verify_code.html")
+            flash("Invalid code. Please try again.", "danger")
+            
+    return render_template("verify_code.html", code_expiry=expiration_str)
     
     
 @app.route("/reset_password/<token>", methods=["GET", "POST"])
@@ -187,7 +209,9 @@ def login():
    
     if "login_attempts" not in session or not isinstance(session["login_attempts"], dict):
         session["login_attempts"] = {}
-            
+    
+    if "attempt_timestamps" not in session:
+        session["attempt_timestamps"] = {}
    
     if request.method == "POST":
         email = request.form["email"]
@@ -195,6 +219,15 @@ def login():
         remember = "remember" in request.form
         
         attempts = session["login_attempts"].get(email, 0)
+        last_attempts_string = session["attempt_timestamps"].get(email)
+        
+        if last_attempts_string:
+            try:
+                last = datetime.strptime(last_attempts_string, "%Y-%m-%d %H:%M:%S")
+                if datetime.now() - last > timedelta(minutes=0):
+                    attempts = 0
+            except ValueError:
+                attempts = 0
         
         with sqlite3.connect("contacts.db") as con:
             user = con.execute("SELECT * FROM owners WHERE email=?", (email,)).fetchone()
@@ -202,6 +235,7 @@ def login():
                 session["user_id"] = user[0]
                 session["email"] = user[1]
                 session["login_attempts"][email] = 0
+                session["attempt_timestamps"][email] = None
                 resp = make_response(redirect(url_for("list_contacts")))
                 if remember:
                     resp.set_cookie("remember_user", email, max_age=60*60*24*30)
@@ -209,7 +243,8 @@ def login():
             else:
                 attempts += 1
                 session["login_attempts"][email] = attempts
-                print("Login attempts for {email}: {attempts}") 
+                session["attempt_timestamps"][email] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                print(f"Login attempts for {email}: {attempts}") 
                 if attempts > 5:
                     flash("Too many failed login attempts. Please verify your email to reset your password.", "warning")
                     return render_template("redirect_with_alert.html", target_url=url_for("forgot_password"))

@@ -9,12 +9,51 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='app.js')}}" defer></script>
 </head>
 <body>
     <div class="display">
         <nav>
             <a href="#">Contacts📝</a>
+
+            <div class="desktop-menu">
+                <ul>
+                    <li>
+                        <div class="friends">
+                            <a href="#Friends">
+                                <div class="left-content">
+                                    <i class="fa-solid fa-user-group"></i>
+                                    <span>Friends</span>
+                                </div>
+                                <span id="con">{{ contact_count }}</span>
+                            </a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="#Darkmode" onclick="toggleDarkMode()">
+                            <i class="fa-solid fa-cloud-moon"></i>
+                            <span>Dark Mode</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for ('edit_account') }}">
+                            <i class="fa-solid fa-file-pen"></i>
+                            <span>Edit Account</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('register_account') }}">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Logout</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()" title="Menu">
+                    <i class='bx bx-menu' id="menu-bar"></i>
+                </button>
+
             <form id="search-form" action="{{ url_for('list_contacts') }}" method="get">
                 <input type="text" name="search" value="{{ request.args.get('search'or '') }}" id="search-input" placeholder="{{ search or 'Search by phone number' }}" autocomplete="off">
                 <button type="submit" title="Search Contact"><i class='bx bx-search-alt'></i></button>
@@ -22,34 +61,33 @@
         </nav>
     </div>
     <div class="left-bg">
-            <div class="user-pic">
-                        <img src="{{ url_for('static', filename='owners_uploads/' + (owner[1] if owner[1] else 'default.webp'))}}" alt="Owner Photo">      
-                <div class="email">
-                    <span> {{ user_email }}</span>
-                </div>
+        <div class="user-pic">
+                <img src="{{ url_for('static', filename='owners_uploads/' + (owner[1] if owner[1] else 'default.webp'))}}" alt="Owner Photo">      
+            <div class="email">
+                <span> {{ user_email }}</span>
             </div>
-       <div class="contact-container">
-        <div class="contact-menu">
+        </div>
+    <div class="contact-container">
+        <div class="contact-menu" id="mobileMenu">
             <div class="friends">
                 <a href="#friends">
                     <div class="left-content">
                         <i class="fa-solid fa-user-group"></i>
                         <span>Friends</span>
                     </div>
-                     <span id="con">{{ contact_count }}</span>
-                </a>
-                   <hr>
+                    <span id="con">{{ contact_count }}</span>
+                 </a>
+                <hr>
             </div>
-          
-            <div class="dark-mode">
-                <a href="#Darkmode">
+        <div class="dark-mode">
+            <a href="#Darkmode">
                 <div class="left-content">
                     <i class="fa-solid fa-cloud-moon"></i>
                     <span>Dark Mode</span>
                 </div>
-                </a>
-                   <hr>
-            </div>
+             </a>
+            <hr>
+        </div>
             <div class="edit">
                 <a href="{{ url_for ('edit_account')}}">
                     <div class="left-content">
@@ -57,8 +95,8 @@
                         <span>Edit Account</span>
                     </div>
                 </a>
-                   <hr>
-            </div>
+            <hr>
+        </div>
             <div class="logout">
                 <a href="{{ url_for('register_account')}}">
                     <div class="left-content">
@@ -69,11 +107,11 @@
             </div>
         </div>
     </div>
-        </div>
-
+</div>
     <div id="add-button">
         <a href="{{ url_for('add_contact') }}" title="Add">
-            <button title="Add contact"><i class='bx bx-plus'></i></button>
+            <button title="Add contact">
+            <i class='bx bx-plus'></i></button>
         </a>
     </div>
 

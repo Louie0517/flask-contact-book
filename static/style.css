@@ -151,6 +151,8 @@ tbody tr:nth-child(even) {
 }
 
 #email {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
     text-align: justify;
     padding-left: 5%;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
@@ -232,7 +234,7 @@ thead {
 
 .email {
     display: flex;
-    flex-direction: column; /* Stack vertically */
+    flex-direction: column; 
     max-width: 200px; 
     position: absolute;
     bottom: 85%;
@@ -352,6 +354,7 @@ thead {
             font-family: sans-serif;
         }
 
+       
         @media (max-width: 480px) {
             .contact-container {
                 margin: 1rem;
@@ -370,4 +373,151 @@ thead {
     text-align: center;
     color: #da2de6;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+
+ nav .bx-menu {
+            font-size: 30px;
+            cursor: pointer;
+            display: none;
+        }
+
+.table-border::-webkit-scrollbar {
+    display: none; 
+}
+
+.table-border {
+    -ms-overflow-style: none; 
+}
+
+
+
+@media (max-width: 991px) {
+    body {
+        overflow: hidden;
+        background-color: rgb(206, 175, 232);
+
+    }
+    .left-bg {
+        display: none;
+    }
+
+    #search-form {
+        display: none;
+    }
+
+    .display {
+        width: 100vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 9px 7px 6px ;
+    }
+
+    .display a {
+        position: relative;
+        left: 10%;
+    }
+
+    .table-border {
+        overflow-y: auto;
+        width: 93vw; 
+        max-height: 300px;
+        padding: 0;
+        margin-right: 21px;
+    }
+
+    .table-border table {
+        width: 100%;
+        max-width: 800px; 
+        border: black;
+    }
+
+    .table-border td, .table-border th {
+        width: 140px;
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .table-border th:nth-child(1), .table-border td:nth-child(1) {
+    width: 20%;
+    }
+    .table-border th:nth-child(5), .table-border td:nth-child(5) {
+    width: 15%; 
+    }
+
+    #email {
+        text-align: left;
+        padding-left: 0%;
+        font-size: 14px;
+    }
+
+    .bx-menu {
+        display: flex;
+        justify-content: flex-end;
+        align-items: flex-end;
+        position: relative;
+        left: 150px;
+        transform: translate(-15px);
+    }
+
+    nav .bx-menu {
+        display: inline-block;
+        color: white;
+        font-size: 45px;
+        padding-top: 17px;
+        cursor: pointer;
+    }
+
+    nav .bx-menu:hover {
+        color: rgb(242, 235, 235);
+    }
+
+    nav .bx-menu:active {
+        color: rgb(221, 221, 221);
+    }
+    
+}
+
+@media (max-width: 767px) {
+    .table-border table {
+        width: 100vw;
+        border: black;
+    }
+
+    .table-border td, .table-border th {
+        padding: 13px;
+    }
+
+}
+
+@media (max-width: 600px) {
+    .bx-menu {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 19vw;
+    }
+    nav .bx-menu {
+        position: relative;
+        right: 36px;
+    }
+
+    .table-border {
+        width: calc(100vw - 20px);
+        padding: 0;
+        margin:0;
+        overflow-x: auto;
+    }
+
+    .table-border table {
+        width: 100%;
+        font-size: 12px;
+    }
+
+    .table-border td, .table-border th {
+        padding: 17px;
+        font-size: 14px;
+    }
+
 }
