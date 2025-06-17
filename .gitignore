@@ -7,8 +7,9 @@ contacts.db
 
 # Ignore uploaded photos (optional)
 static/uploads/
+static/owners_uploads/
 
 # Ignore environment variable files (if any)
-.env
+priv.env
 
 .flask_secret
