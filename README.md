@@ -34,23 +34,35 @@ This app is perfect for students, professionals, or anyone who needs a simple an
   🔐 Already part of the circle? Log in and access your contact world!
   🆕 First time here? No worries — Sign up in seconds and start building your network.
   Because every connection matters. 📇✨
+  
+---
+
 ![Alt text](contact-book/screenshot/login.png)
 
 => CONTACT LIST PAGE 📒
   📇 Your Contact Hub
   View your connections at a glance — names, numbers, emails, addresses, and even their photos!
+  
+---
+
 ![Alt text](contact-book/screenshot/contactList.png)
 
 => ➕ Add Contact
   Meet someone new? Quickly add them to your digital Rolodex!
   Just fill in their info, snap or upload a photo, and boom — they're in your contact circle.
   Building your network has never been this seamless! 💼📸
+  
+---
+
 ![Alt text](contact-book/screenshot/Add.png)
 
 => ✏️ Edit Contact
   Need to update a number, fix a typo, or change a profile picture? No worries!
   Easily edit any contact’s information and keep everything up to date — just like that.
   Because staying current is key 🔁📱
+  
+---
+
 ![Alt text](contact-book/screenshot/Edit.png)
 
   
