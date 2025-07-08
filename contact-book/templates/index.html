@@ -72,7 +72,7 @@
     
     <div class="left-bg">
         <div class="user-pic">
-                <img src="{{ url_for('static', filename='owners_uploads/' + (owner[1] if owner[1] else 'default.webp'))}}" alt="Owner Photo">      
+                <img src="{{ url_for('static', filename='owners_uploads/' + (owner[1] if owner[1] else 'default.webp'))}}?t={{ loop.index if loop else 0 }}" alt="Owner Photo">      
             <div class="email">
                 <span> {{ user_email }}</span>
             </div>
@@ -147,7 +147,7 @@
                 <td id="email">{{ contact[3] }}</td>
                 <td id="info">{{ contact[4] }}</td>
                 <td>
-                    <img id="contact-img" src="{{ url_for('static', filename='uploads/' + (contact[5] if contact[5] else 'default.webp')) }}" width="80" height="80" alt="insert photo">
+                    <img id="contact-img" src="{{ url_for('static', filename='uploads/' + (contact[5] if contact[5] else 'default.webp')) }}?v={{ loop.index }}" width="80" height="80" alt="insert photo">
                 </td>
                 <td id="add-delete">
                     <a title="Edit" href="{{ url_for('edit_contact', id=contact[0]) }}"><i id="action" class='bx bxs-edit'></i></a>

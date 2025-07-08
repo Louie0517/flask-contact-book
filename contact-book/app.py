@@ -24,12 +24,12 @@ except FileNotFoundError:
         app.secret_key = secrets.token_hex(32)
         secret_file.write(app.secret_key)
 
-UPLOAD_FOLDER = 'static/uploads'
+UPLOAD_FOLDER = 'contact-book/static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-OWNER_UPLOAD_IMAGE = os.path.join("static", "owners_uploads")
+OWNER_UPLOAD_IMAGE = os.path.join("contact-book/static", "owners_uploads")
 os.makedirs(OWNER_UPLOAD_IMAGE, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
