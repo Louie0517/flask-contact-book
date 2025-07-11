@@ -44,7 +44,7 @@ class Database():
             with sqlite3.connect(self.employee_leave_request) as con:
                 cur = con.cursor()
                 cur.execute('''CREATE TABLE IF NOT EXISTS leave_request 
-                            (id PRIMARY KEY AUTOINCREMENT, name TEXT,
+                            (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT,
                             date TEXT, reason TEXT)''')
                 con.commit()
         
@@ -63,14 +63,15 @@ class Database():
         
         except sqlite3.OperationalError as e:
             print("Failed to open database", e)
-            
+    '''      
     def verify_auth(self, email: str, password: str) -> str:
         with sqlite3.connect(self.admin_table) as con:
             cur = con.cursor()
-            cur.execute("SELECT FROM admin WHERE admin_email=?, password=? ", (email, password))
+            cur.execute("SELECT * FROM admin WHERE admin_email=?, password=? ", (email, password))
             components = cur.fetchone()
             return components and components[0] == email, components[1] == password
-   
+    '''
+    
     def settings(self):
         try:
             with sqlite3.connect(self.settings_table) as con:
@@ -81,6 +82,22 @@ class Database():
                 
         except sqlite3.OperationalError as e:
             print("Failed to open database", e)
+    
+    # get employee and in time logs id   
+    def get_user_id(self):
+        with sqlite3.connect(self.employee_db) as con:
+            cur = con.cursor()
+            cur.execute("SELECT id FROM employee WHERE employee_id=?")
+            id = cur.fetchone()
+            return id[0] if id else None
+        
+    def get_time_logs_id(self):
+        with sqlite3.connect(self.time_logs) as con:
+            cur = con.cursor()
+            cur.execute("SELECT id FROM employee WHERE employee_id=?")
+            id = cur.fetchone()
+            return id[0] if id else None
+        
             
     # uploading image
     def upload_img(self):
@@ -101,15 +118,8 @@ class Database():
             os.rename(file_path)
             
         file.save(file_path)
-        
-        def get_user_id():
-            with sqlite3.connect('employee.db') as con:
-                cur = con.cursor()
-                cur.execute("SELECT id FROM employee WHERE employee_id=?")
-                id = cur.fetchone()
-                return id[0] if id else None
             
-        user_id = get_user_id()
+        user_id = self.get_user_id()
         
         with sqlite3.connect('employee.db') as con:
             cur = con.cursor()
