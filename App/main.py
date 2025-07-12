@@ -37,10 +37,14 @@ def admin_login():
             cur.execute("INSERT INTO admin (admin_email, password) VALUES (?, ?)", (input_email, input_password))
             con.commit()
             
-            cur.execute("SELECT * FROM admin WHERE admin_email=? AND password=?", (input_email, input_password))
+            cur.execute("SELECT * FROM admin WHERE admin_email=? AND password=?", (email, password))
             dis = cur.fetchone()
             
-            verified = dis[1] ==  input_email and dis[2] == input_password
+            if dis and len(dis) >= 3:
+                verified =  dis[1] ==  input_email and dis[2] == input_password
+            
+            else:
+                verified = False
             
             if verified:
                 return redirect('/management')
@@ -48,7 +52,6 @@ def admin_login():
                 return render_template('admin_login.html', error="Invalid admin details.")
     
     return render_template('admin_login.html')
-
 
 def get_total_employees():
     con_emp = sqlite3.connect(db.connect_employee())

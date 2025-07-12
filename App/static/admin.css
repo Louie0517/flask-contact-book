@@ -1,5 +1,5 @@
 body{
-    background-color: rgba(159, 81, 81, 0.894);
+    background-color: rgba(139, 32, 32, 0.894);
     overflow: hidden;
 }
 
@@ -28,6 +28,13 @@ body{
     justify-content: center;
     align-items: center;
 }
+
+.button-error{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 
 @media (max-width: 870px) {
     .img{

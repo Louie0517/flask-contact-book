@@ -32,10 +32,10 @@
                             <label class="form-label" for="form2Example28">Password</label>
                             </div>
 
-                            <div class="pt-1 mb-4">
+                            <div class="button-error pt-1 mb-4">
                             <button data-mdb-button-init data-mdb-ripple-init class="login_button btn btn-info btn-lg btn-block" type="submit">Login</button>
                             {% if error %}
-                                <small>{{ error }}</small>
+                                <small class="error">{{ error }}</small>
                             {% endif %}
                             </div>
                         </form>
