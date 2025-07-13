@@ -1,16 +1,17 @@
 from flask import Flask, redirect, render_template, request, url_for
 from database import Database
-from admin_det import admin_details
 from datetime import datetime
-from key_load import s_k
+from dotenv import load_dotenv
+from config import Config, get_v
 import plotly.graph_objs as gr
 import plotly.offline as pyo
 import sqlite3, pandas as pd
 import json, os
-s_k()
 
+load_dotenv()
 app = Flask(__name__)
-app.secret_key = os.environ.get('APP_KEY')
+
+app.config.from_object(Config)
 
 db : Database = Database()
 
@@ -25,19 +26,18 @@ def database_init():
 @app.route('/admin_login', methods=['GET', 'POST'])
 def admin_login():
     
-    email, password = admin_details()
-    
     if request.method == 'POST':
         
         input_email = request.form['admin_email']
         input_password = request.form['admin_password']
+        e_s, p_s = get_v()
     
         with sqlite3.connect(db.connect_admin_table()) as con:
             cur = con.cursor()
             cur.execute("INSERT INTO admin (admin_email, password) VALUES (?, ?)", (input_email, input_password))
             con.commit()
             
-            cur.execute("SELECT * FROM admin WHERE admin_email=? AND password=?", (email, password))
+            cur.execute("SELECT * FROM admin WHERE admin_email=? AND password=?", (e_s, p_s))
             dis = cur.fetchone()
             
             if dis and len(dis) >= 3:
@@ -92,21 +92,59 @@ def management():
     
     return render_template('dash.html', records = records, chart = chart)
 
+# Display in management page
 @app.route('/employee_management', methods=['GET', 'POST'])
 def employees_management():
+    try:
+        with sqlite3.connect(db.connect_employee()) as sql_con:
+            cur = sql_con.cursor()
+            cur.execute('''SELECT employee_id, name, department, email, photo_path FROM employee''')
+            updated = cur.fetchall()
+            
+        
+    except sqlite3.Error as e:
+        print("Fetch error.", e)
+        updated = []
+        
+    return render_template('e_manage.html', updated=updated)
+
+
+@app.route('/add_employee', methods=['GET', 'POST'])
+def add_employee():
     if request.method == 'POST':
         id = request.form['id']
         name = request.form['name']
         department = request.form['department']
+        email = request.form['email']
         image = db.upload_img()
         
         with sqlite3.connect(db.connect_employee()) as con:
             cur = con.cursor()
-            cur.execute("INSERT INTO employee (employee_id, name, department, photo_path) VALUE (?, ?, ?)", (id, name, department, image))
+            cur.execute("INSERT INTO employee (employee_id, name, department, email, photo_path) VALUE (?, ?, ?, ?)", (id, name, department,email, image))
             con.commit()
             return redirect('/employee_management')
         
-    return render_template('e_management.html')
+    return render_template('add_employee.html')
+
+@app.route('/delete_employee_profile/<int:id>', methods=['GET'])
+def delete_employee_profile():
+    id = db.get_user_id()
+    database_path = os.path.join(os.path.dirname(__file__), 'employee.db')
+    with sqlite3.connect(database_path) as con:
+        cur = con.cursor()
+        cur.execute("ATTACH DATABASE 'time_logs.db' AS t_logs ")
+        
+        try:
+            cur.execute(''' DELETE FROM emloyee WHERE id=?  ''', (id,))
+            cur.execute(''' DELETE FROM emloyee WHERE id=?  ''', (id,))
+            con.commit()
+                    
+        except Exception as e:
+            print("Error deleting employees profile.", e)
+        
+        return redirect('/employee_management')
+
+    
 
 @app.route('/edit_employees_profile', methods=['GET', 'POST'])
 def edit_employees_profile():
@@ -115,6 +153,7 @@ def edit_employees_profile():
         new_id = request.form.get('new_id', '').strip()
         new_name = request.form.get('new_name', '').strip()
         new_department = request.form.get('new_department', '').strip()
+        new_email = request.form.get('new_email').strip()
         new_photo = db.update_img()
         e_id = db.get_user_id()
         tl_id = db.get_time_logs_id()
@@ -129,13 +168,13 @@ def edit_employees_profile():
                     
                 if i_matched:
                         
-                    cur.execute('''UPDATE employee SET employee_id=?, name=?, department=?, photo_path=? 
-                                WHERE id=?''', (new_id, new_name, new_department, new_photo, e_id))
+                    cur.execute('''UPDATE employee SET employee_id=?, name=?, department=?, email=?, photo_path=? 
+                                WHERE id=?''', (new_id, new_name, new_department, new_email, new_photo, e_id))
                         
                     cur.execute('''UPDATE time_logs SET employee_id=?, name=? WHERE id=?''', (new_id, new_name, tl_id))
                     con.commit()
                     
-                    return redirect('/edit_employees_profile')
+                    return redirect('/employees_management')
                     
                 cur.execute("DETACH DATABASE time_logs")
                 
@@ -143,17 +182,8 @@ def edit_employees_profile():
             print("Operational error.", e)
         except sqlite3.Error as e:
             print("SQLite error." , e)
-    
-    try:
-        with sqlite3.connect(db.connect_employee()) as sql_con:
-            sql_con.cursor()
-            sql_con.execute('''SELECT employee_id, name, department, photo_path FROM employee''')
-            updated = sql_con.fetchall()
         
-    except sqlite3.Error as e:
-        print("Fetch error.", e)
-        
-    return render_template('edit_e_pf.html', updated = updated)
+    return render_template('edit_e_pf.html')
    
    
 if __name__ == "__main__":

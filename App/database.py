@@ -21,7 +21,7 @@ class Database():
                 cur.execute('''CREATE TABLE IF NOT EXISTS employee 
                             (id INTEGER PRIMARY KEY AUTOINCREMENT,
                             employee_id TEXT, name TEXT, department TEXT,
-                            photo_path TEXT)''')
+                            email TEXT, photo_path TEXT)''')
                 con.commit()
                 
         except sqlite3.OperationalError as e:

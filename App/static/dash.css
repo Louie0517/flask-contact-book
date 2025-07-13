@@ -1,6 +1,6 @@
 body {
     overflow:hidden;
-    background: linear-gradient(to right, #f6f6f6, #dee0e2);
+    background: linear-gradient(to right, #e1dddd, #dee0e2);
     -ms-overflow-style: none;
 }
  
@@ -11,6 +11,7 @@ body::-webkit-scrollbar {
   display: none;        
 }
 
+
 .text{
   font-weight: 600;
   font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
@@ -18,7 +19,7 @@ body::-webkit-scrollbar {
 }
 
 .bg-col{
-  background-color: #fefefed4 !important;
+  background-color: rgb(255, 255, 255) !important;
 }
 
 .Menu{
@@ -81,15 +82,10 @@ body::-webkit-scrollbar {
   border-bottom-right-radius: 12px;
 }
 
-.bg-col {
-  background-color: white;
-}
-
 thead.head th {
-  background: #ffffff;
-  border: none;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+  
+  font-size: small;
+  font-weight: 500;
 }
 
 .top{
