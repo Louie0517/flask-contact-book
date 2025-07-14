@@ -124,25 +124,37 @@ def add_employee():
             con.commit()
             return redirect('/employee_management')
         
-    return render_template('add_employee.html')
+    with sqlite3.connect(db.connect_employee()) as con:
+        cur = con.cursor()
+        cur.execute('''SELECT * FROM employee''')
+        show = cur.fetchall()
+        
+    return render_template('add_employee.html', show=show)
 
 @app.route('/delete_employee_profile/<int:id>', methods=['GET'])
-def delete_employee_profile():
-    id = db.get_user_id()
+def delete_employee_profile(id):
     database_path = os.path.join(os.path.dirname(__file__), 'employee.db')
+    
     with sqlite3.connect(database_path) as con:
         cur = con.cursor()
         cur.execute("ATTACH DATABASE 'time_logs.db' AS t_logs ")
         
         try:
             cur.execute(''' DELETE FROM emloyee WHERE id=?  ''', (id,))
-            cur.execute(''' DELETE FROM emloyee WHERE id=?  ''', (id,))
+            cur.execute(''' DELETE FROM time_logs WHERE id=?  ''', (id,))
             con.commit()
                     
         except Exception as e:
             print("Error deleting employees profile.", e)
         
         return redirect('/employee_management')
+    
+    with sqlite3.connect(db.connect_employee()) as conn:
+        cur = conn.cursor()
+        cur.execute('''SELECT id FROM employee''')
+        e_id = cur.fetchall()
+        
+    return render_template('e_manage.html', employee=e_id)
 
     
 

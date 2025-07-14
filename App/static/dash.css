@@ -1,14 +1,15 @@
 body {
-    overflow:hidden;
-    background: linear-gradient(to right, #e1dddd, #dee0e2);
-    -ms-overflow-style: none;
+  background: linear-gradient(to right, #e1dddd, #dee0e2);
+  -ms-overflow-style: none;
+  overflow-y: auto; 
+  overflow-x: hidden;
+  scrollbar-width: none;   
+  height: 100%;
 }
- 
 
-html::-webkit-scrollbar,
 body::-webkit-scrollbar {
-  overflow: hidden;
-  display: none;        
+  width: 0;
+  display: none; 
 }
 
 
@@ -91,7 +92,6 @@ thead.head th {
 .top{
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
-
 }
 
 .sep-line{
@@ -107,40 +107,6 @@ thead.head th {
   width: 100vw !important;
 }
 
-@media (max-width: 790px) {
-  
-.bg-col ul li:hover,
-.bg-col ul li:active{
-  border-radius: 1em;
-  width: 100px;
-  background-color: rgba(107, 104, 104, 0.677);
-  padding: 5px 6px 7px;
-}
-
-}
-
-@media (max-width: 600px) {
-    .sep{
-        display: none;
-    }
-
-    .dropdown{
-        width: 10%;
-    }
-
-    .setting{
-        padding-left: 10px;
-    }
-}
-
-@media (min-width: 576px) {
-    .h-sm-100{
-        height: 100%;
-    }
-}
-
-@media (min-width: 601px) {
-
 .bg-col {
   background-color: white;
 }
@@ -151,11 +117,221 @@ thead.head th {
   border-radius: 1em;
 }
 
-.bg-col ul li:hover,
-.bg-col ul li:active{
+#sidebarMenu{
+  height: 100vh;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  position: sticky;
+  top: 0;
+  scrollbar-width: none;         
+  -ms-overflow-style: none;      
+
+}
+
+#sidebarMenu::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;       
+}
+
+
+.bg-col ul#menu > li > .nav-link{
+  font-weight: 500;
+}
+
+
+.bg-col ul#menu > li > .nav-link:hover,
+.bg-col ul#menu > li > .nav-link:active{
   border-radius: 1em;
   width: 170px;
-  background-color: rgba(107, 104, 104, 0.677);
-  padding: 5px 6px 7px;
+  background-color: rgba(107, 104, 104, 0.677) !important;
 }
+
+.bg-col ul#menu li ul .nav-link {
+  position: relative;
+  padding: 6px 10px;
+  font-size: 0.95rem;
+  color: #343a40;
+  border-radius: 8px;
+  margin: 2px 0;
+  transition: color 0.3s ease;
+  text-decoration: none;
+}
+
+.bg-col ul#menu li ul .nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: #0d6efd; 
+  transition: width 0.3s ease-in-out;
+}
+
+.bg-col ul#menu li ul .nav-link:hover {
+  color: #0d6efd;
+}
+
+.bg-col ul#menu li ul .nav-link:hover::after {
+  width: 40%;
+}
+
+/* ADD EMPLOYEE PAGE */
+.form-add{
+  max-height: 100vh;
+  overflow-y: auto;
+  justify-content: center;
+  align-items: center;
+  background-color: white !important;
+  border-radius: 10px;
+  flex-wrap: wrap;
+  padding: 10px;
+}
+
+.form-add::-webkit-scrollbar {
+  display: none;
+}
+
+.input{
+  display: flex;
+  flex-direction: column;
+  width: 80%;      
+  padding: 8px;
+}
+
+.input i{
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+.input input{
+  font-size: clamp(14px, 2vw, 18px);
+  margin-top: 20px;
+  border-radius: 10px;
+  padding-left: 10px;
+  border: none;
+  height: 40px;
+  background-color: rgb(230, 230, 230);
+}
+
+.add-btn{
+  height: 40px;
+}
+
+
+
+
+/* MEDIA QUERIES */
+@media (max-width: 754px) {
+
+  .input input{
+    padding-top: 10px;
+  }
+
+  .form-add{
+    min-width: 100%;
+    margin-top: 40px;
+    padding-bottom: 3rem;
+  }
+}
+
+@media (max-width: 790px) {
+
+  .top{
+    background-color: rgb(182, 23, 23);
+  }
+
+  .bg-col ul li:hover,
+  .bg-col ul li:active{
+    border-radius: 1em;
+    width: 100px;
+    background-color: rgba(107, 104, 104, 0.677);
+    padding: 5px 6px 7px;
+  }
+
+  }
+
+@media (max-width: 800px) and (min-width: 790px){
+  body{
+    overflow-x: hidden;
+  }
+  
+  .form-add{
+    background-color: rgb(40, 163, 163) !important;
+    min-width: 100%;
+    max-height: none;
+    overflow-y: auto;
+    scrollbar-width: none;       /* Firefox */
+    -ms-overflow-style: none;
+  }
+
+  .form-add::-webkit-scrollbar {
+    display: none;             /* Chrome/Safari */
+  }
+}
+
+
+/* 767px */
+@media (max-width: 789px) and (min-width: 752px) {
+  body{
+    overflow-x: hidden;
+  }
+  
+  .form-add {
+    background-color: burlywood !important;
+    padding: 20px 10px;
+    margin-top: 20px;
+    height: auto;
+    max-height: none;
+    flex-direction: column;
+    min-width: 100%;
+    overflow-y: auto;
+    scrollbar-width: none;       /* Firefox */
+    -ms-overflow-style: none;
+  }
+
+  .form-add::-webkit-scrollbar {
+  display: none;             /* Chrome/Safari */
+}
+
+}
+
+@media (max-width: 800px){
+
+  .top{
+    background-color: white;
+  }
+
+  #sidebarMenu{
+      display: none;
+    }
+  }
+
+@media (min-width: 801px) {
+  #topBar{
+    display: none !important;
+  }
+}
+
+
+@media (max-width: 600px) {
+      
+  .bg-col ul#menu > li > .nav-link{
+    font-weight: 500;
+  }
+
+
+  .bg-col ul#menu > li > .nav-link:hover,
+  .bg-col ul#menu > li > .nav-link:active{
+    border-radius: 1em;
+    width: 170px;
+    background-color: rgba(107, 104, 104, 0.677);
+    
+  }
+}
+
+@media (min-width: 576px) {
+    .h-sm-100{
+        height: 100%;
+    }
 }

@@ -25,7 +25,7 @@
                 <span class="fs-2 text">M<span class="d-sm-inline fs-2">enu</span></span>
             </a>
         <hr>
-        <ul class="nav nav-pills flex-column mb-auto w-100" id="menu">
+        <ul class=" nav nav-pills flex-column mb-auto w-100" id="menu">
           <li class="nav-item">
             <a href="{{ url_for('management') }}" class="nav-link text-dark">
               <i class="fs-5 bi-grid"></i><span class="ms-2">Dashboard</span>
@@ -41,23 +41,22 @@
               <i class="bi bi-calendar-week fs-5"></i><span class="ms-2">Time Logs</span>
             </a>
           </li>
-          <li>
-            <a href="#" class="nav-link text-dark">
-              <i class="fs-5 bi bi-graph-up"></i><span class="ms-2">Reports</span>
-            </a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle text-dark" href="#" id="dropdownMenuButton" role="button"
-              data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="fs-5 bi bi-journal-text"></i><span class="ms-2">Requests</span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-dark shadow drop-m" aria-labelledby="dropdownMenuButton">
-              <li><a class="dropdown-item" href="#">New Request</a></li>
-              <li><a class="dropdown-item" href="#">Leave Status</a></li>
-              <hr class="sep-line">
-              <li><a class="dropdown-item" href="#">Archived</a></li>
+          
+          <!-- Requests Menu with Collapse -->
+        <li class="nav-item">
+          <a class="nav-link text-dark" data-bs-toggle="collapse" href="#requestsSubMenu" role="button" aria-expanded="false" aria-controls="requestsSubMenu">
+            <i class="fs-5 bi bi-journal-text"></i><span class="ms-2">Requests</span>
+          </a>
+          <div class="collapse" id="requestsSubMenu">
+            <ul class="nav flex-column ms-4">
+              <li class="nav-item"><a class="nav-link text-dark" href="#">New Request</a></li>
+              <li class="nav-item"><a class="nav-link text-dark" href="#">Leave Status</a></li>
+              <li class="nav-item"><a class="nav-link text-dark" href="#">Archived</a></li>
             </ul>
-          </li>
+          </div>
+        </li>
+
+
           <li>
             <a href="#" class="nav-link text-dark">
               <i class="fs-5 bi bi-gear"></i><span class="ms-2">Settings</span>
