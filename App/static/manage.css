@@ -1,0 +1,15 @@
+
+@media (max-width: 913px) and (min-width: 801px){
+  main{
+    overflow-y: auto;
+    width: 55vw;
+  }
+  
+  #employee-table{
+    display: block !important;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  
+}

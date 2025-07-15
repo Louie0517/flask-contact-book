@@ -3,6 +3,7 @@ from database import Database
 from datetime import datetime
 from dotenv import load_dotenv
 from config import Config, get_v
+from time import time
 import plotly.graph_objs as gr
 import plotly.offline as pyo
 import sqlite3, pandas as pd
@@ -99,37 +100,38 @@ def employees_management():
         with sqlite3.connect(db.connect_employee()) as sql_con:
             cur = sql_con.cursor()
             cur.execute('''SELECT employee_id, name, department, email, photo_path FROM employee''')
-            updated = cur.fetchall()
-            
-        
+            employee = cur.fetchall()
+
     except sqlite3.Error as e:
         print("Fetch error.", e)
-        updated = []
+        employee = []
         
-    return render_template('e_manage.html', updated=updated)
+    return render_template('e_manage.html', employee=employee)
 
 
 @app.route('/add_employee', methods=['GET', 'POST'])
 def add_employee():
     if request.method == 'POST':
-        id = request.form['id']
+        employee_id = request.form['id']
         name = request.form['name']
         department = request.form['department']
         email = request.form['email']
         image = db.upload_img()
         
         with sqlite3.connect(db.connect_employee()) as con:
+            
             cur = con.cursor()
-            cur.execute("INSERT INTO employee (employee_id, name, department, email, photo_path) VALUE (?, ?, ?, ?)", (id, name, department,email, image))
-            con.commit()
-            return redirect('/employee_management')
-        
-    with sqlite3.connect(db.connect_employee()) as con:
-        cur = con.cursor()
-        cur.execute('''SELECT * FROM employee''')
-        show = cur.fetchall()
-        
-    return render_template('add_employee.html', show=show)
+            cur.execute('''SELECT * FROM employee WHERE email=? ''', (email,))
+            duplicates = cur.fetchone()
+            
+            if duplicates:
+                return render_template('add_employee.html', employed='Employee exists.')
+            else:
+                cur.execute("INSERT INTO employee (employee_id, name, department, email, photo_path) VALUES (?, ?, ?, ?, ?)", (employee_id, name, department, email, image))
+                con.commit()
+                return redirect('/employee_management')
+
+    return render_template('add_employee.html')
 
 @app.route('/delete_employee_profile/<int:id>', methods=['GET'])
 def delete_employee_profile(id):
@@ -196,8 +198,7 @@ def edit_employees_profile():
             print("SQLite error." , e)
         
     return render_template('edit_e_pf.html')
-   
-   
+
 if __name__ == "__main__":
     database_init()
     app.run(debug=True)

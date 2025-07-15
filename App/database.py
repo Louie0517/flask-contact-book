@@ -5,13 +5,13 @@ from werkzeug.utils import secure_filename
 class Database():
     
     def __init__(self) -> None:
+        self.app = Flask(__name__)
         self.employee_database = 'employee.db'
         self.employee_time_logs = 'time_logs.db'
         self.employee_leave_request = 'leave_request.db'
         self.admin_table = 'admin.db'
         self.settings_table = 'settings.db'
-        self.file_path = 'static/employees_img'
-        self.app = Flask(__name__)
+        self.file_path = os.path.join(self.app.root_path, 'static', 'employees_img')
         
 
     def employee_db(self):
@@ -21,7 +21,8 @@ class Database():
                 cur.execute('''CREATE TABLE IF NOT EXISTS employee 
                             (id INTEGER PRIMARY KEY AUTOINCREMENT,
                             employee_id TEXT, name TEXT, department TEXT,
-                            email TEXT, photo_path TEXT)''')
+                            photo_path TEXT)''')
+
                 con.commit()
                 
         except sqlite3.OperationalError as e:
@@ -102,17 +103,19 @@ class Database():
     # uploading image
     def upload_img(self):
            self.app.config['EMPLOYEES_FOLDER'] = self.file_path
+           os.makedirs(self.file_path, exist_ok=True)
+           
            file = request.files['employees_photo']
            filename = secure_filename(file.filename)
-           file.save(os.path.join(self.app['EMPLOYEES_FOLDER'], filename))
-           image_tag =  f'<img src="{url_for("static", filename="uploads/" + filename)}">'
+           file.save(os.path.join(self.app.config['EMPLOYEES_FOLDER'], filename))
+           image_tag =  f'<img src="{url_for("static", filename="employees_img/" + filename)}">'
            
            return image_tag
  
     def update_img(self, user_id):
         file = request.files['employees_photo']   
         filename = secure_filename(file.filename)
-        file_path = os.path.join(self.app['EMPLOYEES_FOLDER'], filename)
+        file_path = os.path.join(self.app.config['EMPLOYEES_FOLDER'], filename)
         
         if os.path.exists(file_path):
             os.rename(file_path)
@@ -123,7 +126,8 @@ class Database():
         
         with sqlite3.connect('employee.db') as con:
             cur = con.cursor()
-            cur.execute("UPDATE employee SET photo_path=? WHERE id=?", (file_path, user_id))
+            relative_path = f'employees_img/{filename}'
+            cur.execute("UPDATE employee SET photo_path=? WHERE id=?", (relative_path, user_id))
             con.commit()
             
     # connect function    

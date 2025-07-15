@@ -135,47 +135,38 @@
       <!-- Main Area -->
     
       <main class="row overflow-auto">
-            <form method="post" action="/add_employee" autocomplete="off">
+            <form method="post" action="/add_employee" autocomplete="off" enctype="multipart/form-data">
                 <div class="container d-flex flex-column form-add my-md-5 py-xl-5 p-md-4">
-                    {% for info in show%}
-                    <p>{{ info[3] }}</p>
-                    <div class="e-name">
-                        <label>Name:</label>
-                        <p>{{ info[1] }}</p>
+                    <div class="input">
+                        <label><span><i class="bi bi-person-vcard text-primary"></i></i></span>Identification number</label>
+                        <input type="text" name="id" id="employee-id" title="Name" required>                    
                     </div>
-                    <div class="e-id">
-                        <label>Id:</label>
-                        <p>{{ info[0] }}</p>
-                    </div>
-                    <div class="e-dept">
-                        <label>Department:</label>
-                        <p>{{ info[2]}}</p>
-                    </div>
-                    {% endfor %}
                     <div class="input">
                         <label><span><i class="bi bi-person-fill-add text-primary"></i></span>Employee name</label>
-                        <input type="text" name="" id="name" title="Name" required>                    
+                        <input type="text" name="name" id="name" title="Name" required>                    
                     </div>
                     <div class="input">
                         <label><span><i class="bi bi-envelope-at-fill text-primary"></i></span>Email</label>
-                        <input type="email" name="" id="email" title="Email" required>
+                        <input type="email" name="email" id="email" title="Email" required>
                     </div>
                     <div class="input">
                         <label><span><i class="bi-briefcase-fill text-primary"></i></span>Department</label>
-                        <input type="text" name="" id="department" title="Department" required>
+                        <input type="text" name="department" id="department" title="Department" required>
                     </div>
                     <div class="input">
-                        <input type="File" name="" id="fileImg" accept="/image*" hidden title="Insert Image">
+                        <input type="File" name="employees_photo" id="fileImg" accept="/image*" hidden title="Insert Image">
                         <label for="fileImg" class="upload-img">
                             <i class="bi bi-images text-primary"></i>
                             <span id="fileName">Insert image</span>
                         </label>
                     </div>
+                    
                     <div class="input">
                         <button type="submit" class="add-btn btn btn-primary">
-                            Add Employee
+                            <span>Add Employee</span>
                         </button>
                     </div>
+                   <span>{{ employed }}</span>
                 </div>
             </form>
       </main>
