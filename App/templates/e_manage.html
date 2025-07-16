@@ -133,6 +133,27 @@
         </div>
       </div>
 
+      <div class="container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th><a href="{{url_for('employess_management', sort_by='name')}}"></a></th>
+                <th><a href="{{url_for('employess_management', sort_by='department')}}"></a></th>
+                <th<a href="{{url_for('employess_management', sort_by='email')}}"></a>></th>
+              </tr>
+              </thead>
+              <tbody>
+                {% for name, department, email in sorts%}
+                <tr>
+                  <td>{{name}}</td>
+                  <td>{{department}}</td>
+                  <td>{{email}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+          </table>
+      </div>
+
       <!-- Main Area -->
       <main class="row overflow-auto">
         <div class="col pt-4">
@@ -150,16 +171,19 @@
                 </thead>
                 <tbody>
                   {% for emp in employee %}
-                  <tr><th scope="row">{{ emp[0] }}</th>
+                  <tr>
+                      <td>{{ emp[0] }}</td>
                       <td>{{ emp[1] }}</td>
                       <td>{{ emp[2] }}</td>
                       <td>{{ emp[3] }}</td>
                       <td>
+                      {% if emp[4] %}
                         <img src="{{ url_for('static', filename=emp[4]) }}" width="100" alt="Employee Photo">
+                      {%  endif %}
                       </td>
                           <td>
-                              <a href="{{ url_for('edit_employees_profile', id=emp[0]) }}" class="btn btn-primary btn-sm">Edit</a>
-                              <a href="{{ url_for('delete_employee_profile', id=emp[0]) }}" class="btn btn-danger btn-sm">Delete</a>
+                              <a href="{{ url_for('edit_employees_profile', id=emp[5]) }}" class="btn btn-primary btn-sm"><i class="bi bi-pencil-square"></i></a>
+                              <a href="{{ url_for('delete_employee_profile', id=emp[5]) }}" class="btn btn-danger btn-sm"><i class="bi bi-trash3-fill"></i></a>
                           </td>
                       </tr>
                   {% endfor %}

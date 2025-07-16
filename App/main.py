@@ -1,9 +1,9 @@
 from flask import Flask, redirect, render_template, request, url_for
 from database import Database
-from datetime import datetime
 from dotenv import load_dotenv
 from config import Config, get_v
-from time import time
+from werkzeug.utils import secure_filename
+from id_generator import rand_id
 import plotly.graph_objs as gr
 import plotly.offline as pyo
 import sqlite3, pandas as pd
@@ -14,6 +14,10 @@ app = Flask(__name__)
 
 app.config.from_object(Config)
 
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'employees_img')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 db : Database = Database()
 
 def database_init():
@@ -22,7 +26,7 @@ def database_init():
     db.leave_request()
     db.user_admin_table()
     db.settings()
-
+  
 @app.route('/')  
 @app.route('/admin_login', methods=['GET', 'POST'])
 def admin_login():
@@ -65,6 +69,20 @@ def get_total_employees():
         
     return employees, status
 
+def sorting_list():
+    with sqlite3.connect(db.connect_employee()) as con:
+        field = request.args.get('sort_by', 'name')
+        
+        if field not in ['name', 'department, email']:
+           field = 'name'
+        
+        cur = con.cursor()
+        query = f"SELECT name, department, email FROM employee ORDER BY {field} ASC"
+        cur.execute(query)
+        sorts = cur.fetchall()
+
+    return render_template('e_manage.html', sorts=sorts, field=field)
+
 @app.route('/management', methods=['GET', 'POST'])
 def management():
     
@@ -93,13 +111,51 @@ def management():
     
     return render_template('dash.html', records = records, chart = chart)
 
+@app.route('/add_employee', methods=['GET', 'POST'])
+def add_employee():
+    def_id = rand_id()
+    
+    if request.method == 'POST':
+        employee_id = request.form['id']
+        name = request.form['name']
+        department = request.form['department']
+        email = request.form['email']
+        
+        if 'employees_photo' not in request.files:
+            return 'No file part.'
+        
+        file = request.files['employees_photo']
+        if file.filename == '':
+            return 'No selected file.'
+            
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+        relative_path = f'employees_img/{filename}'
+        
+        with sqlite3.connect(db.connect_employee()) as con:
+            
+            cur = con.cursor()
+            cur.execute('''SELECT * FROM employee WHERE email=? ''', (email,))
+            duplicates = cur.fetchone()
+            
+            if duplicates:
+                return render_template('add_employee.html', employed=True)
+            else:
+                cur.execute("INSERT INTO employee (employee_id, name, department, email, photo_path) VALUES (?, ?, ?, ?, ?)", (employee_id, name, department, email, relative_path))
+                con.commit()
+                return redirect('/employee_management')
+
+    return render_template('add_employee.html', random=def_id)
+
+
 # Display in management page
 @app.route('/employee_management', methods=['GET', 'POST'])
 def employees_management():
     try:
         with sqlite3.connect(db.connect_employee()) as sql_con:
             cur = sql_con.cursor()
-            cur.execute('''SELECT employee_id, name, department, email, photo_path FROM employee''')
+            cur.execute('''SELECT employee_id, name, department, email, photo_path, id FROM employee''')
             employee = cur.fetchall()
 
     except sqlite3.Error as e:
@@ -109,57 +165,25 @@ def employees_management():
     return render_template('e_manage.html', employee=employee)
 
 
-@app.route('/add_employee', methods=['GET', 'POST'])
-def add_employee():
-    if request.method == 'POST':
-        employee_id = request.form['id']
-        name = request.form['name']
-        department = request.form['department']
-        email = request.form['email']
-        image = db.upload_img()
-        
-        with sqlite3.connect(db.connect_employee()) as con:
-            
-            cur = con.cursor()
-            cur.execute('''SELECT * FROM employee WHERE email=? ''', (email,))
-            duplicates = cur.fetchone()
-            
-            if duplicates:
-                return render_template('add_employee.html', employed='Employee exists.')
-            else:
-                cur.execute("INSERT INTO employee (employee_id, name, department, email, photo_path) VALUES (?, ?, ?, ?, ?)", (employee_id, name, department, email, image))
-                con.commit()
-                return redirect('/employee_management')
-
-    return render_template('add_employee.html')
-
-@app.route('/delete_employee_profile/<int:id>', methods=['GET'])
+@app.route('/delete_employee_profile/<string:id>', methods=['GET'])
 def delete_employee_profile(id):
-    database_path = os.path.join(os.path.dirname(__file__), 'employee.db')
     
-    with sqlite3.connect(database_path) as con:
+    with sqlite3.connect(db.connect_employee()) as con:
         cur = con.cursor()
         cur.execute("ATTACH DATABASE 'time_logs.db' AS t_logs ")
         
         try:
-            cur.execute(''' DELETE FROM emloyee WHERE id=?  ''', (id,))
-            cur.execute(''' DELETE FROM time_logs WHERE id=?  ''', (id,))
+            cur.execute(''' DELETE FROM employee WHERE id=?  ''', (id,))
+
+            cur.execute(''' DELETE FROM t_logs.time_logs WHERE id=?  ''', (id,))
+
             con.commit()
                     
         except Exception as e:
             print("Error deleting employees profile.", e)
         
-        return redirect('/employee_management')
-    
-    with sqlite3.connect(db.connect_employee()) as conn:
-        cur = conn.cursor()
-        cur.execute('''SELECT id FROM employee''')
-        e_id = cur.fetchall()
-        
-    return render_template('e_manage.html', employee=e_id)
-
-    
-
+    return redirect('/employee_management')
+ 
 @app.route('/edit_employees_profile', methods=['GET', 'POST'])
 def edit_employees_profile():
     

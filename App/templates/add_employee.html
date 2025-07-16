@@ -139,7 +139,7 @@
                 <div class="container d-flex flex-column form-add my-md-5 py-xl-5 p-md-4">
                     <div class="input">
                         <label><span><i class="bi bi-person-vcard text-primary"></i></i></span>Identification number</label>
-                        <input type="text" name="id" id="employee-id" title="Name" required>                    
+                        <input type="text" name="id" id="employee-id" title="Id" value="{{ random }}" readonly>                    
                     </div>
                     <div class="input">
                         <label><span><i class="bi bi-person-fill-add text-primary"></i></span>Employee name</label>
@@ -150,8 +150,16 @@
                         <input type="email" name="email" id="email" title="Email" required>
                     </div>
                     <div class="input">
-                        <label><span><i class="bi-briefcase-fill text-primary"></i></span>Department</label>
-                        <input type="text" name="department" id="department" title="Department" required>
+                        <label for="department"><i class="bi-briefcase-fill text-primary"></i>Department</label>
+                        <select name="department" id="department" required>
+                          <option value="" disabled selected>Select department</option>
+                          <option value="Management">Management</option>
+                          <option value="IT">IT</option>
+                          <option value="Finance">Finance</option>
+                          <option value="HR">HR</option>
+                          <option value="Marketing">Marketing</option>
+                          <option value="Creatives">Creatives</option>
+                        </select>
                     </div>
                     <div class="input">
                         <input type="File" name="employees_photo" id="fileImg" accept="/image*" hidden title="Insert Image">
@@ -164,9 +172,13 @@
                     <div class="input">
                         <button type="submit" class="add-btn btn btn-primary">
                             <span>Add Employee</span>
-                        </button>
+                        </button> 
                     </div>
-                   <span>{{ employed }}</span>
+                   {% if employed %}
+                   <script>
+                    window.alert('Email already exists.')
+                   </script>
+                   {% endif %}
                 </div>
             </form>
       </main>

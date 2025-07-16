@@ -1,18 +1,14 @@
 import sqlite3, os
 from flask import Flask, request, url_for
 from werkzeug.utils import secure_filename
-
 class Database():
     
     def __init__(self) -> None:
-        self.app = Flask(__name__)
         self.employee_database = 'employee.db'
         self.employee_time_logs = 'time_logs.db'
         self.employee_leave_request = 'leave_request.db'
         self.admin_table = 'admin.db'
-        self.settings_table = 'settings.db'
-        self.file_path = os.path.join(self.app.root_path, 'static', 'employees_img')
-        
+        self.settings_table = 'settings.db'        
 
     def employee_db(self):
         try:
@@ -101,6 +97,7 @@ class Database():
         
             
     # uploading image
+    '''
     def upload_img(self):
            self.app.config['EMPLOYEES_FOLDER'] = self.file_path
            os.makedirs(self.file_path, exist_ok=True)
@@ -108,9 +105,10 @@ class Database():
            file = request.files['employees_photo']
            filename = secure_filename(file.filename)
            file.save(os.path.join(self.app.config['EMPLOYEES_FOLDER'], filename))
-           image_tag =  f'<img src="{url_for("static", filename="employees_img/" + filename)}">'
            
-           return image_tag
+           return f'employees_img{filename}'
+    '''
+    
  
     def update_img(self, user_id):
         file = request.files['employees_photo']   
@@ -129,6 +127,7 @@ class Database():
             relative_path = f'employees_img/{filename}'
             cur.execute("UPDATE employee SET photo_path=? WHERE id=?", (relative_path, user_id))
             con.commit()
+            
             
     # connect function    
     def connect_employee(self):

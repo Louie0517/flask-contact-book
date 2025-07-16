@@ -222,6 +222,24 @@ thead.head th {
   outline: none;
 }
 
+.input select{
+  border-radius: 10px;
+  font-size: clamp(14px, 2vw, 18px);
+  margin-top: 20px;
+  border-radius: 10px;
+  padding-left: 10px;
+  border: solid 1px rgba(128, 128, 128, 0.71);
+  height: 40px;
+  background-color: rgb(255, 255, 255);
+
+}
+
+.input select:hover,
+.input select:focus{
+  border: solid 1px rgba(128, 128, 128, 0.71);
+  outline: none;
+}
+
 .add-btn span{
   font-size: 17px;
   font-weight: 500;
