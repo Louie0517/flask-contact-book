@@ -1,5 +1,6 @@
 from flask import Flask, redirect, render_template, request, url_for
 from database import Database
+from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from config import Config, get_v
 from werkzeug.utils import secure_filename
@@ -69,20 +70,6 @@ def get_total_employees():
         
     return employees, status
 
-def sorting_list():
-    with sqlite3.connect(db.connect_employee()) as con:
-        field = request.args.get('sort_by', 'name')
-        
-        if field not in ['name', 'department, email']:
-           field = 'name'
-        
-        cur = con.cursor()
-        query = f"SELECT name, department, email FROM employee ORDER BY {field} ASC"
-        cur.execute(query)
-        sorts = cur.fetchall()
-
-    return render_template('e_manage.html', sorts=sorts, field=field)
-
 @app.route('/management', methods=['GET', 'POST'])
 def management():
     
@@ -111,9 +98,14 @@ def management():
     
     return render_template('dash.html', records = records, chart = chart)
 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ['png', 'jpg', 'jpeg']
+
+
 @app.route('/add_employee', methods=['GET', 'POST'])
 def add_employee():
     def_id = rand_id()
+    ALLOWED_EXTENSIONS = ['png', '.jpeg', 'jpg']
     
     if request.method == 'POST':
         employee_id = request.form['id']
@@ -127,6 +119,11 @@ def add_employee():
         file = request.files['employees_photo']
         if file.filename == '':
             return 'No selected file.'
+        
+        if not allowed_file(file.filename):
+            return render_template('add_employee.html', e = 'File type not allowed. Please upload a PNG, JPG, or JPEG.', 
+                                   random=def_id, form_data={'id': employee_id, 'name': name, 'department': 
+                                   department, 'email': email})
             
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -140,7 +137,9 @@ def add_employee():
             duplicates = cur.fetchone()
             
             if duplicates:
-                return render_template('add_employee.html', employed=True)
+                return render_template('add_employee.html', employed=True, random=def_id, 
+                                form_data={'id': employee_id, 'name': name, 'department': 
+                                department, 'email': email} )
             else:
                 cur.execute("INSERT INTO employee (employee_id, name, department, email, photo_path) VALUES (?, ?, ?, ?, ?)", (employee_id, name, department, email, relative_path))
                 con.commit()
@@ -148,22 +147,31 @@ def add_employee():
 
     return render_template('add_employee.html', random=def_id)
 
+@app.route('/search_employee')
+def search_employee():
+    pass
 
-# Display in management page
-@app.route('/employee_management', methods=['GET', 'POST'])
+
+# Display and Sort in management page
+@app.route('/employee_management')
 def employees_management():
+    sort_by = request.args.get('sort_by')
+    valid_fields = ['name', 'department', 'email']
+
+    query = '''SELECT employee_id, name, department, email, photo_path, id FROM employee'''
+    if sort_by in valid_fields:
+        query += f' ORDER BY {sort_by} COLLATE NOCASE'
+
     try:
-        with sqlite3.connect(db.connect_employee()) as sql_con:
-            cur = sql_con.cursor()
-            cur.execute('''SELECT employee_id, name, department, email, photo_path, id FROM employee''')
+        with sqlite3.connect(db.connect_employee()) as con:
+            cur = con.cursor()
+            cur.execute(query)
             employee = cur.fetchall()
-
     except sqlite3.Error as e:
-        print("Fetch error.", e)
+        print("Fetch error:", e)
         employee = []
-        
-    return render_template('e_manage.html', employee=employee)
 
+    return render_template('e_manage.html', employee=employee, field=sort_by)
 
 @app.route('/delete_employee_profile/<string:id>', methods=['GET'])
 def delete_employee_profile(id):

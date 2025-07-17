@@ -143,7 +143,7 @@
                     </div>
                     <div class="input">
                         <label><span><i class="bi bi-person-fill-add text-primary"></i></span>Employee name</label>
-                        <input type="text" name="name" id="name" title="Name" required>                    
+                        <input class="add-name-inp" type="text" name="name" id="name" title="Name" required>                    
                     </div>
                     <div class="input">
                         <label><span><i class="bi bi-envelope-at-fill text-primary"></i></span>Email</label>
@@ -162,7 +162,7 @@
                         </select>
                     </div>
                     <div class="input">
-                        <input type="File" name="employees_photo" id="fileImg" accept="/image*" hidden title="Insert Image">
+                        <input type="File" name="employees_photo" id="fileImg" accept=".jpg, .jpeg, .png " hidden title="Insert Image">
                         <label for="fileImg" class="upload-img">
                             <i class="bi bi-images text-primary"></i>
                             <span id="fileName">Insert image</span>
@@ -177,6 +177,11 @@
                    {% if employed %}
                    <script>
                     window.alert('Email already exists.')
+                   </script>
+                   {% endif %}
+                   {% if e %}
+                   <script>
+                    window.alert('File type not allowed. Please upload a PNG, JPG, or JPEG.')
                    </script>
                    {% endif %}
                 </div>

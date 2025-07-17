@@ -37,21 +37,21 @@
       </li>
 
       <!-- Employees Menu with Collapse -->
-<li class="nav-item">
-  <a class="nav-link text-dark" data-bs-toggle="collapse" href="#employeesSubMenu" role="button" aria-expanded="false" aria-controls="employeesSubMenu">
-    <i class="bi bi-person-lines-fill fs-5"></i><span class="ms-2">Employees</span>
-  </a>
-  <div class="collapse" id="employeesSubMenu">
-    <ul class="nav flex-column ms-4">
-      <li class="nav-item">
-        <a href="{{ url_for('employees_management') }}" class="nav-link text-dark">Manage</a>
-      </li>
-      <li class="nav-item">
-        <a href="{{ url_for('add_employee') }}" class="nav-link text-dark">Add Employee</a>
-      </li>
-    </ul>
-  </div>
-</li>
+  <li class="nav-item">
+    <a class="nav-link text-dark" data-bs-toggle="collapse" href="#employeesSubMenu" role="button" aria-expanded="false" aria-controls="employeesSubMenu">
+      <i class="bi bi-person-lines-fill fs-5"></i><span class="ms-2">Employees</span>
+    </a>
+    <div class="collapse" id="employeesSubMenu">
+      <ul class="nav flex-column ms-4">
+        <li class="nav-item">
+          <a href="{{ url_for('employees_management') }}" class="nav-link text-dark">Manage</a>
+        </li>
+        <li class="nav-item">
+          <a href="{{ url_for('add_employee') }}" class="nav-link text-dark">Add Employee</a>
+        </li>
+      </ul>
+    </div>
+  </li>
 
 
       <!-- Time Logs -->
@@ -133,32 +133,73 @@
         </div>
       </div>
 
-      <div class="container">
-          <table class="table">
-            <thead>
-              <tr>
-                <th><a href="{{url_for('employess_management', sort_by='name')}}"></a></th>
-                <th><a href="{{url_for('employess_management', sort_by='department')}}"></a></th>
-                <th<a href="{{url_for('employess_management', sort_by='email')}}"></a>></th>
-              </tr>
-              </thead>
-              <tbody>
-                {% for name, department, email in sorts%}
-                <tr>
-                  <td>{{name}}</td>
-                  <td>{{department}}</td>
-                  <td>{{email}}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-          </table>
-      </div>
+      
+     
 
       <!-- Main Area -->
       <main class="row overflow-auto">
-        <div class="col pt-4">
+        <div class="col pt-3">
           <div class="container">
-              <table id="employee-table" class="table custom-table">
+        <div class="container mt-3">
+      <!-- Sort Icon with Dropdown -->
+      <div class="dropdown mb-3 d-flex w-100 justify-content-end">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-funnel-fill"></i> Sort
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+          <li><a class="dropdown-item" href="{{ url_for('employees_management', sort_by='name') }}">Sort by Name</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('employees_management', sort_by='department') }}">Sort by Department</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('employees_management', sort_by='email') }}">Sort by Email</a></li>
+          <li><hr></li>
+          <li><a class="dropdown-item" href="{{ url_for('employees_management') }}">Default</a></li>
+        </ul>
+      </div>
+
+
+
+        <!-- Search Box -->
+       <div class="input-group container search-con d-flex flex-column h-25 p-3">
+        <p class="ps-2 pt-2 search-txt">Search</p>
+
+        <div class="d-flex gap-2">
+
+          <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Email's employee" aria-label="Email's employee" aria-describedby="basic-addon2">
+            <div class="input-group-append">
+              <span class="input-group-text" id="basic-addon2">@example.com</span>
+            </div>
+          </div>
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="inputGroup-sizing-name">Name</span>
+            </div>
+              <input type="text" class="form-control " aria-label="Name" aria-describedby="inputGroup-sizing-name">
+          </div>
+        </div>
+
+      
+
+        <div class="d-flex flex-row gap-2">
+           <div class="input-group mb-3">
+              <div class="input-group-append">
+                <span class="input-group-text" id="inputGroup-sizing-id">Employee's Id</span>
+              </div>
+                <input type="text" class="form-control" aria-label="Id" aria-describedby="inputGroup-sizing-id">
+            </div>
+
+             <div class="input-group mb-3">
+              <input type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
+              <div class="input-group-append">
+                <span class="input-group-text" id="basic-addon2">@example.com</span>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex w-100 justify-content-end">
+            <button type="button" class="btn btn-secondary btn-md w-25 justify-content-center">Large button</button>
+          </div>
+        </div>
+
+              <table id="employee-table" class="table custom-table my-4">
                 <thead class="head">
                   <tr>
                     <th>Employee ID</th>
@@ -170,28 +211,30 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for emp in employee %}
-                  <tr>
-                      <td>{{ emp[0] }}</td>
-                      <td>{{ emp[1] }}</td>
-                      <td>{{ emp[2] }}</td>
-                      <td>{{ emp[3] }}</td>
-                      <td>
-                      {% if emp[4] %}
-                        <img src="{{ url_for('static', filename=emp[4]) }}" width="100" alt="Employee Photo">
-                      {%  endif %}
-                      </td>
-                          <td>
-                              <a href="{{ url_for('edit_employees_profile', id=emp[5]) }}" class="btn btn-primary btn-sm"><i class="bi bi-pencil-square"></i></a>
-                              <a href="{{ url_for('delete_employee_profile', id=emp[5]) }}" class="btn btn-danger btn-sm"><i class="bi bi-trash3-fill"></i></a>
-                          </td>
-                      </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
+              {% for emp in employee %}
+                <tr>
+                  <td>{{ emp[0] }}</td>
+                  <td>{{ emp[1] }}</td>
+                  <td>{{ emp[2] }}</td>
+                  <td>{{ emp[3] }}</td>
+                  <td>
+                    {% if emp[4] %}
+                      <img src="{{ url_for('static', filename=emp[4]) }}" width="100" alt="Employee Photo">
+                    {% else %}
+                      <p>No photo</p>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <a href="{{ url_for('edit_employees_profile', id=emp[5]) }}" class="btn btn-primary btn-sm"><i class="bi bi-pencil-square"></i></a>
+                    <a href="{{ url_for('delete_employee_profile', id=emp[5]) }}" class="btn btn-danger btn-sm"><i class="bi bi-trash3-fill"></i></a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-      </main>
+      </div>
+    </main>
 
       <!-- Footer 
       <footer class="row bg-light py-3 mt-auto">
@@ -200,6 +243,8 @@
     </div>
   </div>
 </div>
+
+<script src="{{ url_for('static', filename='global.js')}}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

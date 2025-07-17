@@ -245,14 +245,29 @@ thead.head th {
   font-weight: 500;
 }
 
+.add-name-inp{
+  text-transform: capitalize;
+}
+
 #topBar{
   background-color: white !important;
 }
 
+/*
 main, .container, .row, .col {
-  outline: 1px solid red; /* See boundaries */
+  outline: 1px solid red; 
+} */
+
+
+.search-con{
+  background-color: white;
+  border-radius: 6px;
 }
 
+.search-txt{
+  font-weight: 400;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
 
 
 /* MEDIA QUERIES */
