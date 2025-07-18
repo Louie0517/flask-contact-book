@@ -36,21 +36,11 @@
         </a>
       </li>
 
-      <!-- Employees Menu with Collapse -->
+      <!-- Employees Menu -->
   <li class="nav-item">
     <a class="nav-link text-dark" data-bs-toggle="collapse" href="#employeesSubMenu" role="button" aria-expanded="false" aria-controls="employeesSubMenu">
       <i class="bi bi-person-lines-fill fs-5"></i><span class="ms-2">Employees</span>
     </a>
-    <div class="collapse" id="employeesSubMenu">
-      <ul class="nav flex-column ms-4">
-        <li class="nav-item">
-          <a href="{{ url_for('employees_management') }}" class="nav-link text-dark">Manage</a>
-        </li>
-        <li class="nav-item">
-          <a href="{{ url_for('add_employee') }}" class="nav-link text-dark">Add Employee</a>
-        </li>
-      </ul>
-    </div>
   </li>
 
 
@@ -98,6 +88,7 @@
   </div>
 </nav>
 
+
     
     <!-- Main Content -->
     <div class="col d-flex flex-column">
@@ -141,10 +132,12 @@
         <div class="col pt-3">
           <div class="container">
         <div class="container mt-3">
-      <!-- Sort Icon with Dropdown -->
+      <!-- Sort Icon with Dropdown and Add Employee -->
+      <div class="d-flex flex-row gap-2 ">
+        <p id="e-text">Employees</p>
       <div class="dropdown mb-3 d-flex w-100 justify-content-end">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="bi bi-funnel-fill"></i> Sort
+          <i class="bi bi-sort-down"></i>
         </button>
         <ul class="dropdown-menu" aria-labelledby="sortDropdown">
           <li><a class="dropdown-item" href="{{ url_for('employees_management', sort_by='name') }}">Sort by Name</a></li>
@@ -155,49 +148,63 @@
         </ul>
       </div>
 
+      <div class="text-nowrap">
+        <a href="{{ url_for('add_employee') }}" class="text-dark">
+          <button class="btn btn-secondary" type="button" id="addEmployee" data-bs-toggle="Add Employee" aria-expanded="false"><i class="bi bi-person-fill-add"></i><span>Add Employee</span></button>
+        </a>
+      </div>
+      </div>
+
 
 
         <!-- Search Box -->
+      <form action="{{ url_for('search_employee') }}" method="get">
        <div class="input-group container search-con d-flex flex-column h-25 p-3">
-        <p class="ps-2 pt-2 search-txt">Search</p>
+        <p class="pt-2 search-txt">Search</p>
 
-        <div class="d-flex gap-2">
-
-          <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="Email's employee" aria-label="Email's employee" aria-describedby="basic-addon2">
-            <div class="input-group-append">
-              <span class="input-group-text" id="basic-addon2">@example.com</span>
-            </div>
+        <div class="d-flex gap-3">
+          <div class="input-group mb-3 d-flex flex-column">
+            <label for="e-employee">Email</label>
+            <input name="email" value="{{ email or '' }}"  autocomplete="off" type="email" id="e-employee" class="form-control w-100" placeholder="Email" aria-label="Email" aria-describedby="basic-addon2">
           </div>
-          <div class="input-group mb-3">
-            <div class="input-group-prepend">
-              <span class="input-group-text" id="inputGroup-sizing-name">Name</span>
-            </div>
-              <input type="text" class="form-control " aria-label="Name" aria-describedby="inputGroup-sizing-name">
+
+          <div class="input-group mb-3 d-flex flex-column">
+              <label for="e-name">Name</label>
+              <input name="name"  value="{{ name or '' }}"  autocomplete="off" id="e_name" type="text" class="form-control w-100" placeholder="Name" aria-label="Name" aria-describedby="inputGroup-sizing-name">
           </div>
         </div>
 
       
 
-        <div class="d-flex flex-row gap-2">
-           <div class="input-group mb-3">
-              <div class="input-group-append">
-                <span class="input-group-text" id="inputGroup-sizing-id">Employee's Id</span>
-              </div>
-                <input type="text" class="form-control" aria-label="Id" aria-describedby="inputGroup-sizing-id">
+        <div class="d-flex flex-row gap-3">
+           <div class="input-group mb-3 d-flex flex-colum h-25">
+                <label for="e-id">Identification number</label>             
+                <input name="identification-number" value="{{ iden_num or '' }}" autocomplete="off" id="e-id" type="text" class="form-control w-100" placeholder="ID" aria-label="ID" aria-describedby="inputGroup-sizing-id">
             </div>
 
-             <div class="input-group mb-3">
-              <input type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2">
-              <div class="input-group-append">
-                <span class="input-group-text" id="basic-addon2">@example.com</span>
-              </div>
+            <div class="input-group mb-3 d-flex flex-column h-25">
+              <label for="e-dept">Department</label>
+              <select id="e-dept" class="form-control w-100" name="department">
+                <option selected disabled>Select department</option>
+                <option value="Management" {% if department == 'Management' %}selected{% endif %}>Management</option>
+                <option value="IT" {% if department == 'IT' %} selected {% endif %}>IT</option>
+                <option value="Finance" {% if department == 'Finance' %}selected{% endif %}>Finance</option>
+                <option value="HR" {% if department == 'HR' %}selected{% endif %}>HR</option>
+                <option value="Marketing" {% if department == 'Marketing' %}selected{% endif %}>Marketing</option>
+                <option value="Creatives" {% if department == 'Creatives' %}selected{% endif %}>Creatives</option>
+              </select>
             </div>
+
           </div>
+
           <div class="d-flex w-100 justify-content-end">
-            <button type="button" class="btn btn-secondary btn-md w-25 justify-content-center">Large button</button>
+            <button id="search" type="submit" class="btn btn-primary px-4 py-2 w-md-50 w-lg-25 text-nowrap ">
+              Search Employee
+            </button>
           </div>
+
         </div>
+      </form>
 
               <table id="employee-table" class="table custom-table my-4">
                 <thead class="head">
@@ -211,15 +218,16 @@
                   </tr>
                 </thead>
                 <tbody>
+            {% if employee %}
               {% for emp in employee %}
                 <tr>
                   <td>{{ emp[0] }}</td>
-                  <td>{{ emp[1] }}</td>
+                  <td id="name">{{ emp[1] }}</td>
                   <td>{{ emp[2] }}</td>
                   <td>{{ emp[3] }}</td>
                   <td>
                     {% if emp[4] %}
-                      <img src="{{ url_for('static', filename=emp[4]) }}" width="100" alt="Employee Photo">
+                      <img class="employee-photos" src="{{ url_for('static', filename=emp[4]) }}" width="100" alt="Employee Photo">
                     {% else %}
                       <p>No photo</p>
                     {% endif %}
@@ -230,6 +238,11 @@
                   </td>
                 </tr>
               {% endfor %}
+              {% else %}
+              <tr>
+                <td colspan="6" class="text-center">No employee found.</td>
+              </tr>
+              {% endif %}
             </tbody>
           </table>
         </div>

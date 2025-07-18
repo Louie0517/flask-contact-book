@@ -147,9 +147,51 @@ def add_employee():
 
     return render_template('add_employee.html', random=def_id)
 
-@app.route('/search_employee')
+@app.route('/search_employee', methods=['GET'])
 def search_employee():
-    pass
+    iden_num = request.args.get('identification-number')
+    name = request.args.get('name')
+    department = request.args.get('department')
+    email = request.args.get('email')
+
+    filters = []
+    values = []
+
+    if iden_num:
+        filters.append("employee_id = ?")
+        values.append(iden_num)
+    if name:
+        filters.append("name LIKE ?")
+        values.append(f"%{name}%")
+    if department:
+        filters.append("department = ?")
+        values.append(department)
+    if email:
+        filters.append("email LIKE ?")
+        values.append(f"%{email}%")
+
+    where_clause = " AND ".join(filters) if filters else "1=1"
+
+    try:
+        with sqlite3.connect(db.connect_employee()) as con:
+            cur = con.cursor()
+            query = f"""
+                SELECT employee_id, name, department, email, photo_path, id
+                FROM employee
+                WHERE {where_clause}
+            """
+            cur.execute(query, values)
+            results = cur.fetchall()
+            
+            return render_template('e_manage.html', employee=results,
+                       iden_num=iden_num, name=name, department=department, email=email)
+
+
+    except sqlite3.Error as e:
+        print("Fetch error:", e)
+        results = []
+
+    return render_template('e_manage.html', employee=results)
 
 
 # Display and Sort in management page

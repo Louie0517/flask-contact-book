@@ -37,19 +37,9 @@
 
       <!-- Employees Menu with Collapse -->
 <li class="nav-item">
-  <a class="nav-link text-dark" data-bs-toggle="collapse" href="#employeesSubMenu" role="button" aria-expanded="false" aria-controls="employeesSubMenu">
-    <i class="bi bi-person-lines-fill fs-5"></i><span class="ms-2">Employees</span>
+  <a class="nav-link text-dark" href="{{ url_for('employees_management') }}">
+    <i class="bi bi-person-lines-fill fs-5 add-name-inp"></i><span class="ms-2">Employees</span>
   </a>
-  <div class="collapse" id="employeesSubMenu">
-    <ul class="nav flex-column ms-4">
-      <li class="nav-item">
-        <a href="{{ url_for('employees_management') }}" class="nav-link text-dark">Manage</a>
-      </li>
-      <li class="nav-item">
-        <a href="{{ url_for('add_employee') }}" class="nav-link text-dark">Add Employee</a>
-      </li>
-    </ul>
-  </div>
 </li>
 
 
@@ -174,6 +164,7 @@
                             <span>Add Employee</span>
                         </button> 
                     </div>
+
                    {% if employed %}
                    <script>
                     window.alert('Email already exists.')

@@ -4,3 +4,11 @@ function updateInput(){
 
     inp.value = sel.value
 }
+
+function qSearch(){
+    document.getElementById('search').addEventListener('click', function(){
+        
+    });
+}
+
+updateInput()

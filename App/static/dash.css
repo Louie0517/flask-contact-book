@@ -198,7 +198,7 @@ thead.head th {
   display: flex;
   flex-direction: column;
   width: 75%;      
-  padding: 8px;
+  padding: 4px;
 }
 
 .input i{
@@ -253,10 +253,10 @@ thead.head th {
   background-color: white !important;
 }
 
-/*
+
 main, .container, .row, .col {
   outline: 1px solid red; 
-} */
+} 
 
 
 .search-con{
@@ -269,6 +269,31 @@ main, .container, .row, .col {
   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
+#sortDropdown i{
+  font-size: 20px;
+}
+
+#e-text{
+  font-size: 30px;
+  font-weight: 500;
+  font-family: sans-serif;
+}
+
+#e_name{
+  text-transform: capitalize;
+}
+
+#addEmployee{
+  margin-left: 3px;
+}
+
+#addEmployee i{
+  font-size: 20px;
+}
+
+#addEmployee span{
+  padding-left: 6px;
+}
 
 /* MEDIA QUERIES */
 
