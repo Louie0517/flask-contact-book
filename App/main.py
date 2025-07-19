@@ -112,23 +112,27 @@ def add_employee():
         name = request.form['name']
         department = request.form['department']
         email = request.form['email']
-        
+        '''
         if 'employees_photo' not in request.files:
             return 'No file part.'
+        '''
+        
         
         file = request.files['employees_photo']
-        if file.filename == '':
-            return 'No selected file.'
-        
-        if not allowed_file(file.filename):
-            return render_template('add_employee.html', e = 'File type not allowed. Please upload a PNG, JPG, or JPEG.', 
-                                   random=def_id, form_data={'id': employee_id, 'name': name, 'department': 
-                                   department, 'email': email})
+        if file.filename != '':
+            if not allowed_file(file.filename):
+                return render_template('add_employee.html', e = 'File type not allowed. Please upload a PNG, JPG, or JPEG.', 
+                                    random=def_id, form_data={'id': employee_id, 'name': name, 'department': 
+                                    department, 'email': email})
+                
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            relative_path = f'employees_img/{filename}'
             
-        filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
-        relative_path = f'employees_img/{filename}'
+        else:
+            relative_path = 'employees_img/default.jpg'
+            
         
         with sqlite3.connect(db.connect_employee()) as con:
             
@@ -261,6 +265,8 @@ def edit_employees_profile():
                         
                     cur.execute('''UPDATE time_logs SET employee_id=?, name=? WHERE id=?''', (new_id, new_name, tl_id))
                     con.commit()
+                    
+                    
                     
                     return redirect('/employees_management')
                     

@@ -1,0 +1,22 @@
+
+.forms{
+    height: 95vh;
+    align-items: end;
+}
+
+.form-input{
+    width: 80%;
+}
+
+.forms{
+    background-color: white !important;
+    width: 80% !important;
+    border-radius: 10px;
+}
+
+.submit-btn{
+    width: 30% !important;
+    white-space: nowrap;
+    height: 50px;
+}
+

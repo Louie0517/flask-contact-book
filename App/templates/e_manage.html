@@ -20,7 +20,7 @@
   <div class="row vh-100 overflow-auto">
 
     <!-- Sidebar -->
-<nav id="sidebarMenu" class=" col-12 col-sm-3 col-xl-2 bg-col  px-0 position-sticky sticky-top">
+<nav id="sidebarMenu" class="col-12 col-sm-3 col-xl-2 bg-col px-0 position-sticky sticky-top">
   <div class="d-flex w-100 flex-column p-3 align-items-sm-start pt-5 h-100">
     <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
       <span class="fs-2 text">M<span class="d-sm-inline fs-2">enu</span></span>
@@ -28,65 +28,76 @@
     <hr>
 
     <ul class="nav nav-pills flex-column mb-auto w-100" id="menu">
-      
-      <!-- Dashboard -->
-      <li class="nav-item">
-        <a href="{{ url_for('management') }}" class="nav-link text-dark">
-          <i class="fs-5 bi-grid"></i><span class="ms-2">Dashboard</span>
-        </a>
-      </li>
+      <div class="container con-li">
+        
+        <!-- Dashboard -->
+        <li class="nav-item">
+          <a href="{{ url_for('management') }}" class="nav-link text-dark">
+            <i class="fs-5 bi-grid"></i><span class="ms-2">Dashboard</span>
+          </a>
+        </li>
 
-      <!-- Employees Menu -->
-  <li class="nav-item">
-    <a class="nav-link text-dark" data-bs-toggle="collapse" href="#employeesSubMenu" role="button" aria-expanded="false" aria-controls="employeesSubMenu">
-      <i class="bi bi-person-lines-fill fs-5"></i><span class="ms-2">Employees</span>
-    </a>
-  </li>
+        <!-- Employees Menu -->
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="{{ url_for('employees_management')}}">
+            <i class="bi bi-person-lines-fill fs-5"></i><span class="ms-2">Employees</span>
+          </a>
+        </li>
 
+        <!-- Time Logs -->
+        <li>
+          <a href="#" class="nav-link text-dark">
+            <i class="bi bi-calendar-week fs-5"></i><span class="ms-2">Time Logs</span>
+          </a>
+        </li>
 
-      <!-- Time Logs -->
-      <li>
-        <a href="#" class="nav-link text-dark">
-          <i class="bi bi-calendar-week fs-5"></i><span class="ms-2">Time Logs</span>
-        </a>
-      </li>
+        <!-- Reports -->
+        <li>
+          <a href="#" class="nav-link text-dark">
+            <i class="fs-5 bi bi-graph-up"></i><span class="ms-2">Reports</span>
+          </a>
+        </li>
 
-      <!-- Reports -->
-      <li>
-        <a href="#" class="nav-link text-dark">
-          <i class="fs-5 bi bi-graph-up"></i><span class="ms-2">Reports</span>
-        </a>
-      </li>
+        <!-- Requests -->
+        <li class="nav-item">
+          <a class="nav-link text-dark" data-bs-toggle="collapse" href="#requestsSubMenu" role="button" aria-expanded="false" aria-controls="requestsSubMenu">
+            <i class="fs-5 bi bi-journal-text"></i><span class="ms-2">Requests</span>
+          </a>
+          <div class="collapse" id="requestsSubMenu">
+            <ul class="nav flex-column ms-4">
+              <li class="nav-item"><a class="nav-link text-dark" href="#">New Request</a></li>
+              <li class="nav-item"><a class="nav-link text-dark" href="#">Leave Status</a></li>
+              <li class="nav-item"><a class="nav-link text-dark" href="#">Archived</a></li>
+            </ul>
+          </div>
+        </li>
 
-      
-    <li class="nav-item">
-      <a class="nav-link text-dark" data-bs-toggle="collapse" href="#requestsSubMenu" role="button" aria-expanded="false" aria-controls="requestsSubMenu">
-        <i class="fs-5 bi bi-journal-text"></i><span class="ms-2">Requests</span>
-      </a>
-      <div class="collapse" id="requestsSubMenu">
-        <ul class="nav flex-column ms-4">
-          <li class="nav-item"><a class="nav-link text-dark" href="#">New Request</a></li>
-          <li class="nav-item"><a class="nav-link text-dark" href="#">Leave Status</a></li>
-          <li class="nav-item"><a class="nav-link text-dark" href="#">Archived</a></li>
-        </ul>
+        <!-- Settings -->
+        <li>
+          <a href="#" class="nav-link text-dark">
+            <i class="fs-5 bi bi-gear"></i><span class="ms-2">Settings</span>
+          </a>
+        </li>
+
       </div>
-    </li>
-
-
-      <!-- Settings -->
-      <li>
-        <a href="#" class="nav-link text-dark">
-          <i class="fs-5 bi bi-gear"></i><span class="ms-2">Settings</span>
-        </a>
-      </li>
     </ul>
 
-    <!-- Logout -->
-    <a href="{{ url_for('admin_login') }}" class="nav-link text-dark mt-3">
-      <i class="bi bi-box-arrow-left fs-4 ms-3"></i><span class="ms-2">Logout</span>
-    </a>
+    <div class="container">
+      <hr>
+      <!-- Night Mode -->
+      <a href="{{ url_for('admin_login') }}" class="nav-link text-dark mt-3">
+        <i class="bi bi-cloud-moon-fill fs-4 ms-3"></i><span class="ms-2">Night Mode</span>
+      </a>
+
+      <!-- Logout -->
+      <a href="{{ url_for('admin_login') }}" class="nav-link text-dark mt-3">
+        <i class="bi bi-box-arrow-left fs-4 ms-3"></i><span class="ms-2">Logout</span>
+      </a>
+    </div>
+
   </div>
 </nav>
+
 
 
     
@@ -227,9 +238,7 @@
                   <td>{{ emp[3] }}</td>
                   <td>
                     {% if emp[4] %}
-                      <img class="employee-photos" src="{{ url_for('static', filename=emp[4]) }}" width="100" alt="Employee Photo">
-                    {% else %}
-                      <p>No photo</p>
+                      <img class="employee-photos" src="{{ url_for('static', filename=emp[4] if emp[4] else employees_img/default.jpg) }}" width="100" alt="Employee Photo">
                     {% endif %}
                   </td>
                   <td>

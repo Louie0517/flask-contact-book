@@ -11,6 +11,16 @@
 }
 
 
+@media (max-width: 826px){
+  
+.bg-col ul#menu > .con-li > li > .nav-link:hover,
+.bg-col ul#menu > .con-li > li > .nav-link:active{
+  border-radius: 1em;
+  width: 160px;
+  background-color: rgba(107, 104, 104, 0.677) !important;
+}
+}
+
 @media (max-width: 913px) and (min-width: 801px){
   main{
     overflow-y: auto;

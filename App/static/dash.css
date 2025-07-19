@@ -141,8 +141,8 @@ thead.head th {
 }
 
 
-.bg-col ul#menu > li > .nav-link:hover,
-.bg-col ul#menu > li > .nav-link:active{
+.bg-col ul#menu > .con-li > li > .nav-link:hover,
+.bg-col ul#menu > .con-li > li > .nav-link:active{
   border-radius: 1em;
   width: 170px;
   background-color: rgba(107, 104, 104, 0.677) !important;
@@ -296,8 +296,6 @@ main, .container, .row, .col {
 }
 
 /* MEDIA QUERIES */
-
-
 @media (max-width: 754px) {
 
   .input input{
