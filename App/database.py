@@ -81,15 +81,20 @@ class Database():
             print("Failed to open database", e)
     
     # get employee and in time logs id   
-    def get_user_id(self):
-        with sqlite3.connect(self.employee_db) as con:
-            cur = con.cursor()
-            cur.execute("SELECT id FROM employee WHERE employee_id=?")
-            id = cur.fetchone()
-            return id[0] if id else None
+    def get_user_id(self, identity_id):
+        employee_iden = None
+        try:
+            with sqlite3.connect(self.employee_db()) as con:
+                cur = con.cursor()
+                cur.execute("SELECT id FROM employee WHERE employee_id=?", (identity_id,))
+                employee_iden = cur.fetchone()
+                
+        except sqlite3.Error as e:
+            print('Error transactions', e)
+        return employee_iden[0] if employee_iden else None
         
     def get_time_logs_id(self):
-        with sqlite3.connect(self.time_logs) as con:
+        with sqlite3.connect(self.time_logs()) as con:
             cur = con.cursor()
             cur.execute("SELECT id FROM employee WHERE employee_id=?")
             id = cur.fetchone()
@@ -111,22 +116,39 @@ class Database():
     
  
     def update_img(self, user_id):
-        file = request.files['employees_photo']   
+        if 'employees_photo' not in request.files:
+            # Return a default image path
+            return 'employees_img/default.jpg'
+
+        file = request.files['employees_photo']
+
+        if file.filename == '':
+            # If no file selected
+            return 'employees_img/default.jpg'
+
         filename = secure_filename(file.filename)
         file_path = os.path.join(self.app.config['EMPLOYEES_FOLDER'], filename)
-        
+
+        # Optional: Rename if file already exists
         if os.path.exists(file_path):
-            os.rename(file_path)
-            
+            base, ext = os.path.splitext(filename)
+            count = 1
+            while os.path.exists(file_path):
+                filename = f"{base}_{count}{ext}"
+                file_path = os.path.join(self.app.config['EMPLOYEES_FOLDER'], filename)
+                count += 1
+
         file.save(file_path)
-            
-        user_id = self.get_user_id()
-        
+        relative_path = f'employees_img/{filename}'
+
+        # Update database
         with sqlite3.connect('employee.db') as con:
             cur = con.cursor()
-            relative_path = f'employees_img/{filename}'
             cur.execute("UPDATE employee SET photo_path=? WHERE id=?", (relative_path, user_id))
             con.commit()
+
+        return relative_path
+
             
             
     # connect function    

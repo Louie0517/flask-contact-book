@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, request, session
 from database import Database
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
@@ -238,8 +238,10 @@ def delete_employee_profile(id):
         
     return redirect('/employee_management')
  
-@app.route('/edit_employees_profile', methods=['GET', 'POST'])
-def edit_employees_profile():
+@app.route('/edit_employees_profile/<string:id>', methods=['GET', 'POST'])
+def edit_employees_profile(id):
+    
+    e_id = db.get_user_id(id)
     
     if request.method == 'POST':
         new_id = request.form.get('new_id', '').strip()
@@ -247,7 +249,6 @@ def edit_employees_profile():
         new_department = request.form.get('new_department', '').strip()
         new_email = request.form.get('new_email').strip()
         new_photo = db.update_img()
-        e_id = db.get_user_id()
         tl_id = db.get_time_logs_id()
         
         try:
@@ -276,8 +277,15 @@ def edit_employees_profile():
             print("Operational error.", e)
         except sqlite3.Error as e:
             print("SQLite error." , e)
+            
+    
+    with sqlite3.connect(db.connect_employee()) as con:
+        cur = con.cursor()
+        cur.execute('''SELECT * FROM employee WHERE employee_id=?''', (e_id,))
+        employee = cur.fetchone()
+        employee = [employee] if  employee else []
         
-    return render_template('edit_e_pf.html')
+    return render_template('edit_e_pf.html', employee=employee)
 
 if __name__ == "__main__":
     database_init()

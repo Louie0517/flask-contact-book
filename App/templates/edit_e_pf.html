@@ -136,18 +136,19 @@
       <!-- Main Area -->
     
       <main class="row overflow-auto h-100 d-flex align-items-center">
-        <div class="forms container p-3 d-flex justify-content-center"> 
+        <div class="forms container d-flex justify-content-center align-items-center"> 
           <div>
             <form method="POST" enctype="multipart/form-data" action="{{ url_for('edit_employees_profile') }}">
               {% for emp in employee %}
                 {% set photo = emp[4] if emp[4] else 'employees_img/default.jpg' %}
                 <img class="employee-photos mb-3" src="{{ url_for('static', filename=photo) }}" width="100" alt="Employee Photo">
 
-                <!-- Upload new photo -->
+                <!-- Upload new photo 
                 <div class="mb-4">
                   <label for="photo">Update Photo:</label>
                   <input type="file" name="photo" class="form-control" id="photo" accept="image/*">
                 </div>
+                -->
 
                 <div class="row mb-4">
                   <div class="col">
