@@ -1,14 +1,15 @@
-from flask import Flask, redirect, render_template, request, session
+from flask import Flask, redirect, render_template, request, url_for
 from database import Database
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from config import Config, get_v
 from werkzeug.utils import secure_filename
 from id_generator import rand_id
+from datetime import datetime
 import plotly.graph_objs as gr
 import plotly.offline as pyo
 import sqlite3, pandas as pd
-import json, os
+import qrcode, os
 
 load_dotenv()
 app = Flask(__name__)
@@ -59,6 +60,80 @@ def admin_login():
     
     return render_template('admin_login.html')
 
+
+@app.route('/scan')
+def scan():
+    emp_id = request.args.get('id')
+    now = datetime.now()
+    time_now = now.strftime('%H:%M:%S')
+    date_today = now.date()
+    status = ''
+    
+        
+    
+    with sqlite3.connect(db.connect_time_logs()) as con:
+        cur = con.cursor()
+        
+        cur.execute('''SELECT * FROM time_logs WHERE employee_id=? AND date=?''', (emp_id, now.date()))
+        exist_logs = cur.fetchall()
+        
+        if not exist_logs:
+            if now.hour < 9:
+                status = 'IN'
+            elif 9 <= now.hour < 10:
+                status = 'LATE'
+            else:
+                status = 'OUT'
+            cur.execute('''INSERT INTO time_logs (employee_id, date, time, action) VALUES (?, ?, ?, ?)''', (emp_id, date_today, time_now, status))
+            con.commit()
+        else:
+            already_out = any(log[3] == 'OUT' for log in exist_logs)
+            if not already_out and now.hour >= 22:
+                status = 'OUT'
+                cur.execute('INSERT INTO time_logs (employee_id, date, time, action) VALUES (?, ?, ?, ?)',
+                            (emp_id, date_today, time_now, status))
+                con.commit()
+            else:
+                status = 'STATUS ALREADY SCANNED.'
+        
+    return render_template("scanned.html", status=status, time=time_now)
+
+def get_today_logs():
+    with sqlite3.connect(db.connect_employee()) as con:
+        cur = con.cursor()
+        cur.execute("ATTACH DATABASE 'time_logs.db' AS tl")
+
+        cur.execute("""
+            SELECT emp.employee_id, emp.name, emp.department,
+                   tl.time_logs.date, tl.time_logs.time, tl.time_logs.action
+            FROM employee AS emp
+            LEFT JOIN tl.time_logs
+            ON emp.employee_id = tl.time_logs.employee_id
+            AND tl.time_logs.date = date('now', 'localtime')
+            ORDER BY emp.name
+        """)
+        
+        records = cur.fetchall()
+        return [
+            {
+                "ID": row[0],
+                "Name": row[1],
+                "Department": row[2],
+                "Date": row[3] or 'No log',
+                "Time": row[4] or '-',
+                "Status": row[5] or '-'
+            }
+            for row in records
+        ]
+
+    return records
+
+def generate_qr(emp_id):
+    url = f"http://192.168.1.5:5000/scan?id={emp_id}"
+    img = qrcode.make(url)
+    img.save(f"{emp_id}.png")
+
+
 def get_total_employees():
     con_emp = sqlite3.connect(db.connect_employee())
     con_stats = sqlite3.connect(db.connect_time_logs())
@@ -77,7 +152,7 @@ def management():
     
     total_employees = len(employees)
     active_employees = len(status[status['action'] == 'active'])
-    lates = len(status[pd.to_datetime(status['status'], format='%H:%M:%S') > pd.to_datetime('9:00:00', format='%H:%M:%S')])
+    lates = len(status[pd.to_datetime(status['time'], format='%H:%M:%S') > pd.to_datetime('9:00:00', format='%H:%M:%S')])
     
     values = [total_employees, active_employees, lates - (total_employees + active_employees)]
     labels = ['Total Employees', 'Active Employees', 'Late Employees']
@@ -88,15 +163,21 @@ def management():
     
     chart = pyo.plot(figure, output_type='div', include_plotlyjs=False)
     
-    with sqlite3.connect(db.connect_time_logs()) as con:
+    with sqlite3.connect(db.connect_employee()) as con:
         cur = con.cursor()
-        cur.execute("ATTACH DATABASE 'employee.db' AS emp")
-        cur.execute("""SELECT emp.employee.name, emp.employee.department, time_logs.date, time_logs.action 
-                    FROM time_logs JOIN emp.employee ON time_logs.id = emp.employee.id ORDER BY time_logs.date DESC
-                    """)
-        records = cur.fetchall()
+        cur.execute("ATTACH DATABASE 'time_logs.db' AS tl")
+        cur.execute("""
+            SELECT emp.employee_id, emp.name, emp.department, tl.time_logs.date, tl.time_logs.action
+            FROM employee AS emp
+            LEFT JOIN tl.time_logs ON emp.employee_id = tl.time_logs.employee_id
+            AND tl.time_logs.date = date('now', 'localtime')
+            ORDER BY emp.name
+        """)
+        records = get_today_logs()
+
     
-    return render_template('dash.html', records = records, chart = chart)
+    return render_template('dash.html', employees = records, chart = chart)
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ['png', 'jpg', 'jpeg']
@@ -237,18 +318,54 @@ def delete_employee_profile(id):
             print("Error deleting employees profile.", e)
         
     return redirect('/employee_management')
+
+
+def update_img(user_id):
+        if 'employees_photo' not in request.files:
+            return 'employees_img/default.jpg'
+
+        file = request.files['employees_photo']
+
+        if file.filename == '':
+            return 'employees_img/default.jpg'
+
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['EMPLOYEES_FOLDER'], filename)
+
+        # Optional: Rename if file already exists
+        if os.path.exists(file_path):
+            base, ext = os.path.splitext(filename)
+            count = 1
+            while os.path.exists(file_path):
+                filename = f"{base}_{count}{ext}"
+                file_path = os.path.join(app.config['EMPLOYEES_FOLDER'], filename)
+                count += 1
+
+        file.save(file_path)
+        relative_path = f'employees_img/{filename}'
+
+        # Update database
+        with sqlite3.connect('employee.db') as con:
+            cur = con.cursor()
+            cur.execute("UPDATE employee SET photo_path=? WHERE id=?", (relative_path, user_id))
+            con.commit()
+
+        return relative_path
+
  
 @app.route('/edit_employees_profile/<string:id>', methods=['GET', 'POST'])
 def edit_employees_profile(id):
     
     e_id = db.get_user_id(id)
+    if not e_id:
+        return "Invalid ID", 404
     
     if request.method == 'POST':
         new_id = request.form.get('new_id', '').strip()
         new_name = request.form.get('new_name', '').strip()
         new_department = request.form.get('new_department', '').strip()
         new_email = request.form.get('new_email').strip()
-        new_photo = db.update_img()
+        new_photo = update_img(e_id)
         tl_id = db.get_time_logs_id()
         
         try:
@@ -266,9 +383,7 @@ def edit_employees_profile(id):
                         
                     cur.execute('''UPDATE time_logs SET employee_id=?, name=? WHERE id=?''', (new_id, new_name, tl_id))
                     con.commit()
-                    
-                    
-                    
+
                     return redirect('/employees_management')
                     
                 cur.execute("DETACH DATABASE time_logs")
@@ -286,6 +401,8 @@ def edit_employees_profile(id):
         employee = [employee] if  employee else []
         
     return render_template('edit_e_pf.html', employee=employee)
+
+
 
 if __name__ == "__main__":
     database_init()

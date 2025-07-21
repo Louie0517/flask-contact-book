@@ -19,30 +19,45 @@
   <div class="row vh-100 overflow-auto">
 
     <!-- Sidebar -->
-    <nav id="sidebarMenu" class="col-12 col-sm-3 col-xl-2 bg-col d-md-block d-none px-0 position-sticky sticky-top">
-      <div class="d-flex w-100 flex-column p-3 align-items-sm-start p-3 pt-5 h-100">
-            <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
-                <span class="fs-2 text">M<span class="d-sm-inline fs-2">enu</span></span>
-            </a>
-        <hr>
-        <ul class=" nav nav-pills flex-column mb-auto w-100" id="menu">
-          <li class="nav-item">
-            <a href="{{ url_for('management') }}" class="nav-link text-dark">
-              <i class="fs-5 bi-grid"></i><span class="ms-2">Dashboard</span>
-            </a>
-          </li>
-          <li>
-            <a href="{{ url_for('employees_management') }}" class="nav-link text-dark">
-              <i class="bi bi-person-lines-fill fs-5"></i><span class="ms-2">Employees</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="nav-link text-dark">
-              <i class="bi bi-calendar-week fs-5"></i><span class="ms-2">Time Logs</span>
-            </a>
-          </li>
-          
-          <!-- Requests Menu with Collapse -->
+    <nav id="sidebarMenu" class="col-12 col-sm-3 col-xl-2 bg-col px-0 position-sticky sticky-top">
+  <div class="d-flex w-100 flex-column p-3 align-items-sm-start pt-5 h-100">
+    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
+      <span class="fs-2 text">M<span class="d-sm-inline fs-2">enu</span></span>
+    </a>
+    <hr>
+
+    <ul class="nav nav-pills flex-column mb-auto w-100" id="menu">
+      <div class="container con-li">
+        
+        <!-- Dashboard -->
+        <li class="nav-item">
+          <a href="{{ url_for('management') }}" class="nav-link text-dark">
+            <i class="fs-5 bi-grid"></i><span class="ms-2">Dashboard</span>
+          </a>
+        </li>
+
+        <!-- Employees Menu -->
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="{{ url_for('employees_management')}}">
+            <i class="bi bi-person-lines-fill fs-5"></i><span class="ms-2">Employees</span>
+          </a>
+        </li>
+
+        <!-- Time Logs -->
+        <li>
+          <a href="#" class="nav-link text-dark">
+            <i class="bi bi-calendar-week fs-5"></i><span class="ms-2">Time Logs</span>
+          </a>
+        </li>
+
+        <!-- Reports -->
+        <li>
+          <a href="#" class="nav-link text-dark">
+            <i class="fs-5 bi bi-graph-up"></i><span class="ms-2">Reports</span>
+          </a>
+        </li>
+
+        <!-- Requests -->
         <li class="nav-item">
           <a class="nav-link text-dark" data-bs-toggle="collapse" href="#requestsSubMenu" role="button" aria-expanded="false" aria-controls="requestsSubMenu">
             <i class="fs-5 bi bi-journal-text"></i><span class="ms-2">Requests</span>
@@ -56,18 +71,31 @@
           </div>
         </li>
 
+        <!-- Settings -->
+        <li>
+          <a href="#" class="nav-link text-dark">
+            <i class="fs-5 bi bi-gear"></i><span class="ms-2">Settings</span>
+          </a>
+        </li>
 
-          <li>
-            <a href="#" class="nav-link text-dark">
-              <i class="fs-5 bi bi-gear"></i><span class="ms-2">Settings</span>
-            </a>
-          </li>
-        </ul>
-        <a href="{{ url_for('admin_login') }}" class="nav-link text-dark">
-            <i class="bi bi-box-arrow-left fs-4 ms-3"></i><span class="ms-2">Logout</span>
-        </a>
       </div>
-    </nav>
+    </ul>
+
+    <div class="container">
+      <hr>
+      <!-- Night Mode -->
+      <a href="{{ url_for('admin_login') }}" class="nav-link text-dark mt-3">
+        <i class="bi bi-cloud-moon-fill fs-4 ms-3"></i><span class="ms-2">Night Mode</span>
+      </a>
+
+      <!-- Logout -->
+      <a href="{{ url_for('admin_login') }}" class="nav-link text-dark mt-3">
+        <i class="bi bi-box-arrow-left fs-4 ms-3"></i><span class="ms-2">Logout</span>
+      </a>
+    </div>
+
+  </div>
+</nav>
 
     <!-- Main Content -->
     <div class="col d-flex flex-column">
@@ -107,25 +135,39 @@
       <main class="row overflow-auto">
         <div class="col pt-4">
           <div class="container">
+            <div>
+            {{ chart|safe }}
+            </div>
+
+            <form action="">
             <table class="table custom-table">
               <thead class="head">
-                <tr>
-                  <th>Employee ID</th>
+                  <th>ID</th>
                   <th>Name</th>
                   <th>Department</th>
                   <th>Date</th>
-                  <th>Actions</th>
+                  <th>Time</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                <tr><th scope="row">1</th><td>Mark</td><td>Otto</td><td>@mdo</td><td>@mdo</td></tr>
-                <tr><th scope="row">2</th><td>Jacob</td><td>Thornton</td><td>@fat</td><td>@mdo</td></tr>
-                <tr><th scope="row">3</th><td>Larry</td><td>the Bird</td><td>@twitter</td><td>@mdo</td></tr>
+                {% for emp in employees %}
+                <tr >
+                  <td>{{ emp.ID }}</td>
+                  <td>{{ emp.Name }}</td>
+                  <td>{{ emp.Department }}</td>
+                  <td>{{ emp.Date }}</td>
+                  <td>{{ emp.Time }}</td>  
+                  <td>{{ emp.Status }}</td>
+                </tr>
+                {% endfor %}
               </tbody>
             </table>
-          </div>
+          
+          </form>
         </div>
-      </main>
+      </div>
+    </main>
 
       <!-- Footer 
       <footer class="row bg-light py-3 mt-auto">

@@ -138,48 +138,39 @@
       <main class="row overflow-auto h-100 d-flex align-items-center">
         <div class="forms container d-flex justify-content-center align-items-center"> 
           <div>
-            <form method="POST" enctype="multipart/form-data" action="{{ url_for('edit_employees_profile') }}">
-              {% for emp in employee %}
-                {% set photo = emp[4] if emp[4] else 'employees_img/default.jpg' %}
-                <img class="employee-photos mb-3" src="{{ url_for('static', filename=photo) }}" width="100" alt="Employee Photo">
+            {% set photo = employee[4] if employee[4] else 'employees_img/default.jpg' %}
+<form method="POST" enctype="multipart/form-data" action="{{ url_for('edit_employees_profile', id=id) }}">
+  <img class="employee-photos mb-3" src="{{ url_for('static', filename=photo) }}" width="100" alt="Employee Photo">
 
-                <!-- Upload new photo 
-                <div class="mb-4">
-                  <label for="photo">Update Photo:</label>
-                  <input type="file" name="photo" class="form-control" id="photo" accept="image/*">
-                </div>
-                -->
+  <div class="row mb-4">
+    <div class="col">
+      <label class="form-label" for="name">Name</label>
+      <input value="{{ employee[0] }}" name="new_name" type="text" class="form-control" required>
+    </div>
+    <div class="col">
+      <label class="form-label" for="id">Identification Number</label>
+      <input value="{{ employee[1] }}" name="new_id" type="text" class="form-control" required>
+    </div>
+  </div>
 
-                <div class="row mb-4">
-                  <div class="col">
-                    <label class="form-label" for="name">Name</label>
-                    <input value="{{ emp[0] }}" name="new_name" type="text" class="form-control" required>
-                  </div>
-                  <div class="col">
-                    <label class="form-label" for="id">Identification Number</label>
-                    <input value="{{ emp[1] }}" name="new_id" type="text" class="form-control" required>
-                  </div>
-                </div>
+  <div class="form-outline mb-4">
+    <label class="form-label" for="email">Email</label>
+    <input value="{{ employee[3] }}" name="new_email" type="email" class="form-control" required>
+  </div>
 
-                <div class="form-outline mb-4">
-                  <label class="form-label" for="email">Email</label>
-                  <input value="{{ emp[3] }}" name="new_email" type="email" class="form-control" required>
-                </div>
+  <div class="form-outline mb-4">
+    <label class="form-label" for="department">Department</label>
+    <select class="form-select" name="new_department" id="department" required>
+      <option value="" disabled>Select department</option>
+      {% for dept in ['Management', 'IT', 'Finance', 'HR', 'Marketing', 'Creatives'] %}
+        <option value="{{ dept }}" {% if employee[2] == dept %}selected{% endif %}>{{ dept }}</option>
+      {% endfor %}
+    </select>
+  </div>
 
-                <div class="form-outline mb-4">
-                  <label class="form-label" for="department">Department</label>
-                  <select class="form-select" name="new_department" id="department" required>
-                    <option value="" disabled>Select department</option>
-                    {% for dept in ['Management', 'IT', 'Finance', 'HR', 'Marketing', 'Creatives'] %}
-                      <option value="{{ dept }}" {% if emp[2] == dept %}selected{% endif %}>{{ dept }}</option>
-                    {% endfor %}
-                  </select>
-                </div>
+  <button type="submit" class="btn btn-primary">Update Profile</button>
+</form>
 
-                <button type="submit" class="btn btn-primary">Update Profile</button>
-              {% endfor %}
-            </form>
-              
         </div>
       </main>
 
