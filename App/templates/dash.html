@@ -101,7 +101,7 @@
     <div class="col d-flex flex-column">
       
       <!-- Top Navbar Toggle Button for Small Screens -->
-      <div class="top d-md-none bg-light p-3 shadow-sm d-flex justify-content-between align-items-center sticky-top">
+      <div class="top d-md-none p-3 shadow-sm d-flex justify-content-between align-items-center sticky-top">
         <button title="Side bar" class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
           <i class="bi bi-list"></i>
         </button>
@@ -132,42 +132,82 @@
       </div>
 
       <!-- Main Area -->
-      <main class="row overflow-auto">
-        <div class="col pt-4">
-          <div class="container">
-            <div>
-            {{ chart|safe }}
-            </div>
-
-            <form action="">
-            <table class="table custom-table">
-              <thead class="head">
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Department</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for emp in employees %}
-                <tr >
-                  <td>{{ emp.ID }}</td>
-                  <td>{{ emp.Name }}</td>
-                  <td>{{ emp.Department }}</td>
-                  <td>{{ emp.Date }}</td>
-                  <td>{{ emp.Time }}</td>  
-                  <td>{{ emp.Status }}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          
-          </form>
+<main class="row overflow-auto">
+  <div class="col pt-4">
+    <div class="container">
+      
+      <!-- First row -->
+      <div class="row g-2 mb-2">
+        <div class="col-md-6">
+          <div class="p-5 text-center bg-white rounded-3">
+            <i class="bi bi-clipboard-check-fill fs-1 text-success mb-2"></i>
+            <p class="fw-bold mb-1">Ontime Employees</p>
+            <span class="fs-4">{{ stats.ontime }}</span>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-5 text-center bg-white rounded-3">
+            <i class="bi bi-alarm-fill fs-1 text-danger mb-2"></i>
+            <p class="fw-bold mb-1">Late Employees</p>
+            <span class="fs-4">{{ stats.late }}</span>
+          </div>
         </div>
       </div>
-    </main>
+
+      <!-- Second row -->
+      <div class="row g-2 mb-2">
+        <div class="col-md-6">
+          <div class="p-5 text-center bg-white rounded-3">
+            <i class="bi bi-person-check-fill fs-1 text-primary mb-2"></i>
+            <p class="fw-bold mb-1">Active Employees</p>
+            <span class="fs-4">{{ stats.active }}</span>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-5 text-center bg-white rounded-3">
+            <i class="bi bi-people-fill fs-1 text-warning mb-2"></i>
+            <p class="fw-bold mb-1">Total Employees</p>
+            <span class="fs-4">{{ stats.total }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart placeholder -->
+      {{ chart|safe }}
+
+      <!-- Table -->
+      <form action="">
+        <table class="table custom-table my-2">
+          <thead class="head">
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Department</th>
+              <th>Date</th>
+              <th>Time In</th>
+              <th>Time Out</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for emp in employees %}
+            <tr>
+              <td>{{ emp.ID }}</td>
+              <td>{{ emp.Name }}</td>
+              <td>{{ emp.Department }}</td>
+              <td>{{ emp.Date }}</td>
+              <td>{{ emp.TimeIn }}</td>
+              <td>{{ emp.TimeOut }}</td>
+              <td>{{ emp.Status }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </form>
+
+    </div>
+  </div>
+</main>
 
       <!-- Footer 
       <footer class="row bg-light py-3 mt-auto">

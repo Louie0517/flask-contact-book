@@ -1,7 +1,7 @@
 import qrcode
 
-employee_id = "53554630"
-base_url = " https://insights-bald-marble-chances.trycloudflare.com"  # your actual tunnel URL
+employee_id = "84504903"
+base_url = "https://spread-chelsea-find-lying.trycloudflare.com"  
 full_url = f"{base_url}/scan?id={employee_id}"
 
 qr = qrcode.make(full_url)

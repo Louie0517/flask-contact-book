@@ -67,37 +67,51 @@ def scan():
     emp_id = request.args.get('id')
     now = datetime.now()
     time_now = now.strftime('%H:%M:%S')
-    date_today = now.date()
+    date_today = now.strftime('%Y-%m-%d')
     status = ''
+    employee_infos = {}
     
-        
     
+
     with sqlite3.connect(db.connect_time_logs()) as con:
         cur = con.cursor()
         
-        cur.execute('''SELECT * FROM time_logs WHERE employee_id=? AND date=?''', (emp_id, now.date()))
-        exist_logs = cur.fetchall()
+        cur.execute("ATTACH DATABASE 'employee.db' AS e")
         
-        if not exist_logs:
-            if now.hour < 9:
-                status = 'IN'
-            elif 9 <= now.hour < 10:
-                status = 'LATE'
-            else:
-                status = 'OUT'
-            cur.execute('''INSERT INTO time_logs (employee_id, date, time, action) VALUES (?, ?, ?, ?)''', (emp_id, date_today, time_now, status))
-            con.commit()
+        cur.execute('''SELECT tl.date, emp.name, emp.department FROM time_logs AS tl LEFT JOIN e.employee AS emp ON
+                    tl.employee_id = emp.employee_id WHERE tl.employee_id=?''',(emp_id,))
+        
+        infos = cur.fetchone()
+        
+        if infos:
+            employee_infos = {'name': infos[1],
+                              'date': infos[0],
+                              'department' : infos[2]
+                              }
         else:
-            already_out = any(log[3] == 'OUT' for log in exist_logs)
-            if not already_out and now.hour >= 22:
-                status = 'OUT'
-                cur.execute('INSERT INTO time_logs (employee_id, date, time, action) VALUES (?, ?, ?, ?)',
-                            (emp_id, date_today, time_now, status))
-                con.commit()
-            else:
-                status = 'STATUS ALREADY SCANNED.'
-        
-    return render_template("scanned.html", status=status, time=time_now)
+            employee_infos = None
+
+        cur.execute('''SELECT id, time_in, time_out FROM time_logs WHERE employee_id=? AND date=?''',
+                    (emp_id, date_today))
+        log = cur.fetchone()
+
+        if not log:
+            status = 'IN' if now.hour < 9 else 'LATE'
+            cur.execute('''INSERT INTO time_logs (employee_id, date, time_in, action)
+                           VALUES (?, ?, ?, ?)''',
+                        (emp_id, date_today, time_now, status))
+            con.commit()
+
+        elif log and log[1] and not log[2]:
+            cur.execute('''UPDATE time_logs SET time_out=?, status='OUT' WHERE id=?''',
+                        (time_now, log[0]))
+            status = 'OUT'
+            con.commit()
+
+        else:
+            status = 'ALREADY SCANNED'
+
+    return render_template("scanned.html", status=status, time=time_now, details = employee_infos)
 
 def get_today_logs():
     with sqlite3.connect(db.connect_employee()) as con:
@@ -106,7 +120,7 @@ def get_today_logs():
 
         cur.execute("""
             SELECT emp.employee_id, emp.name, emp.department,
-                   tl.time_logs.date, tl.time_logs.time, tl.time_logs.action
+                   tl.time_logs.date, tl.time_logs.time_in, tl.time_logs.time_out, tl.time_logs.action
             FROM employee AS emp
             LEFT JOIN tl.time_logs
             ON emp.employee_id = tl.time_logs.employee_id
@@ -121,8 +135,9 @@ def get_today_logs():
                 "Name": row[1],
                 "Department": row[2],
                 "Date": row[3] or 'No log',
-                "Time": row[4] or '-',
-                "Status": row[5] or '-'
+                "TimeIn": row[4] or '-',
+                "TimeOut": row[5] or '-',
+                "Status": row[6] or '-'
             }
             for row in records
         ]
@@ -150,19 +165,42 @@ def get_total_employees():
 def management():
     
     employees, status = get_total_employees()
+    stats = get_total_employees_and_status()
     
-    total_employees = len(employees)
-    active_employees = len(status[status['action'] == 'active'])
-    lates = len(status[pd.to_datetime(status['time'], format='%H:%M:%S') > pd.to_datetime('9:00:00', format='%H:%M:%S')])
+    total = len(employees)
     
-    values = [total_employees, active_employees, lates - (total_employees + active_employees)]
-    labels = ['Total Employees', 'Active Employees', 'Late Employees']
-    donut = gr.Pie(values=values, labels=labels, hole=0.5)
+    active_employees =  status[
+    (status['time_out'].isna()) | 
+    (status['time_out'].astype(str).str.strip() == '') | 
+    (status['time_out'].astype(str).str.lower() == 'nan')
+    ]
     
-    layout = gr.Layout(title="Employee Distribuition", height=500)
+    active_count = len(active_employees)
+    inactive_count = total - active_count
+
+    status['time'] = pd.to_datetime(status['time'], format='%H:%M:%S')
+
+    
+    late_threshold = pd.to_datetime('09:00:00', format='%H:%M:%S')
+
+    late_employees = status[status['time'] > late_threshold]
+    on_time_employees = status[status['time'] <= late_threshold]
+
+    num_late = len(late_employees)
+    num_ontime = len(on_time_employees)
+
+    # Pie chart setup
+    values = [num_ontime, num_late, active_count]
+    labels = ['On-Time', 'Late', 'Active']
+    colors = ["#05C62B", "#EE2D23", "#3498DB"]  
+
+    donut = gr.Pie(values=values, labels=labels, hole=0.5, marker=dict(colors=colors))
+    layout = gr.Layout(title="Employee Time & Status Overview", height=460)
     figure = gr.Figure(data=[donut], layout=layout)
-    
+
     chart = pyo.plot(figure, output_type='div', include_plotlyjs=False)
+
+
     
     with sqlite3.connect(db.connect_employee()) as con:
         cur = con.cursor()
@@ -177,7 +215,7 @@ def management():
         records = get_today_logs()
 
     
-    return render_template('dash.html', employees = records, chart = chart)
+    return render_template('dash.html', employees = records, chart = chart, stats=stats)
 
 
 def allowed_file(filename):
@@ -301,24 +339,49 @@ def employees_management():
 
     return render_template('e_manage.html', employee=employee, field=sort_by)
 
+def get_total_employees_and_status():
+    with sqlite3.connect(db.connect_employee()) as conn:
+        df_employees = pd.read_sql_query("SELECT id FROM employee", conn)
+        valid_ids = df_employees['id'].tolist()
+
+    with sqlite3.connect(db.connect_time_logs()) as conn:
+        df_timein = pd.read_sql_query("SELECT id, time_in AS status FROM time_logs", conn)
+        df_timeout = pd.read_sql_query("SELECT id, time_out FROM time_logs", conn)
+
+    df_timein = df_timein[df_timein['id'].isin(valid_ids)]
+    df_timeout = df_timeout[df_timeout['id'].isin(valid_ids)]
+
+    df_timein['status'] = pd.to_datetime(df_timein['status'], format='%H:%M:%S', errors='coerce')
+    
+    ontime = len(df_timein[df_timein['status'] <= pd.to_datetime('09:00:00', format='%H:%M:%S')])
+    late = len(df_timein[df_timein['status'] > pd.to_datetime('09:00:00', format='%H:%M:%S')])
+    active = len(df_timeout[df_timeout['time_out'].isna() | (df_timeout['time_out'] == '')])
+
+    return {
+        'total': len(valid_ids),
+        'ontime': ontime,
+        'late': late,
+        'active': active
+    }
+
+
 @app.route('/delete_employee_profile/<string:id>', methods=['GET'])
 def delete_employee_profile(id):
-    
     with sqlite3.connect(db.connect_employee()) as con:
         cur = con.cursor()
         cur.execute("ATTACH DATABASE 'time_logs.db' AS t_logs ")
         
         try:
-            cur.execute(''' DELETE FROM employee WHERE id=?  ''', (id,))
-
-            cur.execute(''' DELETE FROM t_logs.time_logs WHERE id=?  ''', (id,))
-
+            cur.execute('DELETE FROM employee WHERE id = ?', (id,))
+            cur.execute('DELETE FROM t_logs.time_logs WHERE id = ?', (id,))
+            cur.execute('DELETE FROM t_logs.time_in WHERE id = ?', (id,))
+            cur.execute('DELETE FROM t_logs.time_out WHERE id = ?', (id,))
             con.commit()
-                    
         except Exception as e:
-            print("Error deleting employees profile.", e)
+            print("Error deleting employee profile:", e)
         
     return redirect('/employee_management')
+
 
 
 def update_img(user_id):
@@ -407,4 +470,5 @@ def edit_employees_profile(id):
 
 if __name__ == "__main__":
     database_init()
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=True)
+    # app.run(host="localhost", port=5000)
