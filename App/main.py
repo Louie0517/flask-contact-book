@@ -14,6 +14,7 @@ import qrcode, os
 load_dotenv()
 app = Flask(__name__)
 
+
 app.config.from_object(Config)
 
 UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'employees_img')
@@ -406,4 +407,4 @@ def edit_employees_profile(id):
 
 if __name__ == "__main__":
     database_init()
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
