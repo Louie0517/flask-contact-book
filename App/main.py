@@ -8,6 +8,7 @@ from id_generator import rand_id
 from datetime import datetime
 import plotly.graph_objs as gr
 import plotly.offline as pyo
+import plotly.express as px
 import sqlite3, pandas as pd
 import qrcode, os
 
@@ -161,11 +162,37 @@ def get_total_employees():
         
     return employees, status
 
+def generate_department_line_graph():
+    with sqlite3.connect(db.connect_employee()) as con:
+        df = pd.read_sql_query("""
+            SELECT department, COUNT(*) AS total
+            FROM employee
+            GROUP BY department
+            ORDER BY department
+        """, con)
+
+    if df.empty:
+        return "<div>No data to display.</div>"
+
+    fig = px.line(df, x='department', y='total', markers=True,
+                  title="Number of Employees per Department")
+    
+    fig.update_layout(xaxis_title='Department',
+                      yaxis_title='Employee Count',
+                      height=400)
+
+    return pyo.plot(fig, output_type='div', include_plotlyjs=False)
+
+
+
 @app.route('/management', methods=['GET', 'POST'])
 def management():
     
     employees, status = get_total_employees()
     stats = get_total_employees_and_status()
+    
+    dept = generate_department_line_graph()
+    
     
     total = len(employees)
     
@@ -176,7 +203,6 @@ def management():
     ]
     
     active_count = len(active_employees)
-    inactive_count = total - active_count
 
     status['time'] = pd.to_datetime(status['time'], format='%H:%M:%S')
 
@@ -215,7 +241,7 @@ def management():
         records = get_today_logs()
 
     
-    return render_template('dash.html', employees = records, chart = chart, stats=stats)
+    return render_template('dash.html', employees = records, chart = chart, stats=stats, dept = dept)
 
 
 def allowed_file(filename):
