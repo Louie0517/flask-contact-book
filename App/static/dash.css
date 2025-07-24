@@ -295,6 +295,61 @@ main, .container, .row, .col {
   padding-left: 6px;
 }
 
+.chart-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.chart-box {
+  flex: 1 1 auto;
+  background-color: white;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  box-sizing: border-box;
+  min-width: 300px; 
+  max-width: 100%;
+}
+
+.chart-box.mix{
+  width: 400px;
+}
+
+.chart-box.dept{
+  width: 600px;
+}
+
+
+/* 📱 Responsive fix for smaller screens */
+@media (max-width: 754px) {
+  .chart-box {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto; /* allow canvas to resize */
+  }
+
+  canvas {
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  .input input {
+    padding-top: 10px;
+  }
+
+  .form-add {
+    min-width: 100%;
+    margin-top: 40px;
+    padding-bottom: 3rem;
+  }
+}
+
 /* MEDIA QUERIES */
 @media (max-width: 754px) {
 

@@ -5,10 +5,7 @@ from dotenv import load_dotenv
 from config import Config, get_v
 from werkzeug.utils import secure_filename
 from id_generator import rand_id
-from datetime import datetime
-import plotly.graph_objs as gr
-import plotly.offline as pyo
-import plotly.express as px
+from datetime import datetime, time
 import sqlite3, pandas as pd
 import qrcode, os
 
@@ -154,79 +151,38 @@ def generate_qr(emp_id):
 def get_total_employees():
     con_emp = sqlite3.connect(db.connect_employee())
     con_stats = sqlite3.connect(db.connect_time_logs())
-        
-    employees = pd.read_sql_query("SELECT * FROM employee", con_emp)
-    status = pd.read_sql_query("SELECT * FROM time_logs", con_stats)
-        
-    con_emp.close()
-        
-    return employees, status
-
-def generate_department_line_graph():
-    with sqlite3.connect(db.connect_employee()) as con:
-        df = pd.read_sql_query("""
-            SELECT department, COUNT(*) AS total
-            FROM employee
-            GROUP BY department
-            ORDER BY department
-        """, con)
-
-    if df.empty:
-        return "<div>No data to display.</div>"
-
-    fig = px.line(df, x='department', y='total', markers=True,
-                  title="Number of Employees per Department")
     
-    fig.update_layout(xaxis_title='Department',
-                      yaxis_title='Employee Count',
-                      height=400)
-
-    return pyo.plot(fig, output_type='div', include_plotlyjs=False)
-
+    employee = pd.read_sql_query("SELECT * FROM employee", con_emp)
+    status = pd.read_sql_query("SELECT * FROM time_logs", con_stats)
+    
+    con_emp.close()
+    con_stats.close()
+   
+        
+    return employee, status
 
 
 @app.route('/management', methods=['GET', 'POST'])
 def management():
     
-    employees, status = get_total_employees()
-    stats = get_total_employees_and_status()
-    
-    dept = generate_department_line_graph()
-    
-    
-    total = len(employees)
-    
-    active_employees =  status[
-    (status['time_out'].isna()) | 
-    (status['time_out'].astype(str).str.strip() == '') | 
-    (status['time_out'].astype(str).str.lower() == 'nan')
-    ]
-    
-    active_count = len(active_employees)
+    _, status = get_total_employees()
 
-    status['time'] = pd.to_datetime(status['time'], format='%H:%M:%S')
 
-    
+    status = status.copy()  
+
+    status['time'] = pd.to_datetime(status['time'], format='%H:%M:%S', errors='coerce')
+
+    status = status.dropna(subset=['time'])
     late_threshold = pd.to_datetime('09:00:00', format='%H:%M:%S')
 
     late_employees = status[status['time'] > late_threshold]
-    on_time_employees = status[status['time'] <= late_threshold]
+    on_time_employees = status[status['time_in'] <= late_threshold]
 
     num_late = len(late_employees)
     num_ontime = len(on_time_employees)
-
-    # Pie chart setup
-    values = [num_ontime, num_late, active_count]
-    labels = ['On-Time', 'Late', 'Active']
-    colors = ["#05C62B", "#EE2D23", "#3498DB"]  
-
-    donut = gr.Pie(values=values, labels=labels, hole=0.5, marker=dict(colors=colors))
-    layout = gr.Layout(title="Employee Time & Status Overview", height=460)
-    figure = gr.Figure(data=[donut], layout=layout)
-
-    chart = pyo.plot(figure, output_type='div', include_plotlyjs=False)
-
-
+    total = num_late + num_ontime
+    
+    stats = get_total_employees_and_status()
     
     with sqlite3.connect(db.connect_employee()) as con:
         cur = con.cursor()
@@ -239,9 +195,15 @@ def management():
             ORDER BY emp.name
         """)
         records = get_today_logs()
+        
+        cur.execute('''SELECT department , COUNT(*) FROM employee GROUP BY department''')
+        data = cur.fetchall()
+        
+    dep = [row[0] for row in data]
+    count = [row[1] for row in data]
 
     
-    return render_template('dash.html', employees = records, chart = chart, stats=stats, dept = dept)
+    return render_template('dash.html', employees = records, ontime = num_ontime, late = num_late, active=total, stats=stats, labels=['On-Time', 'Late', 'Active'], dep=dep, counts = count)
 
 
 def allowed_file(filename):
@@ -379,7 +341,13 @@ def get_total_employees_and_status():
 
     df_timein['status'] = pd.to_datetime(df_timein['status'], format='%H:%M:%S', errors='coerce')
     
-    ontime = len(df_timein[df_timein['status'] <= pd.to_datetime('09:00:00', format='%H:%M:%S')])
+    _, status = get_total_employees()
+    
+    status['time'] = pd.to_datetime(status['time'], format='%H:%M:%S').dt.time
+    ontime = len(status[status['time'] <= time(9, 0, 0)])
+
+
+    # ontime = len(df_timein[df_timein['status'] <= pd.to_datetime('09:00:00', format='%H:%M:%S')])
     late = len(df_timein[df_timein['status'] > pd.to_datetime('09:00:00', format='%H:%M:%S')])
     active = len(df_timeout[df_timeout['time_out'].isna() | (df_timeout['time_out'] == '')])
 
