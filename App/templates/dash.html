@@ -10,71 +10,81 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-  <title>Neighborhood</title>
+   <title>Neighborhood</title>
 </head>
 <body>
-    
-<div class="container-fluid overflow-hidden">
-    
-  <div class="row vh-100 overflow-auto">
+
+<div class="container-fluid">
+  <div class="row flex-nowrap">
 
     <!-- Sidebar -->
-    <nav id="sidebarMenu" class="col-12 col-sm-3 col-xl-2 bg-col px-0 position-sticky sticky-top">
-  <div class="d-flex w-100 flex-column p-3 align-items-sm-start pt-5 h-100">
-    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
-      <span class="fs-2 text">M<span class="d-sm-inline fs-2">enu</span></span>
+<nav id="sidebarMenu" class="col-12 col-sm-4 col-md-3 col-lg-3 col-xl-2 bg-col px-0 position-sticky sticky-top">
+
+  <div class="d-flex w-100 flex-column p-3 align-items-sm-start pt-4 h-100">
+    
+    <!-- Logo + Title -->
+    <a href="/" class="d-flex align-items-center mb-3 text-dark text-decoration-none w-100 px-2">
+      <img src="{{ url_for('static', filename='img/company.png') }}?v=2" alt="Logo" width="36" height="36" class="me-2">
+      <span class="fs-4 fw-semibold">StoreWood</span>
     </a>
-    <hr>
+
+    <hr class="w-100">
 
     <ul class="nav nav-pills flex-column mb-auto w-100" id="menu">
       <div class="container con-li">
-        
+
         <!-- Dashboard -->
         <li class="nav-item">
-          <a href="{{ url_for('management') }}" class="nav-link text-dark">
-            <i class="fs-5 bi-grid"></i><span class="ms-2">Dashboard</span>
+          <a href="{{ url_for('management') }}" class="nav-link text-dark {% if page == 'dashboard' %}active-page{% endif %}">
+            <i class="fs-5 bi bi-grid"></i><span class="ms-2">Dashboard</span>
           </a>
         </li>
 
-        <!-- Employees Menu -->
+        <!-- Employees -->
         <li class="nav-item">
-          <a class="nav-link text-dark" href="{{ url_for('employees_management')}}">
+          <a class="nav-link text-dark {% if page == 'employees' %}active-page{% endif %}" href="{{ url_for('employees_management') }}">
             <i class="bi bi-person-lines-fill fs-5"></i><span class="ms-2">Employees</span>
           </a>
         </li>
 
         <!-- Time Logs -->
         <li>
-          <a href="#" class="nav-link text-dark">
+          <a href="#" class="nav-link text-dark {% if page == 'timelogs' %}active-page{% endif %}">
             <i class="bi bi-calendar-week fs-5"></i><span class="ms-2">Time Logs</span>
           </a>
         </li>
 
         <!-- Reports -->
         <li>
-          <a href="#" class="nav-link text-dark">
+          <a href="#" class="nav-link text-dark {% if page == 'reports' %}active-page{% endif %}">
             <i class="fs-5 bi bi-graph-up"></i><span class="ms-2">Reports</span>
           </a>
         </li>
 
-        <!-- Requests -->
+        <!-- Requests with Arrow -->
         <li class="nav-item">
-          <a class="nav-link text-dark" data-bs-toggle="collapse" href="#requestsSubMenu" role="button" aria-expanded="false" aria-controls="requestsSubMenu">
-            <i class="fs-5 bi bi-journal-text"></i><span class="ms-2">Requests</span>
+          <a class="nav-link d-flex justify-content-between align-items-center text-dark {% if page == 'requests' %}active-page{% endif %}" 
+            data-bs-toggle="collapse" href="#requestsSubMenu" role="button" aria-expanded="false" aria-controls="requestsSubMenu">
+            <span class="d-flex align-items-center gap-2 flex-grow-1">
+              <i class="fs-5 bi bi-journal-text"></i>
+              <span class="text-truncate">Requests</span>
+            </span>
+            <i class="bi bi-chevron-down arrow-icon ms-2"></i>
           </a>
+
+
           <div class="collapse" id="requestsSubMenu">
-            <ul class="nav flex-column ms-4">
-              <li class="nav-item"><a class="nav-link text-dark" href="#">New Request</a></li>
-              <li class="nav-item"><a class="nav-link text-dark" href="#">Leave Status</a></li>
-              <li class="nav-item"><a class="nav-link text-dark" href="#">Archived</a></li>
+            <ul class="nav flex-column ms-4 mt-2">
+              <li><a class="nav-link text-dark" href="#">New Request</a></li>
+              <li><a class="nav-link text-dark" href="#">Leave Status</a></li>
+              <li><a class="nav-link text-dark" href="#">Archived</a></li>
             </ul>
           </div>
         </li>
 
         <!-- Settings -->
         <li>
-          <a href="#" class="nav-link text-dark">
+          <a href="#" class="nav-link text-dark {% if page == 'settings' %}active-page{% endif %}">
             <i class="fs-5 bi bi-gear"></i><span class="ms-2">Settings</span>
           </a>
         </li>
@@ -82,128 +92,205 @@
       </div>
     </ul>
 
-    <div class="container">
-      <hr>
+    <div class="container mt-auto">
+      <hr class="w-100">
+
       <!-- Night Mode -->
       <a href="{{ url_for('admin_login') }}" class="nav-link text-dark mt-3">
-        <i class="bi bi-cloud-moon-fill fs-4 ms-3"></i><span class="ms-2">Night Mode</span>
+        <i class="bi bi-cloud-moon-fill fs-5 ms-1"></i><span class="ms-2">Night Mode</span>
       </a>
 
       <!-- Logout -->
       <a href="{{ url_for('admin_login') }}" class="nav-link text-dark mt-3">
-        <i class="bi bi-box-arrow-left fs-4 ms-3"></i><span class="ms-2">Logout</span>
+        <i class="bi bi-box-arrow-left fs-5 ms-1"></i><span class="ms-2">Logout</span>
       </a>
     </div>
 
   </div>
 </nav>
 
+
     <!-- Main Content -->
-    <div class="col d-flex flex-column">
-      
+<div class="main-top-var col py-3">
+
       <!-- Top Navbar Toggle Button for Small Screens -->
-      <div class="top d-md-none p-3 shadow-sm d-flex justify-content-between align-items-center sticky-top">
-        <button title="Side bar" class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
-          <i class="bi bi-list"></i>
-        </button>
-        <a href="#" style="text-decoration: none; color:black" class="d-flex align-items-center ">
-        <img style="width: 70px;" src="{{ url_for('static', filename='img/logo.png')}}?v=2" alt="">
-        <h5 class="">Neighborhood</h5>
+<div id="topBar" class="top bg-light py-2 px-3 shadow-sm d-flex justify-content-between align-items-center fixed-top w-100" style="z-index: 1030;">
+  <button title="Side bar" class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+    <i class="bi bi-list"></i>
+  </button>
+  <a href="#" style="text-decoration: none; color: black;" class="d-flex align-items-center">
+    <img style="width: 70px;" src="{{ url_for('static', filename='img/company.png') }}?v=2" alt="">
+    <h5 class="mb-0 ms-2">StoreWood</h5>
+  </a>
+</div>
+
+
+<!-- Sidebar for small screens -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+  <div class="offcanvas-header border-bottom">
+    <div class="d-flex align-items-center">
+      <img src="{{ url_for('static', filename='img/company.png') }}?v=2" alt="Logo" width="36" height="36" class="me-2">
+      <h5 class="mb-0">StoreWood</h5>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+
+  <div class="offcanvas-body p-0">
+    <div class="d-flex w-100 flex-column p-3 align-items-sm-start pt-3 h-100">
+
+      <ul class="nav nav-pills flex-column mb-auto w-100" id="menu">
+        <div class="container con-li">
+
+          <li class="nav-item">
+            <a href="{{ url_for('management') }}" class="nav-link text-dark {% if page == 'dashboard' %}active-page{% endif %}">
+              <i class="fs-5 bi bi-grid"></i><span class="ms-2">Dashboard</span>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-dark {% if page == 'employees' %}active-page{% endif %}" href="{{ url_for('employees_management') }}">
+              <i class="bi bi-person-lines-fill fs-5"></i><span class="ms-2">Employees</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="nav-link text-dark {% if page == 'timelogs' %}active-page{% endif %}">
+              <i class="bi bi-calendar-week fs-5"></i><span class="ms-2">Time Logs</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="nav-link text-dark {% if page == 'reports' %}active-page{% endif %}">
+              <i class="fs-5 bi bi-graph-up"></i><span class="ms-2">Reports</span>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link d-flex justify-content-between align-items-center text-dark {% if page == 'requests' %}active-page{% endif %}"
+              data-bs-toggle="collapse" href="#requestsSubMenuMobile" role="button" aria-expanded="false" aria-controls="requestsSubMenuMobile">
+              <span class="d-flex align-items-center gap-2 flex-grow-1">
+                <i class="fs-5 bi bi-journal-text"></i>
+                <span class="text-truncate">Requests</span>
+              </span>
+              <i class="bi bi-chevron-down arrow-icon ms-2"></i>
+            </a>
+
+            <div class="collapse" id="requestsSubMenuMobile">
+              <ul class="nav flex-column ms-4 mt-2">
+                <li><a class="nav-link text-dark" href="#">New Request</a></li>
+                <li><a class="nav-link text-dark" href="#">Leave Status</a></li>
+                <li><a class="nav-link text-dark" href="#">Archived</a></li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <a href="#" class="nav-link text-dark {% if page == 'settings' %}active-page{% endif %}">
+              <i class="fs-5 bi bi-gear"></i><span class="ms-2">Settings</span>
+            </a>
+          </li>
+
+        </div>
+      </ul>
+
+      <div class="container mt-auto">
+        <hr class="w-100">
+        <a href="{{ url_for('admin_login') }}" class="nav-link text-dark mt-3">
+          <i class="bi bi-cloud-moon-fill fs-5 ms-1"></i><span class="ms-2">Night Mode</span>
+        </a>
+        <a href="{{ url_for('admin_login') }}" class="nav-link text-dark mt-3">
+          <i class="bi bi-box-arrow-left fs-5 ms-1"></i><span class="ms-2">Logout</span>
         </a>
       </div>
-
-      <!-- Offcanvas for sidebar on small screens -->
-      <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
-        <div class="offcanvas-header" >
-          <h5 class="offcanvas-title">Menu</h5>
-          <button title="Close Side Bar" type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-        </div>
-        <div class="offcanvas-body">
-          <!-- Sidebar content duplicated for mobile -->
-          <ul class="nav flex-column">
-            <li><a href="{{ url_for('management') }}" class="nav-link">Dashboard</a></li>
-            <li><a href="{{ url_for('employees_management') }}" class="nav-link">Employees</a></li>
-            <li><a href="#" class="nav-link">Time Logs</a></li>
-            <li><a href="#" class="nav-link">Reports</a></li>
-            <li><a href="#" class="nav-link">Requests</a></li>
-            <li><a href="#" class="nav-link">Settings</a></li>
-            <li><a href="{{ url_for('admin_login') }}" class="nav-link text-danger">Logout</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Main Area -->
-<main class="row overflow-auto">
-  <div class="col pt-4">
-    <div class="container">
-      
-      <!-- First row -->
-      <div class="row g-2 mb-2">
-        <div class="col-md-6">
-          <div class="p-5 text-center bg-white rounded-3">
-            <i class="bi bi-clipboard-check-fill fs-1 text-success mb-2"></i>
-            <p class="fw-bold mb-1">Ontime Employees</p>
-            <span class="fs-4">{{ ontime }}</span>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="p-5 text-center bg-white rounded-3">
-            <i class="bi bi-alarm-fill fs-1 text-danger mb-2"></i>
-            <p class="fw-bold mb-1">Late Employees</p>
-            <span class="fs-4">{{ stats.late }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Second row -->
-      <div class="row g-2 mb-2">
-        <div class="col-md-6">
-          <div class="p-5 text-center bg-white rounded-3">
-            <i class="bi bi-person-check-fill fs-1 text-primary mb-2"></i>
-            <p class="fw-bold mb-1">Active Employees</p>
-            <span class="fs-4">{{ stats.active }}</span>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="p-5 text-center bg-white rounded-3">
-            <i class="bi bi-people-fill fs-1 text-warning mb-2"></i>
-            <p class="fw-bold mb-1">Total Employees</p>
-            <span class="fs-4">{{ stats.total }}</span>
-          </div>
-        </div>
-      </div>
-
-      
-    <div class="chart-row">
-  <div class="chart-box mix">
-    <canvas id="mixChart" width="400" height="300"
-            data-ontime='{{ stats.ontime | tojson }}'
-            data-late='{{ stats.get("late") | tojson }}'
-            data-active='{{ stats.get("active") | tojson }}'>
-    </canvas>
-  </div>
-
-  <div class="chart-box dept">
-    <canvas id="deptChart" width="600" height="300"
-            data-labels='{{ dep | tojson }}'
-            data-counts='{{ counts | tojson }}'>
-    </canvas>
+    </div>
   </div>
 </div>
-  
+
+
+      <!-- Stats Row -->
+<div class="row g-3 mb-4 ">
+  <!-- Ontime -->
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="d-flex align-items-center text-white p-3 rounded-4 stat-box bg-ontime h-100">
+      <i class="bi bi-clipboard-check-fill fs-1 me-3"></i>
+      <div>
+        <div class="fs-4 fw-bold">{{ ontime }}</div>
+        <div>Ontime Employees</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Late -->
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="d-flex align-items-center text-white p-3 rounded-4 stat-box bg-late h-100">
+      <i class="bi bi-alarm-fill fs-1 me-3"></i>
+      <div>
+        <div class="fs-4 fw-bold">{{ stats.late }}</div>
+        <div>Late Employees</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active -->
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="d-flex align-items-center text-white p-3 rounded-4 stat-box bg-active h-100">
+      <i class="bi bi-person-check-fill fs-1 me-3"></i>
+      <div>
+        <div class="fs-4 fw-bold">{{ stats.active }}</div>
+        <div>Active Employees</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Total -->
+  <div class="col-12 col-sm-6 col-lg-3">
+    <div class="d-flex align-items-center text-white p-3 rounded-4 stat-box bg-total h-100">
+      <i class="bi bi-people-fill fs-1 me-3"></i>
+      <div>
+        <div class="fs-4 fw-bold">{{ stats.total }}</div>
+        <div>Total Employees</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+      
+    <div class="row g-3">
+  <!-- Mixed Stats Chart -->
+  <div class="col-12 col-lg-6">
+    <div class="p-3 bg-white shadow-sm rounded-4 h-100">
+      <div class="chart-wrapper" style="position: relative; height: 350px;">
+        <canvas id="mixChart"
+                data-ontime='{{ stats.ontime | tojson }}'
+                data-late='{{ stats.get("late") | tojson }}'
+                data-active='{{ stats.get("active") | tojson }}'>
+        </canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Department Distribution Chart -->
+  <div class="col-12 col-lg-6">
+    <div class="p-3 bg-white shadow-sm rounded-4 h-100">
+      <div class="chart-wrapper" style="position: relative; height: 350px;">
+        <canvas id="deptChart"
+                data-labels='{{ dep | tojson }}'
+                data-counts='{{ counts | tojson }}'>
+        </canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
       <!-- Table -->
-      <form action="">
-        <table class="table custom-table my-2">
-          <thead class="head">
+      <div class="table-responsive mt-4">
+        <table class="table table-bordered table-hover">
+          <thead class="table-custom table-light head">
             <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Department</th>
-              <th>Date</th>
-              <th>Time In</th>
-              <th>Time Out</th>
-              <th>Status</th>
+              <th>ID</th><th>Name</th><th>Department</th><th>Date</th><th>Time In</th><th>Time Out</th><th>Status</th>
             </tr>
           </thead>
           <tbody>
@@ -220,24 +307,14 @@
             {% endfor %}
           </tbody>
         </table>
-      </form>
+      </div>
 
-    </div>
-  </div>
-</main>
-
-      <!-- Footer 
-      <footer class="row bg-light py-3 mt-auto">
-      </footer>
-      -->
     </div>
   </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 <script src="{{ url_for('static', filename='chart.js') }}"></script>
-<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-
 </body>
-
 </html>

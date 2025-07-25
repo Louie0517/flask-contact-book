@@ -13,8 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
             datasets: [{
                 label: 'Employees per Department',
                 data: data,
-                borderColor: 'rgba(98, 33, 210, 1)',
-                backgroundColor: 'rgba(152, 83, 231, 0.8)',
+                borderColor: 'rgba(40, 179, 218, 1)',
+                backgroundColor: 'rgba(46, 226, 236, 0.5)',
                 fill: true,
                 tension: 0.2
             }]
@@ -53,8 +53,8 @@ function mixChart() {
         datasets: [{
             label: 'Attendance Stats',
             data: [ontime, late, active],
-            backgroundColor: ['rgba(99, 102, 241, 0.7)', 'rgba(239, 68, 68, 0.7)', 'rgba(34, 197, 94, 0.7)'], 
-            borderColor: ['#fff700ff', '#9612caff', '#ff8000ff'],
+            backgroundColor: ['rgba(86, 206, 239, 1)', 'rgba(88, 196, 226, 1)', 'rgba(40, 179, 218, 1)'], 
+            borderColor: ['rgba(99, 102, 241, 0.7)', 'rgba(239, 68, 68, 0.7)', 'rgba(34, 197, 94, 0.7)'],
             borderWidth: 0,
            
         }]
@@ -88,6 +88,7 @@ function mixChart() {
 
 
 }
+
 
 mixChart()
 lineGraph()

@@ -20,61 +20,73 @@
   <div class="row vh-100 overflow-auto">
 
     <!-- Sidebar -->
-<nav id="sidebarMenu" class="col-12 col-sm-3 col-xl-2 bg-col px-0 position-sticky sticky-top">
-  <div class="d-flex w-100 flex-column p-3 align-items-sm-start pt-5 h-100">
-    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
-      <span class="fs-2 text">M<span class="d-sm-inline fs-2">enu</span></span>
+     <nav id="sidebarMenu" class="col-12 col-sm-4 col-md-3 col-lg-3 col-xl-2 bg-col px-0 position-sticky sticky-top">
+
+  <div class="d-flex w-100 flex-column p-3 align-items-sm-start pt-4 h-100">
+    
+    <!-- Logo + Title -->
+    <a href="/" class="d-flex align-items-center mb-3 text-dark text-decoration-none w-100 px-2">
+      <img src="{{ url_for('static', filename='img/company.png') }}?v=2" alt="Logo" width="36" height="36" class="me-2">
+      <span class="fs-4 fw-semibold">StoreWood</span>
     </a>
-    <hr>
+
+    <hr class="w-100">
 
     <ul class="nav nav-pills flex-column mb-auto w-100" id="menu">
       <div class="container con-li">
-        
+
         <!-- Dashboard -->
         <li class="nav-item">
-          <a href="{{ url_for('management') }}" class="nav-link text-dark">
-            <i class="fs-5 bi-grid"></i><span class="ms-2">Dashboard</span>
+          <a href="{{ url_for('management') }}" class="nav-link text-dark {% if page == 'dashboard' %}active-page{% endif %}">
+            <i class="fs-5 bi bi-grid"></i><span class="ms-2">Dashboard</span>
           </a>
         </li>
 
-        <!-- Employees Menu -->
+        <!-- Employees -->
         <li class="nav-item">
-          <a class="nav-link text-dark" href="{{ url_for('employees_management')}}">
+          <a class="nav-link text-dark {% if page == 'employees' %}active-page{% endif %}" href="{{ url_for('employees_management') }}">
             <i class="bi bi-person-lines-fill fs-5"></i><span class="ms-2">Employees</span>
           </a>
         </li>
 
         <!-- Time Logs -->
         <li>
-          <a href="#" class="nav-link text-dark">
+          <a href="#" class="nav-link text-dark {% if page == 'timelogs' %}active-page{% endif %}">
             <i class="bi bi-calendar-week fs-5"></i><span class="ms-2">Time Logs</span>
           </a>
         </li>
 
         <!-- Reports -->
         <li>
-          <a href="#" class="nav-link text-dark">
+          <a href="#" class="nav-link text-dark {% if page == 'reports' %}active-page{% endif %}">
             <i class="fs-5 bi bi-graph-up"></i><span class="ms-2">Reports</span>
           </a>
         </li>
 
-        <!-- Requests -->
+        <!-- Requests with Arrow -->
         <li class="nav-item">
-          <a class="nav-link text-dark" data-bs-toggle="collapse" href="#requestsSubMenu" role="button" aria-expanded="false" aria-controls="requestsSubMenu">
-            <i class="fs-5 bi bi-journal-text"></i><span class="ms-2">Requests</span>
+          <a class="nav-link d-flex justify-content-between align-items-center text-dark {% if page == 'requests' %}active-page{% endif %}" 
+            data-bs-toggle="collapse" href="#requestsSubMenu" role="button" aria-expanded="false" aria-controls="requestsSubMenu">
+            <span class="d-flex align-items-center gap-2 flex-grow-1">
+              <i class="fs-5 bi bi-journal-text"></i>
+              <span class="text-truncate">Requests</span>
+            </span>
+            <i class="bi bi-chevron-down arrow-icon ms-2"></i>
           </a>
+
+
           <div class="collapse" id="requestsSubMenu">
-            <ul class="nav flex-column ms-4">
-              <li class="nav-item"><a class="nav-link text-dark" href="#">New Request</a></li>
-              <li class="nav-item"><a class="nav-link text-dark" href="#">Leave Status</a></li>
-              <li class="nav-item"><a class="nav-link text-dark" href="#">Archived</a></li>
+            <ul class="nav flex-column ms-4 mt-2">
+              <li><a class="nav-link text-dark" href="#">New Request</a></li>
+              <li><a class="nav-link text-dark" href="#">Leave Status</a></li>
+              <li><a class="nav-link text-dark" href="#">Archived</a></li>
             </ul>
           </div>
         </li>
 
         <!-- Settings -->
         <li>
-          <a href="#" class="nav-link text-dark">
+          <a href="#" class="nav-link text-dark {% if page == 'settings' %}active-page{% endif %}">
             <i class="fs-5 bi bi-gear"></i><span class="ms-2">Settings</span>
           </a>
         </li>
@@ -82,181 +94,246 @@
       </div>
     </ul>
 
-    <div class="container">
-      <hr>
+    <div class="container mt-auto">
+      <hr class="w-100">
+
       <!-- Night Mode -->
       <a href="{{ url_for('admin_login') }}" class="nav-link text-dark mt-3">
-        <i class="bi bi-cloud-moon-fill fs-4 ms-3"></i><span class="ms-2">Night Mode</span>
+        <i class="bi bi-cloud-moon-fill fs-5 ms-1"></i><span class="ms-2">Night Mode</span>
       </a>
 
       <!-- Logout -->
       <a href="{{ url_for('admin_login') }}" class="nav-link text-dark mt-3">
-        <i class="bi bi-box-arrow-left fs-4 ms-3"></i><span class="ms-2">Logout</span>
+        <i class="bi bi-box-arrow-left fs-5 ms-1"></i><span class="ms-2">Logout</span>
       </a>
     </div>
 
   </div>
 </nav>
 
+<!-- Top Bar -->
+<div id="topBar" class="top bg-light py-2 px-3 shadow-sm d-flex justify-content-between align-items-center fixed-top w-100" style="z-index: 1030;">
+  <button title="Side bar" class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
+    <i class="bi bi-list"></i>
+  </button>
+  <a href="#" style="text-decoration: none; color: black;" class="d-flex align-items-center">
+    <img style="width: 70px;" src="{{ url_for('static', filename='img/company.png') }}?v=2" alt="">
+    <h5 class="mb-0 ms-2">StoreWood</h5>
+  </a>
+</div>
 
-
-    
     <!-- Main Content -->
-    <div class="col d-flex flex-column">
+<div class="col d-flex flex-column w-50">
       
-      <!-- Top Navbar Toggle Button for Small Screens -->
-      <div id="topBar" class="top bg-light p-3  shadow-sm d-flex justify-content-between align-items-center sticky-top">
-        <button title="Side bar" class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
-          <i class="bi bi-list"></i>
-        </button>
-        <a href="#" style="text-decoration: none; color:black" class="d-flex align-items-center ">
-        <img style="width: 70px;" src="{{ url_for('static', filename='img/logo.png')}}?v=2" alt="">
-        <h5 class="">Neighborhood</h5>
+<!-- Sidebar for small screens -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
+  <div class="offcanvas-header border-bottom">
+    <div class="d-flex align-items-center">
+      <img src="{{ url_for('static', filename='img/company.png') }}?v=2" alt="Logo" width="36" height="36" class="me-2">
+      <h5 class="mb-0">StoreWood</h5>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+
+  <div class="offcanvas-body p-0">
+    <div class="d-flex w-100 flex-column p-3 align-items-sm-start pt-3 h-100">
+
+      <ul class="nav nav-pills flex-column mb-auto w-100" id="menu">
+        <div class="container con-li">
+
+          <li class="nav-item">
+            <a href="{{ url_for('management') }}" class="nav-link text-dark {% if page == 'dashboard' %}active-page{% endif %}">
+              <i class="fs-5 bi bi-grid"></i><span class="ms-2">Dashboard</span>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link text-dark {% if page == 'employees' %}active-page{% endif %}" href="{{ url_for('employees_management') }}">
+              <i class="bi bi-person-lines-fill fs-5"></i><span class="ms-2">Employees</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="nav-link text-dark {% if page == 'timelogs' %}active-page{% endif %}">
+              <i class="bi bi-calendar-week fs-5"></i><span class="ms-2">Time Logs</span>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="nav-link text-dark {% if page == 'reports' %}active-page{% endif %}">
+              <i class="fs-5 bi bi-graph-up"></i><span class="ms-2">Reports</span>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link d-flex justify-content-between align-items-center text-dark {% if page == 'requests' %}active-page{% endif %}"
+              data-bs-toggle="collapse" href="#requestsSubMenuMobile" role="button" aria-expanded="false" aria-controls="requestsSubMenuMobile">
+              <span class="d-flex align-items-center gap-2 flex-grow-1">
+                <i class="fs-5 bi bi-journal-text"></i>
+                <span class="text-truncate">Requests</span>
+              </span>
+              <i class="bi bi-chevron-down arrow-icon ms-2"></i>
+            </a>
+
+            <div class="collapse" id="requestsSubMenuMobile">
+              <ul class="nav flex-column ms-4 mt-2">
+                <li><a class="nav-link text-dark" href="#">New Request</a></li>
+                <li><a class="nav-link text-dark" href="#">Leave Status</a></li>
+                <li><a class="nav-link text-dark" href="#">Archived</a></li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <a href="#" class="nav-link text-dark {% if page == 'settings' %}active-page{% endif %}">
+              <i class="fs-5 bi bi-gear"></i><span class="ms-2">Settings</span>
+            </a>
+          </li>
+
+        </div>
+      </ul>
+
+      <div class="container mt-auto">
+        <hr class="w-100">
+        <a href="{{ url_for('admin_login') }}" class="nav-link text-dark mt-3">
+          <i class="bi bi-cloud-moon-fill fs-5 ms-1"></i><span class="ms-2">Night Mode</span>
+        </a>
+        <a href="{{ url_for('admin_login') }}" class="nav-link text-dark mt-3">
+          <i class="bi bi-box-arrow-left fs-5 ms-1"></i><span class="ms-2">Logout</span>
         </a>
       </div>
+    </div>
+  </div>
+</div>
 
-      <!-- Offcanvas for sidebar on small screens -->
-      <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
-        <div class="offcanvas-header" >
-          <h5 class="offcanvas-title">Menu</h5>
-          <button title="Close Side Bar" type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
-        </div>
-        <div class="offcanvas-body">
-          <!-- Sidebar content duplicated for mobile -->
-          <ul class="nav flex-column">
-            <li><a href="{{ url_for('management') }}" class="nav-link">Dashboard</a></li>
-            <li><a href="{{ url_for('employees_management') }}" class="nav-link">Employees</a></li>
-            <li><a href="#" class="nav-link">Time Logs</a></li>
-            <li><a href="#" class="nav-link">Reports</a></li>
-            <li><a href="#" class="nav-link">Requests</a></li>
-            <li><a href="#" class="nav-link">Settings</a></li>
-            <li><a href="{{ url_for('admin_login') }}" class="nav-link text-danger">Logout</a></li>
-          </ul>
-        </div>
-      </div>
+
 
       
      
 
-      <!-- Main Area -->
-      <main class="row overflow-auto">
-        <div class="col pt-3">
-          <div class="container">
-        <div class="container mt-3">
-      <!-- Sort Icon with Dropdown and Add Employee -->
-      <div class="d-flex flex-row gap-2 ">
-        <p id="e-text">Employees</p>
-      <div class="dropdown mb-3 d-flex w-100 justify-content-end">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="bi bi-sort-down"></i>
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="sortDropdown">
-          <li><a class="dropdown-item" href="{{ url_for('employees_management', sort_by='name') }}">Sort by Name</a></li>
-          <li><a class="dropdown-item" href="{{ url_for('employees_management', sort_by='department') }}">Sort by Department</a></li>
-          <li><a class="dropdown-item" href="{{ url_for('employees_management', sort_by='email') }}">Sort by Email</a></li>
-          <li><hr></li>
-          <li><a class="dropdown-item" href="{{ url_for('employees_management') }}">Default</a></li>
-        </ul>
-      </div>
-
-      <div class="text-nowrap">
-        <a href="{{ url_for('add_employee') }}" class="text-dark">
-          <button class="btn btn-secondary" type="button" id="addEmployee" data-bs-toggle="Add Employee" aria-expanded="false"><i class="bi bi-person-fill-add"></i><span>Add Employee</span></button>
-        </a>
-      </div>
-      </div>
-
-
-
-        <!-- Search Box -->
-      <form action="{{ url_for('search_employee') }}" method="get">
-       <div class="input-group container search-con d-flex flex-column h-25 p-3">
-        <p class="pt-2 search-txt">Search</p>
-
-        <div class="d-flex gap-3">
-          <div class="input-group mb-3 d-flex flex-column">
-            <label for="e-employee">Email</label>
-            <input name="email" value="{{ email or '' }}"  autocomplete="off" type="email" id="e-employee" class="form-control w-100" placeholder="Email" aria-label="Email" aria-describedby="basic-addon2">
-          </div>
-
-          <div class="input-group mb-3 d-flex flex-column">
-              <label for="e-name">Name</label>
-              <input name="name"  value="{{ name or '' }}"  autocomplete="off" id="e_name" type="text" class="form-control w-100" placeholder="Name" aria-label="Name" aria-describedby="inputGroup-sizing-name">
-          </div>
-        </div>
-
       
 
-        <div class="d-flex flex-row gap-3">
-           <div class="input-group mb-3 d-flex flex-colum h-25">
-                <label for="e-id">Identification number</label>             
-                <input name="identification-number" value="{{ iden_num or '' }}" autocomplete="off" id="e-id" type="text" class="form-control w-100" placeholder="ID" aria-label="ID" aria-describedby="inputGroup-sizing-id">
+<!-- Top Bar: Sort + Add Employee -->
+<div class="row mb-3 mt-2">
+  
+  <div class="col-12 d-flex justify-content-end flex-wrap gap-2 gap-md-0">
+       <div class="d-flex flex-row align-items-center gap-2 mb-3 flex-wrap">
+
+        <!-- Sort Dropdown -->
+      <div>
+        <div class="dropdown">
+          <button class="btn btn-primary p-2 pe-3" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-sort-down fs-5"></i>
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+            <li><a class="dropdown-item" href="{{ url_for('employees_management', sort_by='name') }}">Sort by Name</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('employees_management', sort_by='department') }}">Sort by Department</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('employees_management', sort_by='email') }}">Sort by Email</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{ url_for('employees_management') }}">Default</a></li>
+          </ul>
+        </div>
+      </div>
+
+        <!-- Add Employee Button -->
+
+      <div>
+        <a href="{{ url_for('add_employee') }}">
+          <button class="btn btn-primary p-2" type="button">
+            <i class="bi bi-person-fill-add fs-5"></i> <span class="ms-1">Add Employee</span>
+          </button>
+        </a>
+      </div>
+    </div>
+
+      <!-- Search Form -->
+      <div class="col-12">
+        <form action="{{ url_for('search_employee') }}" method="get" class="rounded-3 p-3" style="background-color: white;">
+
+          <p class="search-txt h5 mb-3">Search</p>
+
+          <div class="row g-3">
+            <!-- Top Row -->
+            <div class="col-md-6">
+              <label for="e-email" class="form-label">Email</label>
+              <input name="email" value="{{ email or '' }}" type="email" id="e-email" class="form-control" placeholder="Email">
+            </div>
+            <div class="col-md-6">
+              <label for="e-name" class="form-label">Name</label>
+              <input name="name" value="{{ name or '' }}" type="text" id="e-name" class="form-control" placeholder="Name">
             </div>
 
-            <div class="input-group mb-3 d-flex flex-column h-25">
-              <label for="e-dept">Department</label>
-              <select id="e-dept" class="form-control w-100" name="department">
+            <!-- Bottom Row -->
+            <div class="col-md-6">
+              <label for="e-id" class="form-label">ID Number</label>
+              <input name="identification-number" value="{{ iden_num or '' }}" type="text" id="e-id" class="form-control" placeholder="ID">
+            </div>
+            <div class="col-md-6">
+              <label for="e-dept" class="form-label">Department</label>
+              <select id="e-dept" class="form-control" name="department">
                 <option selected disabled>Select department</option>
                 <option value="Management" {% if department == 'Management' %}selected{% endif %}>Management</option>
-                <option value="IT" {% if department == 'IT' %} selected {% endif %}>IT</option>
+                <option value="IT" {% if department == 'IT' %}selected{% endif %}>IT</option>
                 <option value="Finance" {% if department == 'Finance' %}selected{% endif %}>Finance</option>
                 <option value="HR" {% if department == 'HR' %}selected{% endif %}>HR</option>
                 <option value="Marketing" {% if department == 'Marketing' %}selected{% endif %}>Marketing</option>
                 <option value="Creatives" {% if department == 'Creatives' %}selected{% endif %}>Creatives</option>
               </select>
             </div>
-
           </div>
 
-          <div class="d-flex w-100 justify-content-end">
-            <button id="search" type="submit" class="btn btn-primary px-4 py-2 w-md-50 w-lg-25 text-nowrap ">
-              Search Employee
-            </button>
+          <!-- Submit Button -->
+          <div class="d-flex justify-content-end mt-4">
+            <button type="submit" class="btn btn-primary px-4 py-2">Search</button>
           </div>
-
-        </div>
-      </form>
-
-              <table id="employee-table" class="table custom-table my-4">
-                <thead class="head">
-                  <tr>
-                    <th>Employee ID</th>
-                    <th>Name</th>
-                    <th>Department</th>
-                    <th>Email</th>
-                    <th>Photo</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-            {% if employee %}
-              {% for emp in employee %}
-                <tr>
-                  <td>{{ emp[0] }}</td>
-                  <td id="name">{{ emp[1] }}</td>
-                  <td>{{ emp[2] }}</td>
-                  <td>{{ emp[3] }}</td>
-                  <td>
-                    {% if emp[4] %}
-                      <img class="employee-photos" src="{{ url_for('static', filename=emp[4] if emp[4] else employees_img/default.jpg) }}" width="100" alt="Employee Photo">
-                    {% endif %}
-                  </td>
-                  <td>
-                    <a href="{{ url_for('edit_employees_profile', id=emp[5]) }}" class="btn btn-primary btn-sm"><i class="bi bi-pencil-square"></i></a>
-                    <a href="{{ url_for('delete_employee_profile', id=emp[5]) }}" class="btn btn-danger btn-sm"><i class="bi bi-trash3-fill"></i></a>
-                  </td>
-                </tr>
-              {% endfor %}
-              {% else %}
-              <tr>
-                <td colspan="6" class="text-center">No employee found.</td>
-              </tr>
-              {% endif %}
-            </tbody>
-          </table>
-        </div>
+        </form>
       </div>
-    </main>
+
+  <!-- Table -->
+  <div class="col-12">
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered custom-table">
+        <thead class="head">
+          <tr>
+            <th>Employee ID</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Email</th>
+            <th>Photo</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if employee %}
+            {% for emp in employee %}
+              <tr>
+                <td>{{ emp[0] }}</td>
+                <td>{{ emp[1] }}</td>
+                <td>{{ emp[2] }}</td>
+                <td>{{ emp[3] }}</td>
+                <td>
+                  {% if emp[4] %}
+                    <img class="employee-photos" src="{{ url_for('static', filename=emp[4]) }}" width="100" alt="Employee Photo">
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{{ url_for('edit_employees_profile', id=emp[5]) }}" class="btn btn-primary btn-sm"><i class="bi bi-pencil-square"></i></a>
+                  <a href="{{ url_for('delete_employee_profile', id=emp[5]) }}" class="btn btn-danger btn-sm"><i class="bi bi-trash3-fill"></i></a>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="6" class="text-center">No employee found.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
 
       <!-- Footer 
       <footer class="row bg-light py-3 mt-auto">
