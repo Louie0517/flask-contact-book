@@ -5,7 +5,7 @@ class Database():
     def __init__(self) -> None:
         self.employee_database = 'employee.db'
         self.employee_time_logs = 'time_logs.db'
-        self.employee_leave_request = 'leave_request.db'
+        self.employee_leave_request = 'employee_request.db'
         self.admin_table = 'admin.db'
         self.settings_table = 'settings.db'        
 
@@ -50,17 +50,19 @@ class Database():
         except sqlite3.OperationalError as e:
             print("Failed to open database", e)
             
-    def leave_request(self):
+    def employee_request(self):
         try:
-            with sqlite3.connect(self.employee_leave_request) as con:
-                cur = con.cursor()
-                cur.execute('''CREATE TABLE IF NOT EXISTS leave_request 
-                            (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT,
-                            date TEXT, reason TEXT)''')
-                con.commit()
-        
-        except sqlite3.OperationalError as e:
-            print("Failed to open database", e)
+            with sqlite3.connect(self.employee_leave_request) as db_con:
+                cur = db_con.cursor()
+                cur.execute('''CREATE TABLE IF NOT EXISTS request (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            request_id TEXT, name TEXT, request_type TEXT, 
+                            date TEXT, details TEXT, department TEXT, status='PENDING' TEXT, action TEXT)''')
+                
+        except sqlite3.DatabaseError as e:
+            print('Processing Data error', e)
+            
+        except sqlite3.DataError as e:
+            print('Cannot access data', e)
             
             
     def user_admin_table(self):
@@ -119,7 +121,7 @@ class Database():
     def connect_time_logs(self):
         return self.employee_time_logs
     
-    def connect_leave_request(self):
+    def connect_request_table(self):
         return self.employee_leave_request
             
     def connect_admin_table(self):

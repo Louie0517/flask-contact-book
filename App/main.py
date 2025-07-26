@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, request, flash, url_for
 from database import Database
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
@@ -24,39 +24,39 @@ db : Database = Database()
 def database_init():
     db.employee_db()
     db.time_logs()
-    db.leave_request()
+    db.employee_request()
     db.user_admin_table()
     db.settings()
-  
-@app.route('/')  
+
+@app.route('/')
 @app.route('/admin_login', methods=['GET', 'POST'])
 def admin_login():
-    
+
     if request.method == 'POST':
-        
+
         input_email = request.form['admin_email']
         input_password = request.form['admin_password']
         e_s, p_s = get_v()
-    
+
         with sqlite3.connect(db.connect_admin_table()) as con:
             cur = con.cursor()
             cur.execute("INSERT INTO admin (admin_email, password) VALUES (?, ?)", (input_email, input_password))
             con.commit()
-            
+
             cur.execute("SELECT * FROM admin WHERE admin_email=? AND password=?", (e_s, p_s))
             dis = cur.fetchone()
-            
+
             if dis and len(dis) >= 3:
                 verified =  dis[1] ==  input_email and dis[2] == input_password
-            
+
             else:
                 verified = False
-            
+
             if verified:
                 return redirect('/management')
             else:
                 return render_template('admin_login.html', error="Invalid admin details.")
-    
+
     return render_template('admin_login.html')
 
 
@@ -68,19 +68,19 @@ def scan():
     date_today = now.strftime('%Y-%m-%d')
     status = ''
     employee_infos = {}
-    
-    
+
+
 
     with sqlite3.connect(db.connect_time_logs()) as con:
         cur = con.cursor()
-        
+
         cur.execute("ATTACH DATABASE 'employee.db' AS e")
-        
+
         cur.execute('''SELECT tl.date, emp.name, emp.department FROM time_logs AS tl LEFT JOIN e.employee AS emp ON
                     tl.employee_id = emp.employee_id WHERE tl.employee_id=?''',(emp_id,))
-        
+
         infos = cur.fetchone()
-        
+
         if infos:
             employee_infos = {'name': infos[1],
                               'date': infos[0],
@@ -94,7 +94,7 @@ def scan():
         log = cur.fetchone()
 
         if not log:
-            status = 'IN' if now.hour < 9 else 'LATE'
+            status = 'ONTIME' if now.hour < 9 else 'LATE'
             cur.execute('''INSERT INTO time_logs (employee_id, date, time_in, action)
                            VALUES (?, ?, ?, ?)''',
                         (emp_id, date_today, time_now, status))
@@ -125,7 +125,7 @@ def get_today_logs():
             AND tl.time_logs.date = date('now', 'localtime')
             ORDER BY emp.name
         """)
-        
+
         records = cur.fetchall()
         return [
             {
@@ -142,48 +142,12 @@ def get_today_logs():
 
     return records
 
-def generate_qr(emp_id):
-    url = f"http://192.168.1.5:5000/scan?id={emp_id}"
-    img = qrcode.make(url)
-    img.save(f"{emp_id}.png")
-
-
-def get_total_employees():
-    con_emp = sqlite3.connect(db.connect_employee())
-    con_stats = sqlite3.connect(db.connect_time_logs())
-    
-    employee = pd.read_sql_query("SELECT * FROM employee", con_emp)
-    status = pd.read_sql_query("SELECT * FROM time_logs", con_stats)
-    
-    con_emp.close()
-    con_stats.close()
-   
-        
-    return employee, status
-
 
 @app.route('/management', methods=['GET', 'POST'])
 def management():
-    
-    _, status = get_total_employees()
 
-
-    status = status.copy()  
-
-    status['time'] = pd.to_datetime(status['time'], format='%H:%M:%S', errors='coerce')
-
-    status = status.dropna(subset=['time'])
-    late_threshold = pd.to_datetime('09:00:00', format='%H:%M:%S')
-
-    late_employees = status[status['time'] > late_threshold]
-    on_time_employees = status[status['time_in'] <= late_threshold]
-
-    num_late = len(late_employees)
-    num_ontime = len(on_time_employees)
-    total = num_late + num_ontime
-    
     stats = get_total_employees_and_status()
-    
+
     with sqlite3.connect(db.connect_employee()) as con:
         cur = con.cursor()
         cur.execute("ATTACH DATABASE 'time_logs.db' AS tl")
@@ -195,16 +159,55 @@ def management():
             ORDER BY emp.name
         """)
         records = get_today_logs()
-        
+
         cur.execute('''SELECT department , COUNT(*) FROM employee GROUP BY department''')
         data = cur.fetchall()
-        
+
     dep = [row[0] for row in data]
     count = [row[1] for row in data]
 
-    
-    return render_template('dash.html', employees = records, ontime = num_ontime, late = num_late, active=total, stats=stats, labels=['On-Time', 'Late', 'Active'], dep=dep, counts = count)
 
+    return render_template('dash.html', employees = records, stats=stats, labels=['On-Time', 'Late', 'Active'], dep=dep, counts = count)
+
+
+def get_total_employees_and_status():
+    today_str = datetime.now().strftime('%Y-%m-%d')
+
+    # Get total employees
+    with sqlite3.connect(db.connect_employee()) as conn:
+        df_employees = pd.read_sql_query("SELECT employee_id FROM employee", conn)
+        valid_ids = df_employees['employee_id'].tolist()
+
+    # Get today's time logs only
+    with sqlite3.connect(db.connect_time_logs()) as conn:
+        df_logs = pd.read_sql_query(
+            "SELECT employee_id, time_in, time_out FROM time_logs WHERE date = ?",
+            conn, params=(today_str,)
+        )
+
+    # Filter only logs from valid employees
+    df_logs = df_logs[df_logs['employee_id'].isin(valid_ids)]
+
+    # Parse time_in and time_out
+    df_logs['time_in'] = pd.to_datetime(df_logs['time_in'], format='%H:%M:%S', errors='coerce').dt.time
+    df_logs['time_out'] = pd.to_datetime(df_logs['time_out'], format='%H:%M:%S', errors='coerce').dt.time
+
+    # Count on-time and late based on time_in only (ignore NaTs)
+    cutoff = time(9, 0, 0)
+    df_logs = df_logs.dropna(subset=['time_in'])
+
+    ontime = len(df_logs[df_logs['time_in'] <= cutoff])
+    late = len(df_logs[df_logs['time_in'] > cutoff])
+
+    # Active: those with time_in but no time_out
+    active = len(df_logs[df_logs['time_out'].isna()])
+
+    return {
+        'total': len(valid_ids),
+        'ontime': ontime,
+        'late': late,
+        'active': active
+    }
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ['png', 'jpg', 'jpeg']
@@ -214,7 +217,7 @@ def allowed_file(filename):
 def add_employee():
     def_id = rand_id()
     ALLOWED_EXTENSIONS = ['png', '.jpeg', 'jpg']
-    
+
     if request.method == 'POST':
         employee_id = request.form['id']
         name = request.form['name']
@@ -224,33 +227,33 @@ def add_employee():
         if 'employees_photo' not in request.files:
             return 'No file part.'
         '''
-        
-        
+
+
         file = request.files['employees_photo']
         if file.filename != '':
             if not allowed_file(file.filename):
-                return render_template('add_employee.html', e = 'File type not allowed. Please upload a PNG, JPG, or JPEG.', 
-                                    random=def_id, form_data={'id': employee_id, 'name': name, 'department': 
+                return render_template('add_employee.html', e = 'File type not allowed. Please upload a PNG, JPG, or JPEG.',
+                                    random=def_id, form_data={'id': employee_id, 'name': name, 'department':
                                     department, 'email': email})
-                
+
             filename = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
             relative_path = f'employees_img/{filename}'
-            
+
         else:
             relative_path = 'employees_img/default.jpg'
-            
-        
+
+
         with sqlite3.connect(db.connect_employee()) as con:
-            
+
             cur = con.cursor()
             cur.execute('''SELECT * FROM employee WHERE email=? ''', (email,))
             duplicates = cur.fetchone()
-            
+
             if duplicates:
-                return render_template('add_employee.html', employed=True, random=def_id, 
-                                form_data={'id': employee_id, 'name': name, 'department': 
+                return render_template('add_employee.html', employed=True, random=def_id,
+                                form_data={'id': employee_id, 'name': name, 'department':
                                 department, 'email': email} )
             else:
                 cur.execute("INSERT INTO employee (employee_id, name, department, email, photo_path) VALUES (?, ?, ?, ?, ?)", (employee_id, name, department, email, relative_path))
@@ -294,7 +297,7 @@ def search_employee():
             """
             cur.execute(query, values)
             results = cur.fetchall()
-            
+
             return render_template('e_manage.html', employee=results,
                        iden_num=iden_num, name=name, department=department, email=email)
 
@@ -327,44 +330,13 @@ def employees_management():
 
     return render_template('e_manage.html', employee=employee, field=sort_by)
 
-def get_total_employees_and_status():
-    with sqlite3.connect(db.connect_employee()) as conn:
-        df_employees = pd.read_sql_query("SELECT id FROM employee", conn)
-        valid_ids = df_employees['id'].tolist()
-
-    with sqlite3.connect(db.connect_time_logs()) as conn:
-        df_timein = pd.read_sql_query("SELECT id, time_in AS status FROM time_logs", conn)
-        df_timeout = pd.read_sql_query("SELECT id, time_out FROM time_logs", conn)
-
-    df_timein = df_timein[df_timein['id'].isin(valid_ids)]
-    df_timeout = df_timeout[df_timeout['id'].isin(valid_ids)]
-
-    df_timein['status'] = pd.to_datetime(df_timein['status'], format='%H:%M:%S', errors='coerce')
-    
-    _, status = get_total_employees()
-    
-    status['time'] = pd.to_datetime(status['time'], format='%H:%M:%S').dt.time
-    ontime = len(status[status['time'] <= time(9, 0, 0)])
-
-
-    # ontime = len(df_timein[df_timein['status'] <= pd.to_datetime('09:00:00', format='%H:%M:%S')])
-    late = len(df_timein[df_timein['status'] > pd.to_datetime('09:00:00', format='%H:%M:%S')])
-    active = len(df_timeout[df_timeout['time_out'].isna() | (df_timeout['time_out'] == '')])
-
-    return {
-        'total': len(valid_ids),
-        'ontime': ontime,
-        'late': late,
-        'active': active
-    }
-
 
 @app.route('/delete_employee_profile/<string:id>', methods=['GET'])
 def delete_employee_profile(id):
     with sqlite3.connect(db.connect_employee()) as con:
         cur = con.cursor()
         cur.execute("ATTACH DATABASE 'time_logs.db' AS t_logs ")
-        
+
         try:
             cur.execute('DELETE FROM employee WHERE id = ?', (id,))
             cur.execute('DELETE FROM t_logs.time_logs WHERE id = ?', (id,))
@@ -373,7 +345,7 @@ def delete_employee_profile(id):
             con.commit()
         except Exception as e:
             print("Error deleting employee profile:", e)
-        
+
     return redirect('/employee_management')
 
 
@@ -410,14 +382,14 @@ def update_img(user_id):
 
         return relative_path
 
- 
+
 @app.route('/edit_employees_profile/<string:id>', methods=['GET', 'POST'])
 def edit_employees_profile(id):
-    
+
     e_id = db.get_user_id(id)
     if not e_id:
         return "Invalid ID", 404
-    
+
     if request.method == 'POST':
         new_id = request.form.get('new_id', '').strip()
         new_name = request.form.get('new_name', '').strip()
@@ -425,7 +397,7 @@ def edit_employees_profile(id):
         new_email = request.form.get('new_email').strip()
         new_photo = update_img(e_id)
         tl_id = db.get_time_logs_id()
-        
+
         try:
             with sqlite3.connect(db.connect_employee()) as con:
                 cur = con.cursor()
@@ -433,33 +405,88 @@ def edit_employees_profile(id):
                 cur.execute('''SELECT e.employee_id, tl.employee_id FROM employee e JOIN
                             t_logs.time_logs tl ON e.employee_id = tl.employee_id WHERE e.id=?''', (e_id,))
                 i_matched = cur.fetchone()
-                    
+
                 if i_matched:
-                        
-                    cur.execute('''UPDATE employee SET employee_id=?, name=?, department=?, email=?, photo_path=? 
+
+                    cur.execute('''UPDATE employee SET employee_id=?, name=?, department=?, email=?, photo_path=?
                                 WHERE id=?''', (new_id, new_name, new_department, new_email, new_photo, e_id))
-                        
+
                     cur.execute('''UPDATE time_logs SET employee_id=?, name=? WHERE id=?''', (new_id, new_name, tl_id))
                     con.commit()
 
                     return redirect('/employees_management')
-                    
+
                 cur.execute("DETACH DATABASE time_logs")
-                
+
         except sqlite3.OperationalError as e:
             print("Operational error.", e)
         except sqlite3.Error as e:
             print("SQLite error." , e)
-            
-    
+
+
     with sqlite3.connect(db.connect_employee()) as con:
         cur = con.cursor()
         cur.execute('''SELECT * FROM employee WHERE employee_id=?''', (e_id,))
         employee = cur.fetchone()
         employee = [employee] if  employee else []
-        
+
     return render_template('edit_e_pf.html', employee=employee)
 
+
+@app.route('/employee_request', methods=['POST', 'GET'])
+def employee_request():
+
+    if request.method == 'POST':
+        name = request.form["name"]
+        employee_id = request.form["employee_id"]
+        department = request.form['department']
+        request_type = request.form["request"]
+        date = request.form["date"]
+        details = request.form["details"]
+
+        try:
+            with sqlite3.connect(db.connect_request_table()) as req_con:
+
+                cursor = req_con.cursor()
+
+                cursor.execute('''INSERT INTO request (employee_id, name, department, request_type, date, details)
+                                VALUES (?, ?, ?, ?, ?, ?)''',
+                                (employee_id, name, department, request_type, date, details))
+
+                req_con.commit()
+
+            flash("Request submitted successfully!", "success")
+            return redirect(url_for('employee_request'))
+
+        except sqlite3.OperationalError as e:
+            flash("Something went wrong while processing your request. Please try again.", "error")
+        except Exception as e:
+            flash(f"Unexpected error: {str(e)}", "error")
+            return redirect(url_for('employee_request'))
+
+    return render_template('employee_req.html')
+
+@app.route('/request_page', methods=['GET'])
+def request_page():
+    try:
+        with sqlite3.connect(db.connect_request_table()) as req_con:
+            cur = req_con.cursor()
+            cur.execute('''SELECT name, request_type, date, details, department, status, action FROM request''')
+            display = cur.fetchall()
+            
+            for info in display:
+                row = [{'name': info[0], 'request': info[1], 
+                       'date': info[2], 'details': info[3], 
+                       'department': info[4], 'status': info[5], 
+                       'action': info[6]
+                       }]
+            
+    
+    except sqlite3.OperationalError:
+        flash("We're having a trouble retrieving request page data. Please try again." )
+        return redirect(url_for('request_page'))
+    
+    return render_template('request_page.html', rows = row)
 
 
 if __name__ == "__main__":

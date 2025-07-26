@@ -8,7 +8,7 @@
 
 body {
   background: linear-gradient(to right, #f0eded, #e8e7e7);
-  overflow-x: hidden;
+  overflow: hidden;
   scrollbar-width: none;   
   height: 100%;
 }
@@ -51,7 +51,7 @@ body {
   border-spacing: 0 6px;
   height: 30px;
   border-radius: 10px;
-  overflow: hidden;
+  overflow-y: scroll;
 }
 
 .custom-table tbody tr td,
@@ -383,6 +383,29 @@ main, .container, .row, .col {
     width: 250px !important; 
   }
 
+#sidebarOffcanvas .nav-link {
+  color: white;
+  padding: 10px 15px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#sidebarOffcanvas .nav-link:hover {
+  background-color: rgba(190, 188, 188, 0.464);
+  color: white;
+  border-radius: 5px;
+}
+
+.main-top-var{
+  height: 100vh;
+  overflow-y: auto;
+}
+
+@media (min-width: 801px) {
+  #sidebarOffcanvas {
+    display: none !important;
+  }
+}
+
 @media (max-width: 800px) {
   .main-top-var{
     margin-top: 80px !important;
@@ -500,9 +523,6 @@ a[aria-expanded="true"] .arrow-icon {
   display: inline-block;
   width: 0;
 }
-
-
-
 
 /* 767px */
 @media (max-width: 789px) and (min-width: 752px) {

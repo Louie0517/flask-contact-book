@@ -11,4 +11,20 @@ function qSearch(){
     });
 }
 
+function hideSideBar(){
+    window.addEventListener('resize', function () {
+    const offcanvas = document.getElementById('sidebarOffcanvas');
+    const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvas);
+
+    if (window.innerWidth >= 801 && bsOffcanvas) {
+      bsOffcanvas.hide();
+
+    const backdrop = document.querySelector('.offcanvas-backdrop');
+    if (backdrop) backdrop.remove();
+    }
+  });
+}
+
+hideSideBar()
+
 updateInput()
