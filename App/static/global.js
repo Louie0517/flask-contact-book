@@ -25,6 +25,51 @@ function hideSideBar(){
   });
 }
 
-hideSideBar()
+function controlSidebar(){
+  document.addEventListener("DOMContentLoaded", () => {
+  const submenu = document.getElementById("requestsSubMenu");
 
+  // Temporarily disable transition
+  submenu.classList.add("notransition");
+
+  // Get Bootstrap instance (don't toggle it yet)
+  const collapseInstance = bootstrap.Collapse.getOrCreateInstance(submenu, {
+    toggle: false,
+  });
+
+  // Check state from localStorage
+  const isOpen = localStorage.getItem("requestsSubMenuOpen") === "true";
+
+  // Immediately apply the correct state (show/hide) without animation
+  if (isOpen) {
+    submenu.classList.add("show");
+    submenu.style.visibility = 'visible';
+
+  } else {
+    submenu.classList.remove("show");
+    submenu.style.visibility = 'visible';
+
+  }
+
+  // After two animation frames, re-enable transition smoothly
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      submenu.classList.remove("notransition");
+    });
+  });
+
+  // Track open/close state in localStorage on user action
+  submenu.addEventListener("shown.bs.collapse", () => {
+    localStorage.setItem("requestsSubMenuOpen", "true");
+  });
+
+  submenu.addEventListener("hidden.bs.collapse", () => {
+    localStorage.setItem("requestsSubMenuOpen", "false");
+  });
+});
+
+
+}
+controlSidebar();
+hideSideBar()
 updateInput()

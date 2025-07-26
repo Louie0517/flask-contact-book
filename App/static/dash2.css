@@ -29,6 +29,13 @@ canvas {
   height: 100% !important;
 }
 
+/* REQUEST FORM */
+@media (max-width: 575.98px) {
+    .form-container {
+      padding: 2rem !important; 
+    }
+  }
+
 @media (min-width: 768px) {
   .chart-container {
     max-width: 100% !important;

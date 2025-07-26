@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from config import Config, get_v
 from werkzeug.utils import secure_filename
 from id_generator import rand_id
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 import sqlite3, pandas as pd
 import qrcode, os
 
@@ -167,7 +167,7 @@ def management():
     count = [row[1] for row in data]
 
 
-    return render_template('dash.html', employees = records, stats=stats, labels=['On-Time', 'Late', 'Active'], dep=dep, counts = count)
+    return render_template('dash.html', employees = records, stats=stats, labels=['On-Time', 'Late', 'Active'], dep=dep, counts = count, page='requests', subpage='new')
 
 
 def get_total_employees_and_status():
@@ -328,7 +328,7 @@ def employees_management():
         print("Fetch error:", e)
         employee = []
 
-    return render_template('e_manage.html', employee=employee, field=sort_by)
+    return render_template('e_manage.html', employee=employee, field=sort_by, page='requests', subpage='new')
 
 
 @app.route('/delete_employee_profile/<string:id>', methods=['GET'])
@@ -468,28 +468,47 @@ def employee_request():
 
 @app.route('/request_page', methods=['GET'])
 def request_page():
+    rows = []
+    rec = []
     try:
         with sqlite3.connect(db.connect_request_table()) as req_con:
             cur = req_con.cursor()
             cur.execute('''SELECT name, request_type, date, details, department, status, action FROM request''')
             display = cur.fetchall()
             
+            current_date = datetime.now().strftime('%Y-%m-%d')
+            one_week = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
+            
+            cur.execute("""
+                    SELECT 
+                        SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) AS pending_count,
+                        SUM(CASE WHEN status = 'APPROVED' THEN 1 ELSE 0 END) AS approved_count,
+                        SUM(CASE WHEN status = 'REJECTED' THEN 1 ELSE 0 END) AS rejected_count,
+                        COUNT(request_type) AS total_requests )
+                    FROM request WHERE date BETWEEN ? AND ?
+                """, (current_date, one_week))
+            rec_count_week = cur.fetchone()
+
+            for record in rec_count_week:
+                rec = {'pending': record[0], 'approved': record[1], 'rejected': record[2], 'requests': record[3]}
+
+            
             for info in display:
-                row = [{'name': info[0], 'request': info[1], 
+                row = {'name': info[0], 'request': info[1], 
                        'date': info[2], 'details': info[3], 
                        'department': info[4], 'status': info[5], 
                        'action': info[6]
-                       }]
-            
+                       }
+                rows.append(row)
     
     except sqlite3.OperationalError:
         flash("We're having a trouble retrieving request page data. Please try again." )
-        return redirect(url_for('request_page'))
+        
     
-    return render_template('request_page.html', rows = row)
+    return render_template('req_page.html', rows = rows, page='requests', subpage='new', record_count = rec)
 
 
 if __name__ == "__main__":
     database_init()
-    app.run(debug=True)
-    # app.run(host="localhost", port=5000)
+    #app.run(debug=True)
+    app.run(host="localhost", port=5000)

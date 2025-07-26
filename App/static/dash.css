@@ -170,7 +170,7 @@ thead.head th {
   left: 0;
   width: 0%;
   height: 2px;
-  background-color: #0d6efd; 
+  background-color: #34588d; 
   transition: width 0.3s ease-in-out;
 }
 
@@ -184,9 +184,8 @@ thead.head th {
 
 /* Active page style */
 .nav-link.active-page {
-  background-color: rgba(0, 0, 0, 0.07);
+  background-color: rgba(107, 104, 104, 0.15);
   border-radius: 12px;
-  font-weight: 600;
 }
 
 /* Hover + Active Nav Styling */
@@ -398,6 +397,11 @@ main, .container, .row, .col {
 .main-top-var{
   height: 100vh;
   overflow-y: auto;
+}
+
+
+#requestsSubMenu.notransition {
+  transition: none !important;
 }
 
 @media (min-width: 801px) {
