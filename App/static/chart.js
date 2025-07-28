@@ -1,41 +1,66 @@
-
-function lineGraph(){
-document.addEventListener("DOMContentLoaded", () => {
-    const canvas = document.getElementById('deptChart');
+function lineGraph() {
+  document.addEventListener("DOMContentLoaded", () => {
+    const canvas = document.getElementById('deptChart'); 
     const labels = JSON.parse(canvas.dataset.labels);
     const data = JSON.parse(canvas.dataset.counts);
 
-    const ctx = canvas.getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Employees per Department',
-                data: data,
-                borderColor: 'rgba(40, 179, 218, 1)',
-                backgroundColor: 'rgba(46, 226, 236, 0.5)',
-                fill: true,
-                tension: 0.2
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Employees by Department'
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
+    var options = {
+      series: data,
+      labels: labels,
+      chart: {
+        width: 500,
+        type: 'donut',
+        animations: {
+            enabled: true
+        }
+      },
+      plotOptions: {
+        pie: {
+          startAngle: -90,
+          endAngle: 270,
+          pie: {
+            dataLabels: {
+                style: {
+                    fontSize: '20px'
                 }
             }
+          }
         }
-    });
-});
+      },
+      dataLabels: {
+        style: {
+            fontSize: '13px'
+        }
+      },
+      fill: {
+        type: 'gradient',
+      },
+      legend: {
+        formatter: function(val, opts) {
+          return val + " - " + opts.w.globals.series[opts.seriesIndex];
+        }
+      },
+      title: {
+        text: 'Requests per Department'
+      },
+      responsive: [{
+        breakpoint: 480,
+        options: {
+          chart: {
+            width: 200
+          },
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }]
+    };
+
+    const chart = new ApexCharts(document.querySelector("#deptChart"), options); // match ID
+    chart.render();
+  });
 }
+
 
 function mixChart() {
 
@@ -56,7 +81,6 @@ function mixChart() {
             backgroundColor: ['rgba(86, 206, 239, 1)', 'rgba(88, 196, 226, 1)', 'rgba(40, 179, 218, 1)'], 
             borderColor: ['rgba(99, 102, 241, 0.7)', 'rgba(239, 68, 68, 0.7)', 'rgba(34, 197, 94, 0.7)'],
             borderWidth: 0,
-           
         }]
     };
 
@@ -77,7 +101,6 @@ function mixChart() {
             scales: {
                 x: {
                     beginAtZero: true,
-                    
                 }
             }
         }
@@ -102,8 +125,6 @@ function hideSideBar(){
   });
 }
 
-hideSideBar()
-
-
-mixChart()
 lineGraph()
+hideSideBar()
+mixChart()

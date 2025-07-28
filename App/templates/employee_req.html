@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -16,24 +14,35 @@
 </head>
 <body class="bg-light">
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
 
 <main class="row overflow-auto d-flex min-vh-100 align-items-center " style="height: 100vh; overflow-y: auto;">
-    <form method="post" action="/add_employee" autocomplete="off" enctype="multipart/form-data">
+    <form method="post" action="/employee_request" autocomplete="off" enctype="multipart/form-data">
     <div class="container form-container my-md-5 py-xl-5 p-md-4 p-4" style="background-color: white; border-radius: 15px;">
 
       <!-- Row 1: ID and Name -->
       <div class="row mb-3" style="font-family: sans-serif; font-size: 1.2em;">
         <div class="col-md-6 mb-2">
           <label><i class="bi bi-person-vcard text-primary"></i> Identification number</label>
-          <input type="text" name="id" id="employee-id" class="form-control" required>
+          <input type="text" name="employee_id" id="employee-id" class="form-control" required>
         </div>
         <div class="col-md-6">
           <label><i class="bi bi-person-fill text-primary"></i> Employee name</label>
-          <input type="text" name="name" id="name" class="form-control" required>
+          <input type="text" name="name" id="name" class="form-control for-name" required>
         </div>
       </div>
 
-      <!-- Row 2: Department and Department again (optional: remove duplicate if not needed) -->
+      <!-- Row 2: Department and Department -->
       <div class="row mb-3 fs-5" style="font-family: sans-serif;">
         <div class="col-md-6 mb-2" style=" font-size: 1em;">
           <label><i class="bi text-primary bi-person-bounding-box"></i> Request option</label>
@@ -65,10 +74,16 @@
         </div>
       </div>
 
+      <div class="row">
+        <div class="col fs-5">
+            <label><i class="bi bi-calendar-date text-primary"></i> Date</label>
+            <input type="date" name="date" id="date" class="form-control" required>
+        </div>
+      </div>
       <!-- Message Field -->
-      <div class="mb-3 fs-5" sstyle="font-family: sans-serif;">
+      <div class="mb-3 fs-5" style="font-family: sans-serif;">
         <label><i class="bi bi-chat-text text-primary"></i> Message</label>
-        <textarea name="message" class="form-control fs-5 my-2" rows="6" placeholder="Enter message here..." required></textarea>
+        <textarea name="details" class="form-control fs-5 my-2" rows="6" placeholder="Enter message here..." required></textarea>
       </div>
 
       <!-- Submit Button -->
@@ -81,6 +96,7 @@
     </div>
   </form>
 </main>
+
 
 </body>
 </html>

@@ -29,6 +29,10 @@ canvas {
   height: 100% !important;
 }
 
+.for-name{
+  text-transform: capitalize;
+}
+
 /* REQUEST FORM */
 @media (max-width: 575.98px) {
     .form-container {

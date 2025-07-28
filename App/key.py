@@ -1,6 +1,4 @@
 import string, secrets, os
-from dotenv import load_dotenv
-
 
 def secret_k():
     p_len = 64

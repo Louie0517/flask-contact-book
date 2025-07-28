@@ -5,7 +5,7 @@ class Database():
     def __init__(self) -> None:
         self.employee_database = 'employee.db'
         self.employee_time_logs = 'time_logs.db'
-        self.employee_leave_request = 'employee_request.db'
+        self.employee_leave_request = 'employees_request.db'
         self.admin_table = 'admin.db'
         self.settings_table = 'settings.db'        
 
@@ -54,16 +54,27 @@ class Database():
         try:
             with sqlite3.connect(self.employee_leave_request) as db_con:
                 cur = db_con.cursor()
-                cur.execute('''CREATE TABLE IF NOT EXISTS request (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            request_id TEXT, name TEXT, request_type TEXT, 
-                            date TEXT, details TEXT, department TEXT, status='PENDING' TEXT, action TEXT)''')
+                cur.execute('''CREATE TABLE IF NOT EXISTS request (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    request_id TEXT,
+                    name TEXT,
+                    request_type TEXT,
+                    date TEXT,
+                    details TEXT,
+                    department TEXT,
+                    status TEXT DEFAULT 'PENDING',
+                    action TEXT)''')
                 
+                cur.execute("ALTER TABLE request ADD COLUMN time")
+                print("Column successfully is added")
+                    
+                db_con.commit()
         except sqlite3.DatabaseError as e:
             print('Processing Data error', e)
             
         except sqlite3.DataError as e:
             print('Cannot access data', e)
-            
+
             
     def user_admin_table(self):
         try:

@@ -5,13 +5,14 @@ from dotenv import load_dotenv
 from config import Config, get_v
 from werkzeug.utils import secure_filename
 from id_generator import rand_id
+from collections import defaultdict
 from datetime import datetime, time, timedelta
 import sqlite3, pandas as pd
-import qrcode, os
+import os, traceback, json
 
 load_dotenv()
-app = Flask(__name__)
 
+app = Flask(__name__)
 
 app.config.from_object(Config)
 
@@ -437,78 +438,104 @@ def edit_employees_profile(id):
 def employee_request():
 
     if request.method == 'POST':
-        name = request.form["name"]
-        employee_id = request.form["employee_id"]
-        department = request.form['department']
-        request_type = request.form["request"]
-        date = request.form["date"]
-        details = request.form["details"]
+        name = request.form.get("name")
+        employee_id = request.form.get("employee_id")
+        department = request.form.get('department')
+        request_type = request.form.get("request")
+        date = request.form.get("date")
+        details = request.form.get("details")
 
         try:
             with sqlite3.connect(db.connect_request_table()) as req_con:
 
                 cursor = req_con.cursor()
 
-                cursor.execute('''INSERT INTO request (employee_id, name, department, request_type, date, details)
+                cursor.execute('''INSERT INTO request (request_id, name, department, request_type, date, details)
                                 VALUES (?, ?, ?, ?, ?, ?)''',
                                 (employee_id, name, department, request_type, date, details))
 
                 req_con.commit()
-
-            flash("Request submitted successfully!", "success")
-            return redirect(url_for('employee_request'))
-
+                '''
+                    if not all([employee_id, name, request_type, department, date, details]):
+                        flash("All fields are required.", "danger")
+                        return redirect(url_for('employee_request'))
+                    else:
+                        flash("Request submitted successfully!", "success")
+                        return redirect(url_for('employee_request'))
+                ''' 
         except sqlite3.OperationalError as e:
-            flash("Something went wrong while processing your request. Please try again.", "error")
+            print("Something went wrong while processing your request. Please try again.", "error")
+            traceback.print_exc()
         except Exception as e:
-            flash(f"Unexpected error: {str(e)}", "error")
-            return redirect(url_for('employee_request'))
+            print(f"Unexpected error: {str(e)}", "error")
+            # return redirect(url_for('employee_request'))
 
     return render_template('employee_req.html')
+
+def get_requests_per_day():
+    data = defaultdict(int)
+
+    with sqlite3.connect(db.connect_request_table()) as con:
+        cur = con.cursor()
+        cur.execute("SELECT date FROM request")
+        fetch = cur.fetchall()
+        
+    for row in fetch:
+        dates = row[0]
+        try:
+            date_object = datetime.strptime(dates, "%Y-%m-%d")
+            format = date_object.isoformat()
+            data[format] += 1
+        except Exception as e:
+            print(f"Skipping invalid date: {dates}", e)
+
+    chart_data = [{'x':date, 'y':count} for date, count in sorted(data.items())]
+    
+    return chart_data
 
 @app.route('/request_page', methods=['GET'])
 def request_page():
     rows = []
-    rec = []
     try:
         with sqlite3.connect(db.connect_request_table()) as req_con:
+            df = pd.read_sql_query("SELECT * FROM request", req_con)
+            df['date'] = pd.to_datetime(df['date'], errors='coerce')
+            
+            current_date = pd.to_datetime(datetime.now().date())
+            one_week = current_date + timedelta(days=7)
+            filter = df[(df['date'] > current_date) & (df['date'] <= one_week)]
+            
+            count_stats = filter['status'].value_counts()
+            pending = count_stats.get('PENDING', 0)
+            approved = count_stats.get('APPROVED', 0)
+            rejected = count_stats.get('REJECTED', 0)
+            record = {'pending': pending, 'approved': approved, 'rejected': rejected}
+            
+
             cur = req_con.cursor()
             cur.execute('''SELECT name, request_type, date, details, department, status, action FROM request''')
             display = cur.fetchall()
             
-            current_date = datetime.now().strftime('%Y-%m-%d')
-            one_week = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
-            
-            cur.execute("""
-                    SELECT 
-                        SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) AS pending_count,
-                        SUM(CASE WHEN status = 'APPROVED' THEN 1 ELSE 0 END) AS approved_count,
-                        SUM(CASE WHEN status = 'REJECTED' THEN 1 ELSE 0 END) AS rejected_count,
-                        COUNT(request_type) AS total_requests )
-                    FROM request WHERE date BETWEEN ? AND ?
-                """, (current_date, one_week))
-            rec_count_week = cur.fetchone()
-
-            for record in rec_count_week:
-                rec = {'pending': record[0], 'approved': record[1], 'rejected': record[2], 'requests': record[3]}
-
-            
             for info in display:
                 row = {'name': info[0], 'request': info[1], 
-                       'date': info[2], 'details': info[3], 
-                       'department': info[4], 'status': info[5], 
-                       'action': info[6]
-                       }
+                    'date': info[2], 'details': info[3], 
+                    'department': info[4], 'status': info[5], 
+                    'action': info[6]
+                    }
                 rows.append(row)
-    
+                
+            data = get_requests_per_day()         
+               
     except sqlite3.OperationalError:
-        flash("We're having a trouble retrieving request page data. Please try again." )
+        print("We're having a trouble retrieving request page data. Please try again." )
+        traceback.print_exc()
         
     
-    return render_template('req_page.html', rows = rows, page='requests', subpage='new', record_count = rec)
+    return render_template('req_page.html', page='requests', subpage='new', 
+                           rows = rows, records = record, request_data = data)
 
 
 if __name__ == "__main__":
     database_init()
-    #app.run(debug=True)
-    app.run(host="localhost", port=5000)
+    app.run(debug=True)
+    #app.run(host="localhost", port=5000)
