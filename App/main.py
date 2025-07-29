@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, request, flash, url_for
+from flask import Flask, redirect, render_template, request, jsonify, url_for
 from database import Database
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
@@ -8,7 +8,7 @@ from id_generator import rand_id
 from collections import defaultdict
 from datetime import datetime, time, timedelta
 import sqlite3, pandas as pd
-import os, traceback, json
+import os, traceback
 
 load_dotenv()
 
@@ -524,7 +524,8 @@ def request_page():
                     }
                 rows.append(row)
                 
-            data = get_requests_per_day()         
+            data = get_requests_per_day()
+            approved = approved_req()         
                
     except sqlite3.OperationalError:
         print("We're having a trouble retrieving request page data. Please try again." )
@@ -532,8 +533,30 @@ def request_page():
         
     
     return render_template('req_page.html', page='requests', subpage='new', 
-                           rows = rows, records = record, request_data = data)
+                           rows = rows, records = record, request_data = data, approved = approved)
 
+def approved_req():
+    approved = request.form.get('approved')
+    request_id = db.get_request_employee_id()
+    try:
+        with sqlite3.connect(db.connect_request_table()) as ap:
+            cur = ap.cursor()
+            cur.execute('''UPDATE request SET status=? WHERE request_id=?''', (approved, request_id))
+            ap.commit()
+            if cur.rowcount > 0:
+               print(f'{approved} was successfully approved!')
+            else:
+               print({f'{approved} can not be fined on the data.'})
+            
+    except sqlite3.OperationalError as e:
+        print('Probelm with processing data in approved route', e)
+    except KeyError as e:
+        return jsonify({"error":"Missing required form data", "details": {str(e)}}), 400
+    
+    return approved
+
+def reject_req():
+    pass
 
 if __name__ == "__main__":
     database_init()
