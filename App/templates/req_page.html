@@ -218,11 +218,11 @@
     </div>
 
     <!-- 2x2 BOXES COLUMN -->
-    <div class="col-12 col-xl-6 mb-4">
+    <div class="col-12 col-xl-6 mb-4 ">
       <div class="row g-3">
         <!-- Box 1 -->
         <div class="col-6">
-          <div class="d-flex align-items-center text-white p-3 rounded-4 stat-box h-100">
+          <div class="d-flex align-items-center w-100 justify-content-center text-white p-3 rounded-4 stat-box h-100">
             <div class="chart-wrapper">
               <div id="pending-progress" data-progress="{{ records.pending }}"></div>
             </div>
@@ -235,7 +235,7 @@
 
         <!-- Box 2 -->
         <div class="col-6">
-          <div class="d-flex align-items-center text-white p-3 rounded-4 stat-box h-100">
+          <div class="d-flex align-items-center w-100 justify-content-center text-white p-3 rounded-4 stat-box h-100">
             <div class="chart-wrapper">
               <div id="approved-progress" data-progress="{{ records.approved }}"></div>
             </div>
@@ -248,7 +248,7 @@
 
         <!-- Box 3 -->
         <div class="col-6">
-          <div class="d-flex align-items-center text-white p-3 rounded-4 stat-box h-100">
+          <div class="d-flex align-items-center w-100 justify-content-center text-white p-3 rounded-4 stat-box h-100">
             <div class="chart-wrapper">
               <div id="rejected-progress" data-progress="{{ records.rejected }}"></div>
             </div>
@@ -261,31 +261,31 @@
 
         <!-- Box 4 -->
         <div class="col-6">
-          <div class="d-flex align-items-center text-white p-3 rounded-4 stat-box h-100">
-            <div class="chart-wrapper">
-              <div id="pending-again-progress" data-progress="{{ records.pending }}"></div>
+          <div class="d-flex align-items-center w-100 justify-content-center text-white p-3 rounded-4 stat-box h-100">
+            <div class="ms-3 d-flex align-items-center justify-content-center" style="font-size: 2.8rem;">
+              <i class="bi bi-person-exclamation"></i>
             </div>
-            <div class="stat-content">
-              <div class="stat-title">Pending Again <i class="bi bi-alarm-fill"></i></div>
-              <div class="stat-value">{{ records.pending }} Request</div>
+            <div class="flex-grow-0 ms-2">
+              <div class="stat-title">Total</div>
+              <div class="stat-value">{{ records.total }} Request</div>
             </div>
           </div>
         </div>
+
+
       </div>
     </div>
   </div>
 </div>
 
-
-
       <!-- Table -->
     <div class="table-responsive">
-      <table class="table">
+      <table class="table display min-vh-100" id="myTable">
         <thead class="head bg-black">
           <tr>
             <th>Name</th>
             <th>Request</th>
-            <th>Date</th>
+            <th>Request Date</th>
             <th>Details</th>
             <th>Department</th>
             <th>Status</th>
@@ -298,21 +298,59 @@
             <td>{{row['name']}}</td>
             <td>{{row['request']}}</td>
             <td>{{row['date']}}</td>
-            <td>{{row['details']}}</td>
+            <td>
+              <a href="/read_request/{{row['req_id']}}"
+                class="btn btn-info btn-sm"
+                style="background-color: rgb(32, 147, 255); border: transparent;">
+                <span style="color: white;" class="d-flex flex-row">
+                  <i class="bi bi-eye me-1"></i> View
+                </span>
+              </a>
+            </td>
             <td>{{row['department']}}</td>
             <td>{{row['status']}}</td>
-            <td>{{row['action']}}</td>
+            {%if row['status'] == 'PENDING' %}
+            <td>
+              <div class="d-flex flex-row gap-2">
+                <form method="POST" action="/update_status">
+                  <input type="hidden" name="request_id" value="{{ row.req_id }}">
+                  <input type="hidden" name="new_status" value="APPROVED">
+                  <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                </form>
+                <form method="POST" action="/update_status">
+                  <input type="hidden" name="request_id" value="{{ row.req_id }}">
+                  <input type="hidden" name="new_status" value="REJECTED">
+                  <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                </form>
+              </div>
+            </td>
+          {% else %}
+            <td>
+              <div class="d-flex flex-row gap-2">
+                {% if row['status'] == 'APPROVED' %}
+                  <i class="bi bi-check-circle fs-4" style="color: rgb(15, 181, 15);"></i>
+                {% elif row['status'] == 'REJECTED' %}
+                  <i class="bi bi-x-circle fs-4" style="color: rgb(225, 48, 48);"></i>
+                {% endif %}
+                </div>
+            </td>
+            {% endif %}
           </tr>
-          {% else%}
-            <tr>
-              <td class="text-center" colspan="7" style="height: 50px;">No records display.</td>
-            </tr>
           {% endfor %}
+          <!-- Pagination buttons -->
+          <div class="pagination d-flex w-100 justify-content-start gap-2">
+            {% if table_page > 1 %}
+              <a href="?page={{ table_page - 1 }}"><i class="bi bi-arrow-left-circle-fill fs-5"></i></a>
+              {% endif %}
+                <span class="fs-5" style="font-family: Georgia, 'Times New Roman', Times, serif; font-weight: 400">Page {{ table_page }} of {{ total_pages }}</span>
+              {% if table_page < total_pages %}
+              <a href="?page={{ table_page + 1 }}"><i class="bi bi-arrow-right-circle-fill fs-5"></i></a>
+          {% endif %}
+        </div>
+          </div>
         </tbody>
       </table>
-    </div>
-
-      
+       
     </div>
   </div>
 </div>

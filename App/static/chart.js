@@ -41,7 +41,7 @@ function lineGraph() {
         }
       },
       title: {
-        text: 'Requests per Department'
+        text: 'Employees per Department'
       },
       responsive: [{
         breakpoint: 480,

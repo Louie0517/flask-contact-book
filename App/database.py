@@ -124,11 +124,12 @@ class Database():
             return id[0] if id else None
 
     def get_request_employee_id(self):
-        with sqlite3.connect(self.employee_leave_request()) as con:
+        with sqlite3.connect(self.connect_request_table()) as con:
             cur = con.cursor()
             cur.execute("SELECT request_id FROM request")
             req_id = cur.fetchall()
-            return req_id[0] if req_id else None
+            required = req_id[0][0] if req_id else None
+            return required
             
     # connect function    
     def connect_employee(self):

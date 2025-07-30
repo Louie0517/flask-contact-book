@@ -8,7 +8,7 @@ from id_generator import rand_id
 from collections import defaultdict
 from datetime import datetime, time, timedelta
 import sqlite3, pandas as pd
-import os, traceback
+import os, traceback, math
 
 load_dotenv()
 
@@ -455,20 +455,12 @@ def employee_request():
                                 (employee_id, name, department, request_type, date, details))
 
                 req_con.commit()
-                '''
-                    if not all([employee_id, name, request_type, department, date, details]):
-                        flash("All fields are required.", "danger")
-                        return redirect(url_for('employee_request'))
-                    else:
-                        flash("Request submitted successfully!", "success")
-                        return redirect(url_for('employee_request'))
-                ''' 
+                
         except sqlite3.OperationalError as e:
             print("Something went wrong while processing your request. Please try again.", "error")
             traceback.print_exc()
         except Exception as e:
             print(f"Unexpected error: {str(e)}", "error")
-            # return redirect(url_for('employee_request'))
 
     return render_template('employee_req.html')
 
@@ -483,11 +475,15 @@ def get_requests_per_day():
     for row in fetch:
         dates = row[0]
         try:
-            date_object = datetime.strptime(dates, "%Y-%m-%d")
-            format = date_object.isoformat()
-            data[format] += 1
+            date_object = datetime.strptime(dates, "%Y-%m-%d %H:%M:%S")
+            only_date = date_object.date().isoformat()
+            data[only_date] += 1
         except Exception as e:
-            print(f"Skipping invalid date: {dates}", e)
+            try:
+                only_date = datetime.strptime(dates, "%Y-%m-%d").date().isoformat()
+                data[only_date] += 1
+            except Exception as e:
+                print(f"Skipping invalid date: {dates}", e)
 
     chart_data = [{'x':date, 'y':count} for date, count in sorted(data.items())]
     
@@ -496,67 +492,87 @@ def get_requests_per_day():
 @app.route('/request_page', methods=['GET'])
 def request_page():
     rows = []
+    page = int(request.args.get('page', 1))
+    per_page = 10
+    offset = (page - 1) * per_page
+    
     try:
         with sqlite3.connect(db.connect_request_table()) as req_con:
             df = pd.read_sql_query("SELECT * FROM request", req_con)
-            df['date'] = pd.to_datetime(df['date'], errors='coerce')
             
-            current_date = pd.to_datetime(datetime.now().date())
-            one_week = current_date + timedelta(days=7)
-            filter = df[(df['date'] > current_date) & (df['date'] <= one_week)]
-            
-            count_stats = filter['status'].value_counts()
+            count_stats = df['status'].value_counts()
             pending = count_stats.get('PENDING', 0)
             approved = count_stats.get('APPROVED', 0)
             rejected = count_stats.get('REJECTED', 0)
-            record = {'pending': pending, 'approved': approved, 'rejected': rejected}
-            
+            total_req = pending + approved + rejected
+            record = {'pending': pending, 'approved': approved, 'rejected': rejected, 'total': total_req}
 
             cur = req_con.cursor()
-            cur.execute('''SELECT name, request_type, date, details, department, status, action FROM request''')
+            cur.execute('''SELECT name, request_type, date, details, department, 
+                        status, action, request_id FROM request LIMIT ? OFFSET ?''', (per_page, offset))
             display = cur.fetchall()
             
             for info in display:
                 row = {'name': info[0], 'request': info[1], 
                     'date': info[2], 'details': info[3], 
                     'department': info[4], 'status': info[5], 
-                    'action': info[6]
+                    'action': info[6], 'req_id': info[7]
                     }
                 rows.append(row)
                 
+            cur.execute('''SELECT COUNT(*) FROM request''')
+            total_rows = cur.fetchone()[0]
+            total_page = math.ceil(total_rows / per_page)
+            
+      
             data = get_requests_per_day()
-            approved = approved_req()         
-               
+            
     except sqlite3.OperationalError:
         print("We're having a trouble retrieving request page data. Please try again." )
         traceback.print_exc()
         
     
     return render_template('req_page.html', page='requests', subpage='new', 
-                           rows = rows, records = record, request_data = data, approved = approved)
-
-def approved_req():
-    approved = request.form.get('approved')
-    request_id = db.get_request_employee_id()
-    try:
-        with sqlite3.connect(db.connect_request_table()) as ap:
-            cur = ap.cursor()
-            cur.execute('''UPDATE request SET status=? WHERE request_id=?''', (approved, request_id))
-            ap.commit()
-            if cur.rowcount > 0:
-               print(f'{approved} was successfully approved!')
-            else:
-               print({f'{approved} can not be fined on the data.'})
-            
-    except sqlite3.OperationalError as e:
-        print('Probelm with processing data in approved route', e)
-    except KeyError as e:
-        return jsonify({"error":"Missing required form data", "details": {str(e)}}), 400
+                           rows = rows, records = record, request_data = data, total_pages = total_page, table_page = page)
     
-    return approved
+    
+    
+@app.route('/update_status', methods=['POST'])
+def update_status():
+    request_id = request.form.get('request_id')
+    new_status = request.form.get('new_status')
 
-def reject_req():
-    pass
+    if not request_id or not new_status:
+        return "Invalid input", 400
+
+    try:
+        with sqlite3.connect(db.connect_request_table()) as con:
+            cur = con.cursor()
+            cur.execute('UPDATE request SET status = ? WHERE request_id = ?', (new_status, request_id))
+            con.commit()
+
+    except sqlite3.OperationalError as e:
+        print("Database error:", e)
+        return "Database error", 500
+
+    return redirect(url_for('request_page'))
+
+@app.route('/read_request/<int:req_id>', methods=['GET'])
+def read_request(req_id):
+    
+    try:
+        with sqlite3.connect(db.connect_request_table()) as rd_con:
+            cur = rd_con.cursor()
+            cur.execute('''SELECT details FROM request WHERE request_id=?''', (req_id,))
+            querry = cur.fetchone()
+            if querry:
+                return render_template('request_message.html', message=querry[0])
+            else:
+                return f'request not found.', 404
+    
+    except sqlite3.Error as e:
+        return f'Database error: {e}', 500
+
 
 if __name__ == "__main__":
     database_init()

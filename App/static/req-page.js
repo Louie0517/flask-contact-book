@@ -61,7 +61,7 @@ function dataChart(){
         },
         dataLabels: { enabled: false },
         markers: { size: 0 },
-        title: { text: 'Requests Per Day', align: 'left' },
+        title: { text: 'Request Per Dates', align: 'center' },
         fill: {
             type: 'gradient',
             gradient: {
@@ -99,8 +99,16 @@ function dataChart(){
 
 }
 
+function pagination(){
+    $(document).ready(function () {
+    $('#myTable').DataTable({
+      pageLength: 10
+    });
+  });
+}
 
 renderRadialChart("pending-progress", "{{ records.pending }}");
 renderRadialChart("approved-progress", "{{ records.approved }}");
 renderRadialChart("rejected-progress", "{{ records.rejected }}");
 dataChart()
+pagination()
