@@ -533,7 +533,8 @@ def request_page():
         
     
     return render_template('req_page.html', page='requests', subpage='new', 
-                           rows = rows, records = record, request_data = data, total_pages = total_page, table_page = page)
+                           rows = rows, records = record, request_data = data, 
+                           total_pages = total_page, table_page = page)
     
     
     
@@ -563,15 +564,23 @@ def read_request(req_id):
     try:
         with sqlite3.connect(db.connect_request_table()) as rd_con:
             cur = rd_con.cursor()
-            cur.execute('''SELECT details FROM request WHERE request_id=?''', (req_id,))
-            querry = cur.fetchone()
+            cur.execute('''SELECT details, request_id, name, request_type, department, date FROM request WHERE request_id=?''', (req_id,))
+            querry = cur.fetchall()
+            
+            for que in querry: 
+                detail = {'details' : que[0], 'request_id': que[1], 
+                            'name': que[2],'request_type': que[3], 'department': que[4], 'date': que[5]}
+            
+            
             if querry:
-                return render_template('request_message.html', message=querry[0])
+                return render_template('request_message.html', details = detail)
             else:
                 return f'request not found.', 404
-    
+            
+
     except sqlite3.Error as e:
         return f'Database error: {e}', 500
+    
 
 
 if __name__ == "__main__":

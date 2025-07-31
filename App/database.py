@@ -1,5 +1,6 @@
-import sqlite3, os
-from werkzeug.utils import secure_filename
+import sqlite3
+from datetime import datetime, timedelta
+
 class Database():
     
     def __init__(self) -> None:
@@ -64,9 +65,6 @@ class Database():
                     department TEXT,
                     status TEXT DEFAULT 'PENDING',
                     action TEXT)''')
-                
-                cur.execute("ALTER TABLE request ADD COLUMN time")
-                print("Column successfully is added")
                     
                 db_con.commit()
         except sqlite3.DatabaseError as e:
@@ -130,6 +128,31 @@ class Database():
             req_id = cur.fetchall()
             required = req_id[0][0] if req_id else None
             return required
+        
+    def request_exp(self):
+        day_one = datetime.now()
+        duration = timedelta(days=7)
+        
+        week = day_one - duration
+        
+        with sqlite3.connect(self.connect_request_table()) as con:
+            cur = con.cursor()
+            cur.execute('''DELETE FROM request WHERE date IS NOT NULL AND date < ?''', (week,))
+            con.commit()
+            
+    def check_id(self):
+        with sqlite3.connect(self.connect_request_table()) as con:
+            cur = con.cursor()
+            cur.execute('''ATTACH employee.db AS emp''')
+            cur.execute('''SELECT e.employee_id, r.request_id
+                        FROM request r LEFT JOIN 
+                        emp.employee e ON e.employee_id=r.request_id''')
+            detect = cur.fetchall()
+            for dup in detect:
+                if dup[0] != dup[1]:
+                    error = 'There is no existing record of that ID.'
+                    
+            return error
             
     # connect function    
     def connect_employee(self):

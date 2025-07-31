@@ -1,3 +1,5 @@
+
+
 .table-head{
     background-color: white !important;
 }
@@ -57,6 +59,20 @@
     font-size: 1.2rem;
   }
 
+  .head {
+    white-space: nowrap;
+  }
+  
+  .custom-table{
+    border-collapse: separate;
+    border-spacing: 0 8px;
+  }
+
+  .custom-table thead tr{
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+
   @media (max-width: 1197px) {
     .flex-lg-row {
       flex-direction: column !important;
@@ -64,6 +80,7 @@
   }
 
   @media (max-width: 576px) {
+  
     .stat-box {
       flex-direction: column !important;
       text-align: center;

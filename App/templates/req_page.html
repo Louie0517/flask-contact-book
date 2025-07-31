@@ -38,7 +38,7 @@
         <!-- Dashboard -->
         <li class="nav-item">
           <a href="{{ url_for('management') }}" class="nav-link text-dark">
-            <i class="fs-5 bi bi-grid"></i><span class="ms-2">Dashboard</span>
+            <i class="bi bi-speedometer2 fs-5"></i><span class="ms-2">Dashboard</span>
           </a>
         </li>
 
@@ -63,7 +63,7 @@
           </a>
         </li>
 
-    <!-- Requests with Arrow -->
+    <!-- Requests -->
       <li class="nav-item">
         <a class="nav-link d-flex justify-content-between align-items-center text-dark"
           data-bs-toggle="collapse" href="#requestsSubMenu"  role="button"
@@ -145,7 +145,7 @@
 
           <li class="nav-item">
             <a href="{{ url_for('management') }}" class="nav-link text-dark">
-              <i class="fs-5 bi bi-grid"></i><span class="ms-2">Dashboard</span>
+              <i class="bi bi-speedometer2 fs-5"></i><span class="ms-2">Dashboard</span>
             </a>
           </li>
 
@@ -211,76 +211,74 @@
 </div>
 
 <div class="container">
-  <div class="row">
-    <!-- CHART COLUMN -->
-    <div class="col-12 col-xl-6 mb-4">
-      <div id="chart" data-requests='{{ request_data | tojson }}'></div>
+  <!-- BOXES ROW (stacked 4 vertically) -->
+  <div class="row g-3 mb-4">
+    <!-- Box 1 -->
+    <div class="col-xl-3 col-lg-6">
+      <div class="d-flex align-items-center justify-content-center text-white p-3 rounded-4 stat-box h-100">
+        <div class="chart-wrapper">
+          <div id="pending-progress" data-progress="{{ records.pending }}"></div>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Pending <i class="bi bi-alarm-fill"></i></div>
+          <div class="stat-value">{{ records.pending }} Request</div>
+        </div>
+      </div>
     </div>
 
-    <!-- 2x2 BOXES COLUMN -->
-    <div class="col-12 col-xl-6 mb-4 ">
-      <div class="row g-3">
-        <!-- Box 1 -->
-        <div class="col-6">
-          <div class="d-flex align-items-center w-100 justify-content-center text-white p-3 rounded-4 stat-box h-100">
-            <div class="chart-wrapper">
-              <div id="pending-progress" data-progress="{{ records.pending }}"></div>
-            </div>
-            <div class="stat-content">
-              <div class="stat-title">Pending <i class="bi bi-alarm-fill"></i></div>
-              <div class="stat-value">{{ records.pending }} Request</div>
-            </div>
-          </div>
+    <!-- Box 2 -->
+    <div class="col-xl-3 col-lg-6">
+      <div class="d-flex align-items-center justify-content-center text-white p-3 rounded-4 stat-box h-100">
+        <div class="chart-wrapper">
+          <div id="approved-progress" data-progress="{{ records.approved }}"></div>
         </div>
-
-        <!-- Box 2 -->
-        <div class="col-6">
-          <div class="d-flex align-items-center w-100 justify-content-center text-white p-3 rounded-4 stat-box h-100">
-            <div class="chart-wrapper">
-              <div id="approved-progress" data-progress="{{ records.approved }}"></div>
-            </div>
-            <div class="stat-content">
-              <div class="stat-title">Approved <i class="bi bi-clipboard-check-fill"></i></div>
-              <div class="stat-value">{{ records.approved }} Request</div>
-            </div>
-          </div>
+        <div class="stat-content">
+          <div class="stat-title">Approved <i class="bi bi-clipboard-check-fill"></i></div>
+          <div class="stat-value">{{ records.approved }} Request</div>
         </div>
-
-        <!-- Box 3 -->
-        <div class="col-6">
-          <div class="d-flex align-items-center w-100 justify-content-center text-white p-3 rounded-4 stat-box h-100">
-            <div class="chart-wrapper">
-              <div id="rejected-progress" data-progress="{{ records.rejected }}"></div>
-            </div>
-            <div class="stat-content">
-              <div class="stat-title">Rejected <i class="bi bi-trash3-fill"></i></div>
-              <div class="stat-value">{{ records.rejected }} Request</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Box 4 -->
-        <div class="col-6">
-          <div class="d-flex align-items-center w-100 justify-content-center text-white p-3 rounded-4 stat-box h-100">
-            <div class="ms-3 d-flex align-items-center justify-content-center" style="font-size: 2.8rem;">
-              <i class="bi bi-person-exclamation"></i>
-            </div>
-            <div class="flex-grow-0 ms-2">
-              <div class="stat-title">Total</div>
-              <div class="stat-value">{{ records.total }} Request</div>
-            </div>
-          </div>
-        </div>
-
-
       </div>
+    </div>
+
+    <!-- Box 3 -->
+    <div class="col-xl-3 col-lg-6">
+      <div class="d-flex align-items-center justify-content-center text-white p-3 rounded-4 stat-box h-100">
+        <div class="chart-wrapper">
+          <div id="rejected-progress" data-progress="{{ records.rejected }}"></div>
+        </div>
+        <div class="stat-content">
+          <div class="stat-title">Rejected <i class="bi bi-trash3-fill"></i></div>
+          <div class="stat-value">{{ records.rejected }} Request</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Box 4 -->
+    <div class="col-xl-3 col-lg-6">
+      <div class="d-flex align-items-center justify-content-center text-white p-3 rounded-4 stat-box h-100">
+        <div class="ms-3 d-flex align-items-center justify-content-center" style="font-size: 2.8rem;">
+          <i class="bi bi-person-exclamation"></i>
+        </div>
+        <div class="flex-grow-0 ms-2">
+          <div class="stat-title">Total</div>
+          <div class="stat-value">{{ records.total }} Request</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL-WIDTH CHART -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div id="chart" class="w-100" data-requests='{{ request_data | tojson }}'></div>
     </div>
   </div>
 </div>
 
-      <!-- Table -->
+
+   
+    <!-- Table -->
     <div class="table-responsive">
-      <table class="table display min-vh-100" id="myTable">
+      <table class="table display custom-table" id="myTable">
         <thead class="head bg-black">
           <tr>
             <th>Name</th>
@@ -336,21 +334,38 @@
             </td>
             {% endif %}
           </tr>
-          {% endfor %}
-          <!-- Pagination buttons -->
-          <div class="pagination d-flex w-100 justify-content-start gap-2">
-            {% if table_page > 1 %}
-              <a href="?page={{ table_page - 1 }}"><i class="bi bi-arrow-left-circle-fill fs-5"></i></a>
-              {% endif %}
-                <span class="fs-5" style="font-family: Georgia, 'Times New Roman', Times, serif; font-weight: 400">Page {{ table_page }} of {{ total_pages }}</span>
-              {% if table_page < total_pages %}
-              <a href="?page={{ table_page + 1 }}"><i class="bi bi-arrow-right-circle-fill fs-5"></i></a>
-          {% endif %}
-        </div>
-          </div>
         </tbody>
+        {% endfor %}
       </table>
        
+    </div>
+    <!-- Pagination buttons -->
+      <div class="w-100 d-flex justify-content-center gap-1">
+        <nav aria-label="Page navigation">
+          <ul class="pagination">
+
+            <!-- Previous button -->
+            <li class="page-item {% if table_page == 1 %}disabled{% endif %} arrow-head">
+              <a class="page-link" href="?page={{ table_page - 1 }}" aria-label="Previous">
+                <span aria-hidden="true"><i class='bx bxs-left-arrow text-primary'></i></span>
+              </a>
+            </li>
+
+            <!-- Page numbers -->
+            {% for page_num in range(1, total_pages + 1) %}
+            <li class="page-item {% if page_num == table_page %}active{% endif %}">
+              <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+            </li>
+            {% endfor %}
+
+            <!-- Next button -->
+            <li class="page-item {% if table_page == total_pages %}disabled{% endif %} arrow-head">
+              <a class="page-link" href="?page={{ table_page + 1 }}" aria-label="Next">
+                <span aria-hidden="true"><i class='bx bxs-right-arrow text-primary'></i></span>
+              </a>
+            </li>
+        </ul>
+      </nav>
     </div>
   </div>
 </div>

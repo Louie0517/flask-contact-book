@@ -37,7 +37,7 @@
         <!-- Dashboard -->
         <li class="nav-item">
             <a href="{{ url_for('management') }}" class="nav-link text-dark {% if page == 'requests' %}active-page{% endif %}">
-              <i class="fs-5 bi bi-grid"></i><span class="ms-2">Dashboard</span>
+            <i class="bi bi-speedometer2 fs-5"></i><span class="ms-2">Dashboard</span>
             </a>
           </li>
 
@@ -143,9 +143,10 @@
 
           <li class="nav-item">
             <a href="{{ url_for('management') }}" class="nav-link text-dark {% if page == 'requests' %}active-page{% endif %}">
-              <i class="fs-5 bi bi-grid"></i><span class="ms-2">Dashboard</span>
+              <i class="bi bi-speedometer2 fs-5"></i><span class="ms-2">Dashboard</span>
             </a>
           </li>
+
 
           <li class="nav-item">
             <a class="nav-link text-dark" href="{{ url_for('employees_management') }}">
