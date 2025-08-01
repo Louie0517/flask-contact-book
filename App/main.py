@@ -436,33 +436,43 @@ def edit_employees_profile(id):
 
 @app.route('/employee_request', methods=['POST', 'GET'])
 def employee_request():
+    
+    unrecorded = None
 
     if request.method == 'POST':
         name = request.form.get("name")
-        employee_id = request.form.get("employee_id")
+        employee_id = request.form.get("employee_id").strip()
         department = request.form.get('department')
         request_type = request.form.get("request")
         date = request.form.get("date")
         details = request.form.get("details")
+        
 
         try:
             with sqlite3.connect(db.connect_request_table()) as req_con:
 
                 cursor = req_con.cursor()
+                unrecorded = db.check_id(employee_id)
 
-                cursor.execute('''INSERT INTO request (request_id, name, department, request_type, date, details)
-                                VALUES (?, ?, ?, ?, ?, ?)''',
-                                (employee_id, name, department, request_type, date, details))
+                if unrecorded:
+                    cursor.execute('''INSERT INTO request (request_id, name, department, request_type, date, details)
+                                    VALUES (?, ?, ?, ?, ?, ?)''',
+                                    (employee_id, name, department, request_type, date, details))
 
-                req_con.commit()
+                    req_con.commit()
                 
+                else:
+                    unrecorded = 'ID is not on our record. Please input invalid ID.'
+
         except sqlite3.OperationalError as e:
             print("Something went wrong while processing your request. Please try again.", "error")
             traceback.print_exc()
         except Exception as e:
             print(f"Unexpected error: {str(e)}", "error")
+        
+    return render_template('employee_req.html', error=unrecorded)
 
-    return render_template('employee_req.html')
+
 
 def get_requests_per_day():
     data = defaultdict(int)

@@ -140,19 +140,21 @@ class Database():
             cur.execute('''DELETE FROM request WHERE date IS NOT NULL AND date < ?''', (week,))
             con.commit()
             
-    def check_id(self):
-        with sqlite3.connect(self.connect_request_table()) as con:
-            cur = con.cursor()
-            cur.execute('''ATTACH employee.db AS emp''')
-            cur.execute('''SELECT e.employee_id, r.request_id
-                        FROM request r LEFT JOIN 
-                        emp.employee e ON e.employee_id=r.request_id''')
-            detect = cur.fetchall()
-            for dup in detect:
-                if dup[0] != dup[1]:
-                    error = 'There is no existing record of that ID.'
-                    
-            return error
+    def check_id(self, employee_id):
+        try:
+            with sqlite3.connect(self.connect_request_table()) as con:
+                cur = con.cursor()
+                cur.execute("ATTACH 'employee.db' AS emp")
+                cur.execute("SELECT employee_id FROM emp.employee WHERE employee_id=?", (employee_id,))
+                result = cur.fetchone()
+                print(f"Result from employee.db: {result}")
+
+                cur.execute("DETACH DATABASE emp")
+                return bool(result)
+        
+        except sqlite3.Error as e:
+            print(f"Database error in check_id: {e}")
+            return False
             
     # connect function    
     def connect_employee(self):

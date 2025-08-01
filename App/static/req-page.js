@@ -107,8 +107,23 @@ function pagination(){
   });
 }
 
+function unrecordedId(){
+    document.addEventListener('DOMContentLoaded', function() {
+        const errorElement = document.getElementById('unrecorded');
+       
+        if (errorElement){
+            const errorMessage = errorElement.dataset.error;
+        
+            if(errorMessage){
+                window.alert(errorMessage);
+            }
+        }
+    });
+}
+
 renderRadialChart("pending-progress", "{{ records.pending }}");
 renderRadialChart("approved-progress", "{{ records.approved }}");
 renderRadialChart("rejected-progress", "{{ records.rejected }}");
 dataChart()
 pagination()
+unrecordedId()
