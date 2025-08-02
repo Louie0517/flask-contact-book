@@ -505,10 +505,14 @@ def request_page():
     page = int(request.args.get('page', 1))
     per_page = 10
     offset = (page - 1) * per_page
-    
+    sort_by = request.args.get('sort_by', 'id')
+ 
     try:
         with sqlite3.connect(db.connect_request_table()) as req_con:
             df = pd.read_sql_query("SELECT * FROM request", req_con)
+            
+            if sort_by in df.columns:
+                df = df.sort_values(by=sort_by, ascending=True)
             
             count_stats = df['status'].value_counts()
             pending = count_stats.get('PENDING', 0)
@@ -516,30 +520,39 @@ def request_page():
             rejected = count_stats.get('REJECTED', 0)
             total_req = pending + approved + rejected
             record = {'pending': pending, 'approved': approved, 'rejected': rejected, 'total': total_req}
-
-            cur = req_con.cursor()
-            cur.execute('''SELECT name, request_type, date, details, department, 
-                        status, action, request_id FROM request LIMIT ? OFFSET ?''', (per_page, offset))
-            display = cur.fetchall()
             
-            for info in display:
-                row = {'name': info[0], 'request': info[1], 
-                    'date': info[2], 'details': info[3], 
-                    'department': info[4], 'status': info[5], 
-                    'action': info[6], 'req_id': info[7]
-                    }
+            paginated_df = df.iloc[offset:offset+per_page]
+
+            
+            for _, info in paginated_df.iterrows():
+                row = {
+                    'name': info['name'],
+                    'request': info['request_type'],
+                    'date': info['date'],
+                    'details': info['details'],
+                    'department': info['department'],
+                    'status': info['status'],
+                    'action': info['action'],
+                    'req_id': info['request_id']
+                }
                 rows.append(row)
-                
-            cur.execute('''SELECT COUNT(*) FROM request''')
-            total_rows = cur.fetchone()[0]
+
+            total_rows = len(df)
             total_page = math.ceil(total_rows / per_page)
             
       
             data = get_requests_per_day()
-            
+    
+           
     except sqlite3.OperationalError:
         print("We're having a trouble retrieving request page data. Please try again." )
         traceback.print_exc()
+        
+        rows = []
+        record = {}
+        total_page = 1
+        page = 1
+        data = {}
         
     
     return render_template('req_page.html', page='requests', subpage='new', 
@@ -587,12 +600,25 @@ def read_request(req_id):
             else:
                 return f'request not found.', 404
             
-
     except sqlite3.Error as e:
         return f'Database error: {e}', 500
+
+@app.route('/sort_request', methods=['GET'])
+def sort_request():
+    sort = request.args.get('sort_by', default='id')
     
-
-
+    valid_sort = {'name': 'ORDER BY name ASC',
+                  'status': """ORDER BY CASE status
+                     WHEN 'PENDING' THEN 1
+                     WHEN 'APPROVED' THEN 2
+                     WHEN 'REJECTED' THEN 3
+                     ELSE 4 END"""}.get(sort, 'ORDER BY id ASC')
+   
+    with sqlite3.connect(db.connect_request_table()) as con:
+        cur = con.cursor()
+        cur.execute(f"SELECT * FROM request {valid_sort}")
+        return cur.fetchall()
+ 
 if __name__ == "__main__":
     database_init()
     app.run(debug=True)
