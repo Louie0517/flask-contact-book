@@ -21,48 +21,39 @@
 
     <!-- Sidebar -->
 <nav id="sidebarMenu" class="col-12 col-sm-4 col-md-3 col-lg-3 col-xl-2 bg-col px-0 position-sticky sticky-top">
-
   <div class="d-flex w-100 flex-column p-3 align-items-sm-start pt-4 h-100">
-    
     <!-- Logo + Title -->
     <a href="/" class="d-flex align-items-center mb-3 text-dark text-decoration-none w-100 px-2">
       <img src="{{ url_for('static', filename='img/company.png') }}?v=2" alt="Logo" width="36" height="36" class="me-2">
       <span class="fs-4 fw-semibold">StoreWood</span>
     </a>
-
-    <hr class="w-100">
-
+  <hr class="w-100">
     <ul class="nav nav-pills flex-column mb-auto w-100" id="menu">
       <div class="container con-li">
-
-        <!-- Dashboard -->
-        <li class="nav-item">
-          <a href="{{ url_for('management') }}" class="nav-link text-dark">
-            <i class="bi bi-speedometer2 fs-5"></i><span class="ms-2">Dashboard</span>
-          </a>
-        </li>
-
-        <!-- Employees -->
-        <li class="nav-item">
-          <a class="nav-link text-dark" href="{{ url_for('sort_request') }}">
-            <i class="bi bi-person-lines-fill fs-5"></i><span class="ms-2">Employees</span>
-          </a>
-        </li>
-
-        <!-- Time Logs -->
-        <li>
-          <a href="#" class="nav-link text-dark">
-            <i class="bi bi-calendar-week fs-5"></i><span class="ms-2">Time Logs</span>
-          </a>
-        </li>
-
-        <!-- Reports -->
-        <li>
-          <a href="#" class="nav-link text-dark">
-            <i class="fs-5 bi bi-graph-up"></i><span class="ms-2">Reports</span>
-          </a>
-        </li>
-
+    <!-- Dashboard -->
+    <li class="nav-item">
+      <a href="{{ url_for('management') }}" class="nav-link text-dark">
+        <i class="bi bi-speedometer2 fs-5"></i><span class="ms-2">Dashboard</span>
+      </a>
+    </li>
+    <!-- Employees -->
+    <li class="nav-item">
+      <a class="nav-link text-dark" href="{{ url_for('employees_management') }}">
+        <i class="bi bi-person-lines-fill fs-5"></i><span class="ms-2">Employees</span>
+      </a>
+    </li>
+    <!-- Time Logs -->
+    <li>
+      <a href="{{ url_for('time_logs_page') }}" class="nav-link text-dark">
+        <i class="bi bi-calendar-week fs-5"></i><span class="ms-2">Time Logs</span>
+      </a>
+    </li>
+  <!-- Reports -->
+    <li>
+      <a href="{{ url_for('reports_page') }}" class="nav-link text-dark">
+        <i class="fs-5 bi bi-graph-up"></i><span class="ms-2">Reports</span>
+      </a>
+    </li>
     <!-- Requests -->
       <li class="nav-item">
         <a class="nav-link d-flex justify-content-between align-items-center text-dark"
@@ -74,7 +65,6 @@
           </span>
           <i class="bi bi-chevron-down arrow-icon ms-2"></i>
         </a>
-
         <div class="collapse" id="requestsSubMenu" style="visibility: hidden;">
           <ul class="nav flex-column ms-4 mt-2">
             <li><a class="nav-link text-dark" href="{{ url_for('request_page') }}">Request Log</a></li>
@@ -83,39 +73,31 @@
           </ul>
         </div>
       </li>
-
         <!-- Settings -->
         <li>
           <a href="#" class="nav-link text-dark">
             <i class="fs-5 bi bi-gear"></i><span class="ms-2">Settings</span>
           </a>
         </li>
-
       </div>
     </ul>
-
     <div class="container mt-auto">
       <hr class="w-100">
-
       <!-- Night Mode -->
       <a href="{{ url_for('admin_login') }}" class="nav-link text-dark mt-3">
         <i class="bi bi-cloud-moon-fill fs-5 ms-1"></i><span class="ms-2">Night Mode</span>
       </a>
-
       <!-- Logout -->
       <a href="{{ url_for('admin_login') }}" class="nav-link text-dark mt-3">
         <i class="bi bi-box-arrow-left fs-5 ms-1"></i><span class="ms-2">Logout</span>
       </a>
     </div>
-
   </div>
 </nav>
 
-
-    <!-- Main Content -->
+<!-- Main Content -->
 <div class="main-top-var col py-3 content">
-
-      <!-- Top Navbar Toggle Button for Small Screens -->
+<!-- Top Navbar Toggle Button for Small Screens -->
 <div id="topBar" class="top bg-light py-2 px-3 shadow-sm d-flex justify-content-between align-items-center fixed-top w-100" style="z-index: 1030;">
   <button title="Side bar" class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarOffcanvas">
     <i class="bi bi-list"></i>
@@ -125,8 +107,6 @@
     <h5 class="mb-0 ms-2">StoreWood</h5>
   </a>
 </div>
-
-
 <!-- Sidebar for small screens -->
 <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarOffcanvas">
   <div class="offcanvas-header border-bottom">
@@ -137,66 +117,56 @@
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
 
-  <div class="offcanvas-body p-0">
-    <div class="d-flex w-100 flex-column p-3 align-items-sm-start pt-3 h-100">
-
-      <ul class="nav nav-pills flex-column mb-auto w-100" id="menu">
-        <div class="container con-li">
-
-          <li class="nav-item">
-            <a href="{{ url_for('management') }}" class="nav-link text-dark">
-              <i class="bi bi-speedometer2 fs-5"></i><span class="ms-2">Dashboard</span>
-            </a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link text-dark" href="{{ url_for('sort_request') }}">
-              <i class="bi bi-person-lines-fill fs-5"></i><span class="ms-2">Employees</span>
-            </a>
-          </li>
-
-          <li>
-            <a href="#" class="nav-link text-dark">
-              <i class="bi bi-calendar-week fs-5"></i><span class="ms-2">Time Logs</span>
-            </a>
-          </li>
-
-          <li>
-            <a href="#" class="nav-link text-dark">
-              <i class="fs-5 bi bi-graph-up"></i><span class="ms-2">Reports</span>
-            </a>
-          </li>
-
+<div class="offcanvas-body p-0">
+  <div class="d-flex w-100 flex-column p-3 align-items-sm-start pt-3 h-100">
+    <ul class="nav nav-pills flex-column mb-auto w-100" id="menu">
+      <div class="container con-li">
         <li class="nav-item">
-          <a class="nav-link d-flex justify-content-between align-items-center text-dark"
-            data-bs-toggle="collapse" href="#requestsSubMenu" role="button"
-            aria-expanded="false" aria-controls="requestsSubMenu">
-            <span class="d-flex align-items-center gap-2 flex-grow-1">
-              <i class="fs-5 bi bi-journal-text"></i>
-              <span class="text-truncate">Requests</span>
-            </span>
-            <i class="bi bi-chevron-down arrow-icon ms-2"></i>
+          <a href="{{ url_for('management') }}" class="nav-link text-dark">
+            <i class="bi bi-speedometer2 fs-5"></i><span class="ms-2">Dashboard</span>
           </a>
-
-          <div class="collapse" id="requestsSubMenu" style="visibility: hidden;">
-            <ul class="nav flex-column ms-4 mt-2">
-              <li><a class="nav-link text-dark" href="{{ url_for('request_page') }}">Request Log</a></li>
-              <li><a class="nav-link text-dark" href="#">Leave Status</a></li>
-              <li><a class="nav-link text-dark" href="#">Archived</a></li>
-            </ul>
-          </div>
         </li>
-
-
+        <li class="nav-item">
+          <a class="nav-link text-dark" href="{{ url_for('sort_request') }}">
+            <i class="bi bi-person-lines-fill fs-5"></i><span class="ms-2">Employees</span>
+          </a>
         </li>
-          <li>
-            <a href="#" class="nav-link text-dark {% if page == 'settings' %}active-page{% endif %}">
-              <i class="fs-5 bi bi-gear"></i><span class="ms-2">Settings</span>
-            </a>
-          </li>
+        <li>
+          <a href="{{ url_for('time_logs_page') }}" class="nav-link text-dark">
+            <i class="bi bi-calendar-week fs-5"></i><span class="ms-2">Time Logs</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('reports_page') }}" class="nav-link text-dark">
+            <i class="fs-5 bi bi-graph-up"></i><span class="ms-2">Reports</span>
+          </a>
+        </li>
+      <li class="nav-item">
+        <a class="nav-link d-flex justify-content-between align-items-center text-dark"
+          data-bs-toggle="collapse" href="#requestsSubMenu" role="button"
+          aria-expanded="false" aria-controls="requestsSubMenu">
+          <span class="d-flex align-items-center gap-2 flex-grow-1">
+            <i class="fs-5 bi bi-journal-text"></i>
+            <span class="text-truncate">Requests</span>
+          </span>
+          <i class="bi bi-chevron-down arrow-icon ms-2"></i>
+        </a>
+        <div class="collapse" id="requestsSubMenu" style="visibility: hidden;">
+          <ul class="nav flex-column ms-4 mt-2">
+            <li><a class="nav-link text-dark" href="{{ url_for('request_page') }}">Request Log</a></li>
+            <li><a class="nav-link text-dark" href="#">Leave Status</a></li>
+            <li><a class="nav-link text-dark" href="#">Archived</a></li>
+          </ul>
         </div>
-      </ul>
-
+      </li>
+      </li>
+        <li>
+          <a href="#" class="nav-link text-dark {% if page == 'settings' %}active-page{% endif %}">
+            <i class="fs-5 bi bi-gear"></i><span class="ms-2">Settings</span>
+          </a>
+        </li>
+      </div>
+    </ul>
       <div class="container mt-auto">
         <hr class="w-100">
         <a href="{{ url_for('admin_login') }}" class="nav-link text-dark mt-3">
@@ -265,7 +235,6 @@
       </div>
     </div>
   </div>
-
   <!-- FULL-WIDTH CHART -->
   <div class="row mb-4">
     <div class="col-12">
@@ -274,113 +243,112 @@
   </div>
 </div>
 
-
+<div class="p-3  capsule">
 <!-- Sort Part -->
 <div>
-  <div class="dropdown">
+  <div class="dropdown w-100 d-flex justify-content-end">
     <button class="btn btn-primary p-2 pe-3" type="button" title="Dropdown" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-      <i class="bi bi-sort-down fs-5"></i>
+      <i class="bi bi-sort-down fs-5"></i> Sort
     </button>
     <ul class="dropdown-menu" aria-labelledby="sortDropdown">
-      <li><a class="dropdown-item" href="{{ url_for('request_page', sort_by='name', page=table_page) }}">Sort by Name</a></li>
-      <li><a class="dropdown-item" href="{{ url_for('request_page', sort_by='status', page=table_page) }}">Sort by Status</a></li>
-      </ul>
+      <li><a class="dropdown-item" href="{{ url_for('request_page', desc_by='name', page=table_page) }}">Sort by Name</a></li>
+      <li><a class="dropdown-item" href="{{ url_for('request_page', desc_by='status', page=table_page) }}">Sort by Status</a></li>
+      <li><a class="dropdown-item" href="{{ url_for('request_page', page=table_page) }}">Default</a></li>
+    </ul>
   </div>
 </div>
 
-   
-    <!-- Table -->
-    <div class="table-responsive">
-      <table class="table display custom-table" id="myTable">
-        <thead class="head bg-black">
-          <tr>
-            <th>Name</th>
-            <th>Request</th>
-            <th>Request Date</th>
-            <th>Details</th>
-            <th>Department</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for row in rows %}
-          <tr>
-            <td>{{row['name']}}</td>
-            <td>{{row['request']}}</td>
-            <td>{{row['date']}}</td>
-            <td>
-              <a href="/read_request/{{row['req_id']}}"
-                class="btn btn-info btn-sm"
-                style="background-color: rgb(32, 147, 255); border: transparent;">
-                <span style="color: white;" class="d-flex flex-row">
-                  <i class="bi bi-eye me-1"></i> View
-                </span>
-              </a>
-            </td>
-            <td>{{row['department']}}</td>
-            <td>{{row['status']}}</td>
-            {%if row['status'] == 'PENDING' %}
-            <td>
-              <div class="d-flex flex-row gap-2">
-                <form method="POST" action="/update_status">
-                  <input type="hidden" name="request_id" value="{{ row.req_id }}">
-                  <input type="hidden" name="new_status" value="APPROVED">
-                  <button type="submit" class="btn btn-success btn-sm">Approve</button>
-                </form>
-                <form method="POST" action="/update_status">
-                  <input type="hidden" name="request_id" value="{{ row.req_id }}">
-                  <input type="hidden" name="new_status" value="REJECTED">
-                  <button type="submit" class="btn btn-danger btn-sm">Reject</button>
-                </form>
+
+<!-- Table -->
+
+  <div class="table-responsive">
+    <table class="table display custom-table" id="myTable">
+      <thead class="head bg-black">
+        <tr>
+          <th>Name</th>
+          <th>Request</th>
+          <th>Request Date</th>
+          <th>Details</th>
+          <th>Department</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>{{row['name']}}</td>
+          <td>{{row['request']}}</td>
+          <td>{{row['date']}}</td>
+          <td>
+            <a href="/read_request/{{row['req_id']}}"
+              class="btn btn-info btn-sm"
+              style="background-color: rgb(32, 147, 255); border: transparent;">
+              <span style="color: white;" class="d-flex flex-row">
+                <i class="bi bi-eye me-1"></i> View
+              </span>
+            </a>
+          </td>
+          <td>{{row['department']}}</td>
+          <td>{{row['status']}}</td>
+          {%if row['status'] == 'PENDING' %}
+          <td>
+            <div class="d-flex flex-row gap-2">
+              <form method="POST" action="/update_status">
+                <input type="hidden" name="request_id" value="{{ row.req_id }}">
+                <input type="hidden" name="new_status" value="APPROVED">
+                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+              </form>
+              <form method="POST" action="/update_status">
+                <input type="hidden" name="request_id" value="{{ row.req_id }}">
+                <input type="hidden" name="new_status" value="REJECTED">
+                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+              </form>
+            </div>
+          </td>
+        {% else %}
+          <td>
+            <div class="d-flex flex-row gap-2">
+              {% if row['status'] == 'APPROVED' %}
+                <i class="bi bi-check-circle fs-4" style="color: rgb(15, 181, 15);"></i>
+              {% elif row['status'] == 'REJECTED' %}
+                <i class="bi bi-x-circle fs-4" style="color: rgb(225, 48, 48);"></i>
+              {% endif %}
               </div>
-            </td>
-          {% else %}
-            <td>
-              <div class="d-flex flex-row gap-2">
-                {% if row['status'] == 'APPROVED' %}
-                  <i class="bi bi-check-circle fs-4" style="color: rgb(15, 181, 15);"></i>
-                {% elif row['status'] == 'REJECTED' %}
-                  <i class="bi bi-x-circle fs-4" style="color: rgb(225, 48, 48);"></i>
-                {% endif %}
-                </div>
-            </td>
-            {% endif %}
-          </tr>
-        </tbody>
-        {% endfor %}
-      </table>
-       
-    </div>
-    <!-- Pagination buttons -->
-      <div class="w-100 d-flex justify-content-center gap-1">
-        <nav aria-label="Page navigation">
-          <ul class="pagination">
-
-            <!-- Previous button -->
-            <li class="page-item {% if table_page == 1 %}disabled{% endif %} arrow-head">
-              <a class="page-link" href="?page={{ table_page - 1 }}" aria-label="Previous">
-                <span aria-hidden="true"><i class='bx bxs-left-arrow text-primary'></i></span>
-              </a>
-            </li>
-
-            <!-- Page numbers -->
-            {% for page_num in range(1, total_pages + 1) %}
-            <li class="page-item {% if page_num == table_page %}active{% endif %}">
-              <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
-            </li>
-            {% endfor %}
-
-            <!-- Next button -->
-            <li class="page-item {% if table_page == total_pages %}disabled{% endif %} arrow-head">
-              <a class="page-link" href="?page={{ table_page + 1 }}" aria-label="Next">
-                <span aria-hidden="true"><i class='bx bxs-right-arrow text-primary'></i></span>
-              </a>
-            </li>
-        </ul>
-      </nav>
-    </div>
+          </td>
+          {% endif %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
   </div>
+</div>
+
+<!-- Pagination buttons -->
+<div class="w-100 d-flex justify-content-center gap-1">
+  <nav>
+    <ul class="pagination">
+      {% if table_page > 1 %}
+        <li class="page-item">
+          <a class="page-link" href="{{ url_for('request_page', page=table_page-1, desc_by=request.args.get('desc_by', 'id'), order=request.args.get('order', 'asc')) }}">Previous</a>
+        </li>
+      {% endif %}
+
+      {% for p in range(1, total_pages + 1) %}
+        <li class="page-item {% if p == table_page %}active{% endif %}">
+          <a class="page-link" href="{{ url_for('request_page', page=p, desc_by=request.args.get('desc_by', 'id'), order=request.args.get('order', 'asc')) }}">{{ p }}</a>
+        </li>
+      {% endfor %}
+
+      {% if table_page < total_pages %}
+        <li class="page-item">
+          <a class="page-link" href="{{ url_for('request_page', page=table_page+1, desc_by=request.args.get('desc_by', 'id'), order=request.args.get('order', 'asc')) }}">Next</a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+</div>
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

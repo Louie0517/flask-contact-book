@@ -163,6 +163,7 @@ def management():
 
         cur.execute('''SELECT department , COUNT(*) FROM employee GROUP BY department''')
         data = cur.fetchall()
+        
 
     dep = [row[0] for row in data]
     count = [row[1] for row in data]
@@ -505,14 +506,15 @@ def request_page():
     page = int(request.args.get('page', 1))
     per_page = 10
     offset = (page - 1) * per_page
-    sort_by = request.args.get('sort_by', 'id')
+    sort_by = request.args.get('desc_by', 'id')
+    order = request.args.get('order', 'asc')        
  
     try:
         with sqlite3.connect(db.connect_request_table()) as req_con:
             df = pd.read_sql_query("SELECT * FROM request", req_con)
             
             if sort_by in df.columns:
-                df = df.sort_values(by=sort_by, ascending=True)
+                df = df.sort_values(by=sort_by, ascending=(order == 'asc'))
             
             count_stats = df['status'].value_counts()
             pending = count_stats.get('PENDING', 0)
@@ -618,7 +620,22 @@ def sort_request():
         cur = con.cursor()
         cur.execute(f"SELECT * FROM request {valid_sort}")
         return cur.fetchall()
- 
+    
+@app.route('/time_logs', methods=['GET'])  
+def time_logs_page():
+    records = get_today_logs()
+    
+    return render_template('time_logs.html' , records=records, page='requests', subpage='new')
+
+@app.route('/reports', methods=['GET'])
+def reports_page():
+    get_total = get_total_employees_and_status()
+    
+    
+    return render_template('reports.html', page='requests', subpage='new', 
+                           total_employees= get_total)
+
+    
 if __name__ == "__main__":
     database_init()
     app.run(debug=True)
