@@ -34,20 +34,8 @@ class Database():
                             name TEXT, date TEXT, time TEXT, action TEXT, status TEXT) ''')
                 con.commit()
                 
-                '''
-                try:
-                    cur.execute("ALTER TABLE time_logs ADD COLUMN time_in TEXT")
-                    print("Columns time_in successfully.")
-                except sqlite3.OperationalError as e:
-                    print("Column time_in already exists", e)
-                    
-                try:
-                    cur.execute("ALTER TABLE time_logs ADD COLUMN time_out TEXT")
-                    print("Columns time_out successfully.")
-                except sqlite3.OperationalError as e:
-                    print("Column time_in already exists", e)
-                '''
-        
+                # Additional columns for time_in and time_out
+                
         except sqlite3.OperationalError as e:
             print("Failed to open database", e)
             

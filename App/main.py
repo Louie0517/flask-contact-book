@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, request, jsonify, url_for
+from flask import Flask, redirect, render_template, request, url_for
 from database import Database
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
@@ -6,7 +6,7 @@ from config import Config, get_v
 from werkzeug.utils import secure_filename
 from id_generator import rand_id
 from collections import defaultdict
-from datetime import datetime, time, timedelta
+from datetime import datetime, time, strftime
 import sqlite3, pandas as pd
 import os, traceback, math
 
@@ -210,6 +210,31 @@ def get_total_employees_and_status():
         'late': late,
         'active': active
     }
+    
+def get_attendance_avg():
+    get_attendance_avg = f'''SELECT strftime('%Y-%m', time_in) AS month,  AVG(julianday(time_out) - julianday(time_in)) * 24 AS avg_attendance
+    FROM attendance_logs
+    GROUP BY month
+    ORDER BY month; '''
+    
+    with sqlite3.connect(db.connect_time_logs()) as tl_con:
+        cur = tl_con.cursor()
+        cur.execute(get_attendance_avg)
+        fetch_avg = cur.fetchall()
+        
+    return fetch_avg
+
+
+
+@app.route('/reports', methods=['GET'])
+def reports_page():
+    get_total = get_total_employees_and_status()
+    fetch_avg = get_attendance_avg()
+   
+    
+    return render_template('reports.html', page='requests', subpage='new', 
+                           total_employees= get_total, avg_attendance = fetch_avg)
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ['png', 'jpg', 'jpeg']
@@ -331,6 +356,8 @@ def employees_management():
         employee = []
 
     return render_template('e_manage.html', employee=employee, field=sort_by, page='requests', subpage='new')
+
+
 
 
 @app.route('/delete_employee_profile/<string:id>', methods=['GET'])
@@ -627,13 +654,6 @@ def time_logs_page():
     
     return render_template('time_logs.html' , records=records, page='requests', subpage='new')
 
-@app.route('/reports', methods=['GET'])
-def reports_page():
-    get_total = get_total_employees_and_status()
-    
-    
-    return render_template('reports.html', page='requests', subpage='new', 
-                           total_employees= get_total)
 
     
 if __name__ == "__main__":
