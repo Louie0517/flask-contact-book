@@ -6,7 +6,7 @@ from config import Config, get_v
 from werkzeug.utils import secure_filename
 from id_generator import rand_id
 from collections import defaultdict
-from datetime import datetime, time, strftime
+from datetime import datetime, time
 import sqlite3, pandas as pd
 import os, traceback, math
 
@@ -211,29 +211,61 @@ def get_total_employees_and_status():
         'active': active
     }
     
-def get_attendance_avg():
-    get_attendance_avg = f'''SELECT strftime('%Y-%m', time_in) AS month,  AVG(julianday(time_out) - julianday(time_in)) * 24 AS avg_attendance
-    FROM attendance_logs
-    GROUP BY month
-    ORDER BY month; '''
+
+def get_daily_attendance_and_hours():
+    with sqlite3.connect(db.connect_time_logs()) as conn:
+        query = """
+        SELECT 
+            DATE(time_in) as log_date,
+            COUNT(DISTINCT employee_id) AS total_attendance,
+            SUM((julianday(time_out) - julianday(time_in)) * 24) AS total_hours
+        FROM time_logs
+        WHERE time_in IS NOT NULL AND time_out IS NOT NULL
+        GROUP BY log_date
+        ORDER BY log_date DESC
+        """
+        df = pd.read_sql_query(query, conn)
+    return df
+
     
+def get_attendance_avg_per_year():
+    query = '''
+    SELECT strftime('%Y', time_in) AS year,
+        AVG(julianday(time_out) - julianday(time_in)) * 24 AS avg_attendance_hours FROM time_logs
+        WHERE time_in IS NOT NULL AND time_out IS NOT NULL GROUP BY year ORDER BY year;
+    '''
+
     with sqlite3.connect(db.connect_time_logs()) as tl_con:
         cur = tl_con.cursor()
-        cur.execute(get_attendance_avg)
+        cur.execute(query)
         fetch_avg = cur.fetchall()
-        
+
     return fetch_avg
 
-
+def most_leaves_emp():
+    with sqlite3.connect(db.connect_request_table()) as con:
+        cur = con.cursor()
+        cur.execute('''SELECT name, COUNT(*) AS mx_leave
+                    FROM request GROUP BY name ORDER BY mx_leave DESC LIMIT 5''')
+        top_leavers = cur.fetchall()
+    
+    return top_leavers
 
 @app.route('/reports', methods=['GET'])
 def reports_page():
     get_total = get_total_employees_and_status()
-    fetch_avg = get_attendance_avg()
+    fetch_avg = get_attendance_avg_per_year()
+    attendance_day_hrs = get_daily_attendance_and_hours()
+    top_requesters = most_leaves_emp()
    
+    years = [row[0] for row in fetch_avg]
+    average = [round(row[1], 2) for row in fetch_avg]
+    store = {'years': years, 'average': average}
     
     return render_template('reports.html', page='requests', subpage='new', 
-                           total_employees= get_total, avg_attendance = fetch_avg)
+                           total_employees= get_total['total'], avg_attendance = store, 
+                           ontime = get_total['ontime'], late = get_total['late'], dayNhrs = attendance_day_hrs,
+                           top_requesters = top_requesters)
 
 
 def allowed_file(filename):
