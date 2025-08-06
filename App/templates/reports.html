@@ -9,7 +9,6 @@
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
    <title>Neighborhood</title>
 </head>
@@ -213,7 +212,7 @@
   <div class="row">
     <div class="d-flex">
       <div class="col-3 me-2">
-        <div class="p-4 bg-white mb-2">{{ontime}}</div>
+        <div class="p-4 bg-white mb-2">{{total}}</div>
         <div class="p-4 bg-white">COL - 2</div>
       </div>
       <div class="col-3">
@@ -221,11 +220,16 @@
         <div class="p-4 bg-white">COL 2</div>
       </div>
       <div class="col-6 ms-2 pe-3">
-          <div class="p-4 bg-white mb-2 h-100" id="chart" data-attendance="{{ avg_attendance | safe}}" ></div>
+        <div id="chart"
+          data-late='{{ late | tojson | safe}}'
+          data-active='{{ active | tojson | safe }}'
+          data-ontime="{{ ontime | tojson | safe}}"
+          data-dates="{{ date | tojson | safe}}"
+          class="p-4 bg-white mb-2 h-100">
+        </div>
       </div>
     </div>
   </div>
-
 
 
   <div class="row mt-2">

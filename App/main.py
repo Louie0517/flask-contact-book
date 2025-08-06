@@ -6,7 +6,7 @@ from config import Config, get_v
 from werkzeug.utils import secure_filename
 from id_generator import rand_id
 from collections import defaultdict
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 import sqlite3, pandas as pd
 import os, traceback, math
 
@@ -171,9 +171,29 @@ def management():
 
     return render_template('dash.html', employees = records, stats=stats, labels=['On-Time', 'Late', 'Active'], dep=dep, counts = count, page='requests', subpage='new')
 
+def get_dates():
+    today = datetime.now().strftime('%Y-%m-%d')
+    
+    with sqlite3.connect(db.connect_time_logs()) as conn:
+        cur = conn.cursor()
+        cur.execute('''SELECT DISTINCT strftime('%m', date) AS month_number,
+                    strftime('%Y', date) AS year_number FROM time_logs WHERE date >= ? ORDER BY year_number, month_number''',
+                    (today,))
+        
+        records = cur.fetchall()
+        
+    month_names = []
+    
+    for month_n, year_n in records:
+        dt = datetime.strptime(f"{year_n}-{month_n}-01", "%Y-%m-%d")
+        month_name = dt.strftime('%B %Y')
+        month_names.append(month_name)
+    
+    return month_names
 
 def get_total_employees_and_status():
     today_str = datetime.now().strftime('%Y-%m-%d')
+    
 
     # Get total employees
     with sqlite3.connect(db.connect_employee()) as conn:
@@ -203,7 +223,7 @@ def get_total_employees_and_status():
 
     # Active: those with time_in but no time_out
     active = len(df_logs[df_logs['time_out'].isna()])
-
+ 
     return {
         'total': len(valid_ids),
         'ontime': ontime,
@@ -257,6 +277,7 @@ def reports_page():
     fetch_avg = get_attendance_avg_per_year()
     attendance_day_hrs = get_daily_attendance_and_hours()
     top_requesters = most_leaves_emp()
+    date = get_dates()
    
     years = [row[0] for row in fetch_avg]
     average = [round(row[1], 2) for row in fetch_avg]
@@ -265,7 +286,7 @@ def reports_page():
     return render_template('reports.html', page='requests', subpage='new', 
                            total_employees= get_total['total'], avg_attendance = store, 
                            ontime = get_total['ontime'], late = get_total['late'], dayNhrs = attendance_day_hrs,
-                           top_requesters = top_requesters)
+                           top_requesters = top_requesters, active = get_total['active'], date=date)
 
 
 def allowed_file(filename):
