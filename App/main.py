@@ -171,25 +171,6 @@ def management():
 
     return render_template('dash.html', employees = records, stats=stats, labels=['On-Time', 'Late', 'Active'], dep=dep, counts = count, page='requests', subpage='new')
 
-def get_dates():
-    today = datetime.now().strftime('%Y-%m-%d')
-    
-    with sqlite3.connect(db.connect_time_logs()) as conn:
-        cur = conn.cursor()
-        cur.execute('''SELECT DISTINCT strftime('%m', date) AS month_number,
-                    strftime('%Y', date) AS year_number FROM time_logs WHERE date >= ? ORDER BY year_number, month_number''',
-                    (today,))
-        
-        records = cur.fetchall()
-        
-    month_names = []
-    
-    for month_n, year_n in records:
-        dt = datetime.strptime(f"{year_n}-{month_n}-01", "%Y-%m-%d")
-        month_name = dt.strftime('%B %Y')
-        month_names.append(month_name)
-    
-    return month_names
 
 def get_total_employees_and_status():
     today_str = datetime.now().strftime('%Y-%m-%d')
@@ -231,22 +212,6 @@ def get_total_employees_and_status():
         'active': active
     }
     
-
-def get_daily_attendance_and_hours():
-    with sqlite3.connect(db.connect_time_logs()) as conn:
-        query = """
-        SELECT 
-            DATE(time_in) as log_date,
-            COUNT(DISTINCT employee_id) AS total_attendance,
-            SUM((julianday(time_out) - julianday(time_in)) * 24) AS total_hours
-        FROM time_logs
-        WHERE time_in IS NOT NULL AND time_out IS NOT NULL
-        GROUP BY log_date
-        ORDER BY log_date DESC
-        """
-        df = pd.read_sql_query(query, conn)
-    return df
-
     
 def get_attendance_avg_per_year():
     query = '''
@@ -268,25 +233,29 @@ def most_leaves_emp():
         cur.execute('''SELECT name, COUNT(*) AS mx_leave
                     FROM request GROUP BY name ORDER BY mx_leave DESC LIMIT 5''')
         top_leavers = cur.fetchall()
+        
+        names = [name[0] for name in top_leavers]
+        count_request = [count[1] for count in top_leavers]
+
+        sd = {'names' : names,  'count' : count_request}
     
-    return top_leavers
+    return sd
 
 @app.route('/reports', methods=['GET'])
 def reports_page():
     get_total = get_total_employees_and_status()
     fetch_avg = get_attendance_avg_per_year()
-    attendance_day_hrs = get_daily_attendance_and_hours()
     top_requesters = most_leaves_emp()
-    date = get_dates()
    
     years = [row[0] for row in fetch_avg]
     average = [round(row[1], 2) for row in fetch_avg]
+   
     store = {'years': years, 'average': average}
     
     return render_template('reports.html', page='requests', subpage='new', 
-                           total_employees= get_total['total'], avg_attendance = store, 
-                           ontime = get_total['ontime'], late = get_total['late'], dayNhrs = attendance_day_hrs,
-                           top_requesters = top_requesters, active = get_total['active'], date=date)
+                           total_employees= get_total['total'], store = store, 
+                           ontime = get_total['ontime'], late = get_total['late'], active = get_total['active'],
+                           names = top_requesters['names'], count = top_requesters['count'])
 
 
 def allowed_file(filename):
