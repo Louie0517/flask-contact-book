@@ -103,8 +103,8 @@ function trackRecord(){
     var options = {
           series: [20, 24, 22],
           chart: {
-          width: 380,
-          height: 347,
+          width: 360,
+         
           type: 'polarArea', 
           toolbar: {
             show: true
@@ -264,7 +264,85 @@ function totalTracker() {
       
 }
 
+function infoLineGraph(elementId, seriesName){
+
+  const now = new Date();
+  let dates = [];
+  let baseValue = 1000000;
+  for (let i = 0; i < 20; i++) {
+    dates.push([now.getTime() + i * 86400000, baseValue + Math.floor(Math.random() * 500000)]);
+  }
+
+  var options = {
+    series: [{
+      name: seriesName,
+      data: dates
+    }],
+    chart: {
+      type: 'area',
+      stacked: false,
+      height: 150,
+      sparkline: {
+        enabled: true
+      },
+      zoom: {
+        type: 'x',
+        enabled: true,
+        autoScaleYaxis: true
+      },
+      toolbar: {
+        autoSelected: 'zoom'
+      }
+    },
+    dataLabels: {
+      enabled: false
+    },
+    markers: {
+      size: 0
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shadeIntensity: 1,
+        inverseColors: false,
+        opacityFrom: 0.5,
+        opacityTo: 0,
+        stops: [0, 90, 100]
+      }
+    },
+    yaxis: {
+      labels: {
+        formatter: function (val) {
+          return (val / 1000000).toFixed(1);
+        }
+      }
+    },
+    xaxis: {
+      type: 'datetime'
+    },
+    tooltip: {
+      shared: false,
+      y: {
+        formatter: function (val) {
+          return (val / 1000000).toFixed(2) ;
+        }
+      }
+    }
+  };
+  
+  var activateChart = new ApexCharts(document.querySelector(elementId), options);
+  
+  activateChart.render()
+}
+
+
+
 dataset()
 trackRecord()
 requestRecord()
 totalTracker()
+infoLineGraph('#pr-3', 'Late Employee')
+infoLineGraph('#pr-1', 'Total Employee')
+infoLineGraph('#pr-2', 'Ontime Employee')
+
+

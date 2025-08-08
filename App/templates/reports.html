@@ -209,41 +209,68 @@
 </div>
 
 
-  <div class="row">
-    <div class="d-flex">
-      <div class="col-3 me-2">
-        <div class="p-4 bg-white mb-2">{{ total_employees }}</div>
-        <div class="p-4 bg-white">{{ ontime }}</div>
+  <div class="row g-2 align-items-stretch">
+  
+      <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
+        <div class="bg-white">
+          <div class="container d-flex flex-column">
+            <span class="fs-4" style="font-weight: bold; font-family:Verdana, Geneva, Tahoma, sans-serif">{{ late }}</span>
+            <small>Late Employee</small>
+          </div>
+          <div id="pr-3"></div>
+        </div>
+        <div class="bg-white mt-2">
+          <div class="container d-flex flex-column">
+            <span class="fs-4" style="font-weight: bold; font-family:Verdana, Geneva, Tahoma, sans-serif">{{ store.average | tojson }}</span>
+            <small>Average Attendance</small>
+          </div>
+          <div id="pr-4"></div>
+        </div>
       </div>
-      <div class="col-3">
-        <div class="p-4 bg-white mb-2">{{ late }}</div>
-        <div class="p-4 bg-white">{{ active }}</div>
+
+      <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
+        <div class="bg-white mb-2 flex-fill">
+          <div class="container d-flex flex-column">
+            <span class= "fs-4" style="font-weight: bold; font-family:Verdana, Geneva, Tahoma, sans-serif">{{ total_employees }} <i class="bi bi-people-fill"></i></span>
+            <small>Total Employee</small>
+          </div>
+          <div data-total='{{ total_employees }}' id="pr-1"></div>
+        </div>
+
+      <div class="bg-white flex-fill">
+        <div class="container d-flex flex-column">
+          <span class= "fs-4" style="font-weight: bold; font-family:Verdana, Geneva, Tahoma, sans-serif">{{ ontime }} <i class="bi bi-person-check-fill"></i></span>
+          <small>Ontime Employee</small>
+        </div>
+        <div id="pr-2"></div>
       </div>
-      <div class="col-6 ms-2 pe-3">
+
+    </div>
+  
+      
+      <div class="col-xl-6 col-lg-6 ">
         <div id="barChart"
           data-names='{{ names | tojson | safe }}'
           data-count='{{ count | tojson | safe }}'
           class="p-4 bg-white mb-2 h-100">
         </div>
       </div>
-    </div>
   </div>
 
-
-  <div class="row mt-2">
-    <div class="d-flex flex-row">
-      <div class="col-5">
-        <div class="bg-white p-4 me-2" id="trackRecord"
-          data-ontime="{{ ontime }}"
-          data-late="{{ late }}"
-          data-active="{{ active }}">
-        </div>
+  <div class="row mt-1 g-1">
+    <div class="col-xl-5 col-lg-7">
+      <div class="bg-white me-lg-2 h-100 p-4" id="trackRecord"
+        data-ontime="{{ ontime }}"
+        data-late="{{ late }}"
+        data-active="{{ active }}">
       </div>
-      <div class="col-7">
-        <div class="bg-white p-4" id="totalTracker"></div>
-      </div>
-    </div>
   </div>
+
+  <div class="col-xl-7 col-lg-5">
+    <div class="bg-white p-4" id="totalTracker"></div>
+  </div>
+</div>
+
 
   <div class="row mt-2">
     <div class="col-12">
