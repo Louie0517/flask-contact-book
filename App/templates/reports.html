@@ -219,23 +219,16 @@
           </div>
           <div id="pr-3"></div>
         </div>
-        <div class="bg-white mt-2">
-          <div class="container d-flex flex-column">
-            <span class="fs-4" style="font-weight: bold; font-family:Verdana, Geneva, Tahoma, sans-serif">{{ store.average | tojson }}</span>
-            <small>Average Attendance</small>
+        <div class="bg-white mt-2 d-flex align-items-center p-4">
+          <div class="container">
+            <span class="d-flex"><p class="fs-4" style="font-weight: bold; font-family:Verdana, Geneva, Tahoma, sans-serif" id="day"></p>
+              <i class="bi bi-calendar-date fs-4 ms-2"></i></span>
+              <small id="date" style="font-weight: bold; font-size:small"></small>
           </div>
-          <div id="pr-4"></div>
         </div>
       </div>
 
       <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6">
-        <div class="bg-white mb-2 flex-fill">
-          <div class="container d-flex flex-column">
-            <span class= "fs-4" style="font-weight: bold; font-family:Verdana, Geneva, Tahoma, sans-serif">{{ total_employees }} <i class="bi bi-people-fill"></i></span>
-            <small>Total Employee</small>
-          </div>
-          <div data-total='{{ total_employees }}' id="pr-1"></div>
-        </div>
 
       <div class="bg-white flex-fill">
         <div class="container d-flex flex-column">
@@ -244,6 +237,14 @@
         </div>
         <div id="pr-2"></div>
       </div>
+
+      <div class="bg-white mt-2 flex-fill">
+          <div class="container d-flex flex-column">
+            <span class= "fs-4" style="font-weight: bold; font-family:Verdana, Geneva, Tahoma, sans-serif">{{ total_employees }} <i class="bi bi-people-fill"></i></span>
+            <small>Total Employee</small>
+          </div>
+          <div data-total='{{ total_employees }}' id="pr-1"></div>
+        </div>
 
     </div>
   

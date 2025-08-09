@@ -1,3 +1,4 @@
+
 function dataset (){
     document.addEventListener("DOMContentLoaded", function () {
     const chartDiv = document.querySelector("#barChart");
@@ -27,16 +28,16 @@ function dataset (){
           formatter: function (val) {
             return val;
           },
-          offsetY: -20,
+          offsetY: 60,
           style: {
-            fontSize: '12px',
+            fontSize: '19px',
             colors: ["#304758"]
           }
         },
         
         xaxis: {
           categories: names,
-          position: 'top',
+          position: 'bottom',
           axisBorder: {
             show: false
           },
@@ -77,7 +78,7 @@ function dataset (){
         title: {
           text: 'Top request employee',
           floating: true,
-          offsetY: 330,
+          offsetY: -5,
           align: 'center',
           style: {
             color: '#444',
@@ -155,15 +156,19 @@ function requestRecord(){
 
    var options = {
           series: [{
-          name: 'series1',
+          name: 'Late',
           data: [31, 40, 28, 51, 42, 109, 100]
         }, {
-          name: 'series2',
+          name: 'Ontime',
           data: [11, 32, 45, 32, 34, 52, 41]
         }],
           chart: {
           height: 350,
           type: 'area'
+        },
+        title: {
+          text: 'Late vs Ontime',
+          align:  'center'
         },
         dataLabels: {
           enabled: false
@@ -213,7 +218,7 @@ function totalTracker() {
             enabled: false
           },
           toolbar: {
-            show: false
+            show: true
           }
         },
         colors: ['#545454'],
@@ -224,13 +229,13 @@ function totalTracker() {
           curve: 'smooth'
         },
         title: {
-          text: 'Average High & Low Temperature',
-          align: 'left'
+          text: 'Number of Employee',
+          align: 'center'
         },
         grid: {
           borderColor: '#e7e7e7',
           row: {
-            colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+            colors: ['#f3f3f3', 'transparent'], 
             opacity: 0.5
           },
         },
@@ -245,7 +250,7 @@ function totalTracker() {
         },
         yaxis: {
           title: {
-            text: 'Temperature'
+            text: 'Count'
           },
           min: 5,
           max: 40
@@ -335,7 +340,17 @@ function infoLineGraph(elementId, seriesName){
   activateChart.render()
 }
 
+function date(){
+  const today = new Date();
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const stringDay = days[today.getDay()];
+  const format = stringDay;
+  const dates = today.getDate().toString().padStart(2, '0') + '-' +
+  (today.getMonth() + 1).toString().padStart(2, '0') + '-' + today.getFullYear();
 
+  document.getElementById("day").textContent = format;
+  document.getElementById("date").textContent = dates
+}
 
 dataset()
 trackRecord()
@@ -344,5 +359,5 @@ totalTracker()
 infoLineGraph('#pr-3', 'Late Employee')
 infoLineGraph('#pr-1', 'Total Employee')
 infoLineGraph('#pr-2', 'Ontime Employee')
-
+date()
 
