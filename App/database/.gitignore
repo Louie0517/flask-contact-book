@@ -3,7 +3,13 @@ App/database.py
 App/key.py
 App/config.py
 
+__pycache__/
+*.pyc
+
 App/static/employee_img/
 
 App/.env
-App/*.db
+App/database/*.db
+
+.vscode/
+.idea/
