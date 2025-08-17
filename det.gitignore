@@ -1,4 +1,9 @@
-/App/admin_det.py
-/App/database.py
+App/admin_det.py
+App/database.py
+App/key.py
+App/config.py
 
-.env
+App/static/employee_img/
+
+App/.env
+App/*.db
