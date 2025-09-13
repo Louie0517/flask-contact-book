@@ -39,19 +39,19 @@ This project is a **Flask + SQLite-powered web app** that makes managing employe
 ## 📸 Dashboard Preview  
 
 ### Admin Login
-![Admin Login](App/images/Admin-Login.png)
+<img width="1905" height="895" alt="Admin-Login" src="https://github.com/user-attachments/assets/c1cc7d5a-59f0-4895-bcd3-ab75fb714516" />
 
 ### Employee Management
-![Employee Management](App/images/Employee-Management.jpeg)
+![Employee-Management](https://github.com/user-attachments/assets/164b1974-9c9c-4103-b935-6f451e2e27cd)
 
 ### Request Log
-![Request Log](App/images/Request-Log.jpeg)
+![Request-Log](https://github.com/user-attachments/assets/6db943d3-8e44-4a21-939b-3a96fec7a1ac)
 
 ### Time Log
-![Time Log](App/images/Time-Log.jpeg)
+![Time-Log](https://github.com/user-attachments/assets/25ab7df0-e006-41bd-b813-32bdccdca49a)
 
 ### Employee Dashboard
-![Employee Dashboard](App/images/Dashboard.jpeg)
+![Dashboard](https://github.com/user-attachments/assets/42174440-6777-4903-96d4-48010b258ba9)
 
 ---
 
