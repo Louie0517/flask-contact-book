@@ -46,7 +46,7 @@ Keep track of your personal or professional contacts effortlessly. Manage names,
 
 Clone the repo:
 ```bash
-git clone https://github.com/your-username/your-repo-name.git
+git clone https://github.com/Louie0517/flask-contact-book.git 
 ```
 Switch to the branch you want:
 ```bash
